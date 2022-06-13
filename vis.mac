@@ -3,6 +3,7 @@
 ###################################################
 
 /stix/geo/cad false
+/stix/geo/grids false
 /run/initialize
 # create empty scene
 #/vis/scene/create
@@ -55,7 +56,7 @@
 /vis/drawVolume
 #
 # Specify view angle:
-/vis/viewer/set/viewpointThetaPhi 90 0.
+/vis/viewer/set/viewpointThetaPhi 270 0.
 #
 # Specify zoom value:
 /vis/viewer/zoom 0.6 
@@ -119,21 +120,26 @@
 #/gps/energy 100 keV
 #
 
+
+
 /gps/particle gamma
-/gps/pos/type Plane
-/gps/pos/shape Circle
-/gps/pos/radius 90 mm
-/gps/pos/centre -700 103  127.5 mm #center 
-/gps/pos/rot1  0 0 1
-/gps/pos/rot2  0 -1 0
+#/gps/pos/type Plane
+#/gps/pos/shape Square
+#/gps/pos/halfx 10 mm
+#/gps/pos/halfy 10 mm
+#/gps/pos/centre -10.0624 160.599 2 mm
+#/gps/pos/rot1  0 0 1
+#/gps/pos/rot2  0 -1 0
+#/gps/pos/centre 12 165.6-3.3 161.6+2.3 mm # detector 0, pixel 0
+/gps/position 12 168.9 166.3 mm # detector 0, pixel 0
 /gps/direction 1 0 0 
 
 /gps/ene/type Lin
 /gps/ene/min 4 keV
-/gps/ene/max  150 keV
+/gps/ene/max  300 keV
 /gps/ene/intercept 1
 /gps/ene/gradient 0
 
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
-#/run/beamOn 10
+/run/beamOn 10

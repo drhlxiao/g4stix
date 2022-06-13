@@ -44,10 +44,12 @@ namespace Grid
 
 	G4double CAD_GEO_CENTER[3]={21.0624, 165.599, 163.2};
 	//measured from cad
+	//geometry center of caliste, CdTe is off by 1.8 mm
+	//cdTe_Z=163.2+1.8
 	//calculation see the notebook in /home/xiaohl/FHNW/STIX/CAD/steps/material_calculation.inpy
 
 
-	G4ThreeVector getDetectorCenterCoordsCAD(int i){
+	G4ThreeVector getCalisteCenterCoordsCAD(int i){
 		G4ThreeVector v(CAD_GEO_CENTER[0]*mm+CAD_GRID_RELATIVE_OFFSETS[i][0]*mm, 
 				CAD_GEO_CENTER[1]*mm+CAD_GRID_RELATIVE_OFFSETS[i][1]*mm, 
 				CAD_GEO_CENTER[2]*mm+CAD_GRID_RELATIVE_OFFSETS[i][2]*mm

@@ -143,21 +143,28 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 
 	G4double pixel8CenterX=-3.85*mm ;
 
+	G4double cdTeCalisteOffset=0.8*mm; //  (top margion) 0.2 + 10 + 1.8 (Bottom margin)  = 12
+
+
 	G4double pixel8CenterY=0*mm;
 	G4double cdteThickness=1*mm;
 	G4double anodeThickness=(15+15+100)*1e-9*m; //130 nm
 	G4double cathodeThickness=15*1e-9*m; //15 nm
 										  //thickness negligible  compared to the thickness  uncertainty
-										  
+	G4double calisteWidth=11*mm;
+	G4double calisteLength=12*mm;
 	G4double calisteBaseHeight=14.4*mm;
-
 	G4double calisteTotalHight=calisteBaseHeight +cdteThickness+ anodeThickness + cathodeThickness;
 
-	G4Box *calisteWorld= new G4Box("CdTeModuleWorld", 11.0 * mm *0.5 ,
-			12 * mm *0.5, calisteTotalHight/2);
+	G4Box *calisteWorld= new G4Box("CdTeModuleWorld", 
+			calisteWidth/2,
+			calisteLength/2,
+			calisteTotalHight/2);
 
-	G4Box *calisteBaseOuter= new G4Box("CdTeModuleBaseOuter", 11.0 * mm *0.5 ,
-			12 * mm *0.5, calisteBaseHeight/2);
+	G4Box *calisteBaseOuter= new G4Box("CdTeModuleBaseOuter",
+			calisteWidth/2,
+			calisteLength/2,
+			calisteBaseHeight/2);
 
 	G4Box *calisteBaseInner= new G4Box("CdTeModuleBase", 10.0 * mm *0.5 ,
 			11 * mm *0.5, 14 * mm*0.5);
@@ -254,18 +261,18 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	G4String name = "pixel";
 
 	for (int i = 0; i < 4; i++) {
-		//big top 
+		//it becomes pixel4 after rotation
+		copyNb = i ;
 		G4ThreeVector posBigPixelTop(pixel0CenterX + deltaW * i , pixel0CenterY ,detZ );
-		copyNb = i;
 		new G4PVPlacement(0, posBigPixelTop, bigPixelTopLog, name, CdTeDetLog,
 				false, copyNb, checkOverlaps);
 
-		//big bottom
+		//it becomes pixel4 after rotation
 		copyNb = i + 4;
-
 		G4ThreeVector posBigPixelBottom(pixel4CenterX + deltaW * i , pixel4CenterY,detZ);
 		new G4PVPlacement(0, posBigPixelBottom, bigPixelBottomLog, name, CdTeDetLog,
 				false, copyNb, checkOverlaps);
+	
 
 		//small pixels
 		copyNb = i + 8;
@@ -279,16 +286,16 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	//place all logical volume into CdTe
 
 
-	new G4PVPlacement(0, G4ThreeVector(0, 0.8*mm, calisteTotalHight/2- cathodeThickness/2 ), 
+	new G4PVPlacement(0, G4ThreeVector(0, cdTeCalisteOffset, calisteTotalHight/2- cathodeThickness/2 ), 
 			CdTeCathodeLog, "cathode", calisteLog, false,0, true);
 
-	new G4PVPlacement(0, G4ThreeVector(0,0.8*mm,  calisteTotalHight/2 - cathodeThickness - cdteThickness/2  ), CdTeDetLog, "CdTeDetLog", calisteLog, 
+	new G4PVPlacement(0, G4ThreeVector(0, cdTeCalisteOffset,  calisteTotalHight/2 - cathodeThickness - cdteThickness/2  ), CdTeDetLog, "CdTeDetLog", calisteLog, 
 			false, 	0, checkOverlaps);
 
-	new G4PVPlacement(0, G4ThreeVector(0, 0.8*mm, calisteTotalHight/2 -cathodeThickness - cdteThickness - anodeThickness/2 ), 
+	new G4PVPlacement(0, G4ThreeVector(0, cdTeCalisteOffset,    calisteTotalHight/2 -cathodeThickness - cdteThickness - anodeThickness/2 ), 
 			CdTeAnodeLog, "anode", calisteLog, false,0, true);
 
-	new G4PVPlacement(0, G4ThreeVector(0,0,  calisteTotalHight/2- cathodeThickness - anodeThickness - cdteThickness - calisteBaseHeight/2),
+	new G4PVPlacement(0, G4ThreeVector(0,0,                     calisteTotalHight/2- cathodeThickness - anodeThickness - cdteThickness - calisteBaseHeight/2),
 			calisteBaseOuterLog, "calisteOuter", calisteLog,
 			false, 		0, checkOverlaps);
 
@@ -362,7 +369,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	for(int i=0;i<32;i++)
 	{
 //		G4ThreeVector pos(0,0,0);
-		G4ThreeVector pos=Grid::getDetectorCenterCoordsCAD(i);
+		G4ThreeVector pos=Grid::getCalisteCenterCoordsCAD(i);
 		G4cout<<">> detector:  "<<i<<"  , position: "<<pos<<G4endl;
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos),  CalisteLog, "Caliste",
 				worldLogical,false, i, true);
@@ -376,7 +383,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	ConstructBKG();
 	if(gridsEnabled)ConstructGrids();
 	RandomizeColor();
-
+	CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
 	worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
 	return worldPhysical;
 }
@@ -490,7 +497,7 @@ void DetectorConstruction::RandomizeColor() {
 			red=1;
 			green=0;
 			blue=0;
-			alpha=0.1;
+			alpha=0.05;
 			SetVisAttrib(*lvciter, red, green, blue, alpha, true, false);
 		}
 		else if(volumeName.contains("grid")){

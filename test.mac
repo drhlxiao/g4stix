@@ -1,6 +1,8 @@
 ###################################################
 
 /stix/geo/cad false
+/stix/geo/grids false
+/stix/geo/att false
 /run/initialize
 
 
@@ -13,7 +15,7 @@
 #/gps/pos/rot1  0 0 1
 #/gps/pos/rot2  0 -1 0
 #/gps/pos/centre 12 165.6-3.3 161.6+2.3 mm # detector 0, pixel 0
-/gps/position 12 168.9 163.9 mm # detector 0, pixel 0
+/gps/position 12 168.9 166.3 mm # detector 0, pixel 0
 /gps/direction 1 0 0 
 
 /gps/ene/type Lin
