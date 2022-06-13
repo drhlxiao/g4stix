@@ -52,6 +52,7 @@ DetectorConstruction::DetectorConstruction() {
 	fWorldFile="WorldAttOut.gdml";
 	attenuatorIn=false;
 	importCADFlag=true;
+	gridsEnabled=true;
 
 
 	G4RotationMatrix rotY;
@@ -281,7 +282,7 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	new G4PVPlacement(0, G4ThreeVector(0, 0.8*mm, calisteTotalHight/2- cathodeThickness/2 ), 
 			CdTeCathodeLog, "cathode", calisteLog, false,0, true);
 
-	new G4PVPlacement(0, G4ThreeVector(0,0.8*mm,calisteTotalHight/2 - cathodeThickness - cdteThickness/2  ), CdTeDetLog, "CdTeDetLog", calisteLog, 
+	new G4PVPlacement(0, G4ThreeVector(0,0.8*mm,  calisteTotalHight/2 - cathodeThickness - cdteThickness/2  ), CdTeDetLog, "CdTeDetLog", calisteLog, 
 			false, 	0, checkOverlaps);
 
 	new G4PVPlacement(0, G4ThreeVector(0, 0.8*mm, calisteTotalHight/2 -cathodeThickness - cdteThickness - anodeThickness/2 ), 
@@ -373,7 +374,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	//X-ray window
 	ConstructCFL();
 	ConstructBKG();
-	ConstructGrids();
+	if(gridsEnabled)ConstructGrids();
 	RandomizeColor();
 
 	worldLogical->SetVisAttributes(G4VisAttributes::Invisible);

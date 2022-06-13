@@ -30,6 +30,7 @@ public:
                     G4double blue, G4double alpha);
   void RandomizeColor();
   void SetAttenuatorStatus(G4bool att);
+  void SetGridsStatus(G4bool v){gridsEnabled=v;};
   void ConstructCFL();
   void ConstructGrids();
   void ConstructBKG();
@@ -37,7 +38,7 @@ public:
 
 private:
 
-  G4bool importCADFlag;
+  G4bool importCADFlag, gridsEnabled;
 
   G4bool attenuatorIn;
   G4String fWorldFile;

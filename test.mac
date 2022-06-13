@@ -4,16 +4,22 @@
 /run/initialize
 
 
-/gps/particle proton
-/gps/pos/type Plane
-/gps/pos/shape Square
-/gps/pos/halfx 90 mm
-/gps/pos/halfy 90 mm
+/gps/particle gamma
+#/gps/pos/type Plane
+#/gps/pos/shape Square
+#/gps/pos/halfx 10 mm
+#/gps/pos/halfy 10 mm
 #/gps/pos/centre -10.0624 160.599 2 mm
-/gps/pos/centre -10 102.599 127.2 mm #center
-/gps/pos/rot1  0 0 1
-/gps/pos/rot2  0 -1 0
+#/gps/pos/rot1  0 0 1
+#/gps/pos/rot2  0 -1 0
+#/gps/pos/centre 12 165.6-3.3 161.6+2.3 mm # detector 0, pixel 0
+/gps/position 12 168.9 163.9 mm # detector 0, pixel 0
 /gps/direction 1 0 0 
 
-/gps/energy 10000 keV
-/run/beamOn 100000
+/gps/ene/type Lin
+/gps/ene/min 4 keV
+/gps/ene/max  300 keV
+/gps/ene/intercept 1
+/gps/ene/gradient 0
+
+/run/beamOn 1000000

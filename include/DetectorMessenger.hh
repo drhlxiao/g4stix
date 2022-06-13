@@ -24,6 +24,7 @@ private:
  DetectorConstruction *fDetector;
   //G4UIdirectory *fDetectorDir;
   G4UIcmdWithABool *fSetAttenStatusCmd;
+  G4UIcmdWithABool *fSetGridStatusCmd;
   G4UIcmdWithABool *fImportCADCmd;
  // G4UIcmdWithAString *fSetCADTypeCommand;
 };

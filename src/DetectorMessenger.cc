@@ -23,6 +23,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *theDet)
   fSetAttenStatusCmd->SetParameterName("Set ATT status", false);
   fSetAttenStatusCmd->AvailableForStates(G4State_PreInit);
 
+  fSetGridStatusCmd= new G4UIcmdWithABool("/stix/geo/grids", this);
+  fSetGridStatusCmd->SetGuidance("add grids or not");
+  fSetGridStatusCmd->SetParameterName("Set grid status", false);
+  fSetGridStatusCmd->AvailableForStates(G4State_PreInit);
+
+
   fImportCADCmd= new G4UIcmdWithABool("/stix/geo/cad", this);
   fImportCADCmd->SetGuidance("Import cad modules, true or false?");
   fImportCADCmd->SetParameterName("Import cad modules", false);
@@ -44,5 +50,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   }
   else if (command == fImportCADCmd) {
     		fDetector->SetImportCADFlag(fImportCADCmd->GetNewBoolValue(newValue));
+  }
+  else if (command == fSetGridStatusCmd) {
+    		fDetector->SetGridsStatus(fSetGridStatusCmd->GetNewBoolValue(newValue));
   }
 }
