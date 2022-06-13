@@ -1,0 +1,19 @@
+###################################################
+
+/stix/geo/cad false
+/run/initialize
+
+
+/gps/particle proton
+/gps/pos/type Plane
+/gps/pos/shape Square
+/gps/pos/halfx 90 mm
+/gps/pos/halfy 90 mm
+#/gps/pos/centre -10.0624 160.599 2 mm
+/gps/pos/centre -10 102.599 127.2 mm #center
+/gps/pos/rot1  0 0 1
+/gps/pos/rot2  0 -1 0
+/gps/direction 1 0 0 
+
+/gps/energy 10000 keV
+/run/beamOn 100000
