@@ -31,6 +31,8 @@
 const G4double highVoltage = 200; // 200 V
 const G4double ENOISE = 0.7;      // keV
 const G4double CdTe_SURFACE_X= 13.362385;     //surface x-coordinates of CdTe detectors
+const G4double PY_ORIGIN=103.1;
+const G4double PZ_ORIGIN=127.5;
 											   
 
 AnalysisManager *AnalysisManager::fManager = 0;
@@ -294,7 +296,7 @@ void AnalysisManager::SteppingAction(const G4Step *aStep) {
 		G4double pz=position.z()/mm;
 		if (preStep->GetStepStatus() == fGeomBoundary) 
 		{
-			h2xy->Fill(py,pz);
+			h2xy->Fill(py PY_ORIGIN,pz -PZ_ORIGIN);
 		}
 
 
