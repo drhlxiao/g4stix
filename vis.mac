@@ -8,7 +8,7 @@
 # create empty scene
 #/vis/scene/create
 #/vis/sceneHandler/create
-
+/process/em/fluo true
 # Use these open statements to open selected visualization
 #
 # Use this open statement to create an OpenGL view:

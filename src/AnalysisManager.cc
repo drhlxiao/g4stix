@@ -109,7 +109,7 @@ void AnalysisManager::CreateTree() {
 		hpat[i]=new TH1F(Form("hDetCntPat_%d",i), "Detector count pattern; Pixel #; counts;", 12, 0, 12);
 		hpatsum[i]=new TH1F(Form("hDetCntSummedPat_%d",i), "Pattern of Big+small summed counts; Pixel column ; Total counts;", 4, 0, 4);
 	}
-	h2xy=new TH2F(Form("h2xy"),"Locations of hits; X (mm); Y(mm)", 1800,-90,90, 1800,-90,90);
+	h2xy=new TH2F("h2xy","Locations of hits; X (mm); Y(mm)", 1800,-90,90, 1800,-90,90);
 	hz = new TH1F("h1depth", "Energy deposition depth; Depth (mm); Counts;", 100, 0, 1);
 	hEdepSum = new TH1F("hEdepSum", "Detector summed energy spectrum; Energy (keV); Counts;", 200, 0, 100);
 	hdc = new TH1F("h1DetTotCnts", "Detector total counts; Detector ID; counts;", 32, 0, 32);
@@ -291,10 +291,10 @@ void AnalysisManager::SteppingAction(const G4Step *aStep) {
 		G4ThreeVector	position = aStep->GetPostStepPoint()-> GetPosition();
 		G4double px=position.x()/mm;
 		G4double py=position.y()/mm;
-		G4double pz=position.y()/mm;
+		G4double pz=position.z()/mm;
 		if (preStep->GetStepStatus() == fGeomBoundary) 
 		{
-			h2xy->Fill(px,py);
+			h2xy->Fill(py,pz);
 		}
 
 
