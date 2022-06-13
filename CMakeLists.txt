@@ -42,7 +42,7 @@ endif()
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${Geant4_INCLUDE_DIR}
-					/opt/root6/include/
+					/opt/root/include/
 					)
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/src/*.C)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/*.h)
