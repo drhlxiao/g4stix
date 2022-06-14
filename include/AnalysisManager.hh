@@ -47,7 +47,7 @@ class AnalysisManager {
 		void CopyMacrosToROOT(TFile *f, TString &);
 		G4double ComputeCollectedEnergy(G4ThreeVector &pos, G4double Ek);
 		G4double GetEnergyResolution(G4double Ek);
-		void SetMacroFileName(G4String name){macroFilename=name;}
+		void SetMacroFileName(G4String &name){macroFilename=name;}
 
 		AnalysisManager();
 		~AnalysisManager();

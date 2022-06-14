@@ -34,12 +34,17 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *theDet)
   fImportCADCmd->SetParameterName("Import cad modules", false);
   fImportCADCmd->AvailableForStates(G4State_PreInit);
 
+  fDetectorSelectionCmd= new G4UIcmdWithAnInteger("/stix/geo/det", this);
+  fDetectorSelectionCmd->SetGuidance("Only construct a single detector if 0<= det < 32 else all detectors");
+  fDetectorSelectionCmd->SetParameterName("Import cad modules", false);
+  fDetectorSelectionCmd->AvailableForStates(G4State_PreInit);
   //fSetCADTypeCommand = new G4UIcmdWithAString("/MCP/det/setCADType", this);
 }
 
 DetectorMessenger::~DetectorMessenger() {
   delete fSetAttenStatusCmd;
   delete fImportCADCmd;
+  delete fDetectorSelectionCmd;
 //  delete fSetCADTypeCommand;
   //delete fDetectorDir;
 }
@@ -54,4 +59,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   else if (command == fSetGridStatusCmd) {
     		fDetector->SetGridsStatus(fSetGridStatusCmd->GetNewBoolValue(newValue));
   }
+  else if (command == fDetectorSelectionCmd) {
+    		fDetector->SetActivatedDetectorFlag(fDetectorSelectionCmd->GetNewIntValue(newValue));
+  }
+  
 }

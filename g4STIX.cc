@@ -178,8 +178,8 @@ int main(int argc,char **argv)
         G4String command = "/control/execute "; 
         G4String fileName = argv[2]; 
         G4cout<<"Applying command: "<<command+fileName<<G4endl;
-        UImanager->ApplyCommand(command+fileName);
 		analysisManager->SetMacroFileName(fileName);
+        UImanager->ApplyCommand(command+fileName);
         delete ui;
 
     }

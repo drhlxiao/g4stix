@@ -49,25 +49,26 @@ AnalysisManager::AnalysisManager() {
 }
 void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename)
 {
-	G4cout<<"Copying macros to root file"<<G4endl;
+	G4cout<<"Copying macros from file "<<macfilename<<" to root file"<<G4endl;
 	if(macfilename=="" ||!f)return;
 	std::ifstream infile(macfilename.Data()); 
-
 	if(!infile.good())
 	{ 
 		G4cout<<"can not open the macro file, existing..."<<G4endl; 
 		return ;
 	} 
-	G4String macros;
+	G4String macros=Form("Macro filename: %s\n ",macroFilename.Data());
 	std::string line;
+	G4cout<<"Macros read from the macro file:"<<G4endl;
 	while(std::getline(infile,line))
 	{
 		macros+=line+"\n";
+		G4cout<<line<<G4endl;
 	}
 	TNamed cmd;
 	cmd.SetTitle(macros);
 	f->cd();
-	cmd.Write("macfile");
+	cmd.Write("metadata");
 	infile.close(); 
 }
 
@@ -296,7 +297,7 @@ void AnalysisManager::SteppingAction(const G4Step *aStep) {
 		G4double pz=position.z()/mm;
 		if (preStep->GetStepStatus() == fGeomBoundary) 
 		{
-			h2xy->Fill(py PY_ORIGIN,pz -PZ_ORIGIN);
+			h2xy->Fill(py- PY_ORIGIN,pz -PZ_ORIGIN);
 		}
 
 
@@ -374,7 +375,6 @@ void AnalysisManager::flush() {
 	hz->Write();
 	hcol->Write();
 	G4cout<<">> Number of event recorded:"<<fTTree->GetEntries()<<G4endl;
-
 	CopyMacrosToROOT(fTFile, macroFilename);
 
 	fTFile->Close();

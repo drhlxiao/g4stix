@@ -12,6 +12,7 @@
 class DetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithABool;
+class G4UIcmdWithAnInteger;
 
 class DetectorMessenger : public G4UImessenger {
 public:
@@ -26,6 +27,7 @@ private:
   G4UIcmdWithABool *fSetAttenStatusCmd;
   G4UIcmdWithABool *fSetGridStatusCmd;
   G4UIcmdWithABool *fImportCADCmd;
+  G4UIcmdWithAnInteger *fDetectorSelectionCmd;
  // G4UIcmdWithAString *fSetCADTypeCommand;
 };
 

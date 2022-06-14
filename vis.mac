@@ -3,12 +3,13 @@
 ###################################################
 
 /stix/geo/cad false
-/stix/geo/grids false
+/stix/geo/grids true
+/process/em/fluo true
+
 /run/initialize
 # create empty scene
 #/vis/scene/create
 #/vis/sceneHandler/create
-/process/em/fluo true
 # Use these open statements to open selected visualization
 #
 # Use this open statement to create an OpenGL view:

@@ -35,10 +35,12 @@ public:
   void ConstructGrids();
   void ConstructBKG();
   void SetImportCADFlag(G4bool v){ importCADFlag=v; }
+	void SetActivatedDetectorFlag(G4int v){ activatedDetectorFlag = v; }
 
 private:
 
   G4bool importCADFlag, gridsEnabled;
+  G4int activatedDetectorFlag;
 
   G4bool attenuatorIn;
   G4String fWorldFile;

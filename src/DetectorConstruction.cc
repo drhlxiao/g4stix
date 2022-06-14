@@ -53,6 +53,8 @@ DetectorConstruction::DetectorConstruction() {
 	attenuatorIn=false;
 	importCADFlag=true;
 	gridsEnabled=true;
+	activatedDetectorFlag = 100;
+	// all detectors will be constructed  if it is not between 0 -- 31
 
 
 	G4RotationMatrix rotY;
@@ -94,6 +96,23 @@ void DetectorConstruction::ConstructGrids(){
 	G4bool nominalOrRealFlag[32]={0};
 	for (int i=0; i<nentries;i++) {
 		grids->GetEntry(i);
+
+		pos=Grid::getGridCenterCAD(det_idx,is_front);
+
+		if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
+			if(det_idx!=activatedDetectorFlag){
+				continue;
+				//only construct one collimator
+			}
+			else{
+				pos=G4ThreeVector(0,0,0);
+				//place it at center
+				//test 
+			}
+		}
+
+
+
 		//if(det_idx!= idx)continue;
 		nominalOrRealFlag[det_idx]=is_nominal_parameters;
 		std::vector<G4TwoVector> vertexCoords;	
@@ -107,11 +126,14 @@ void DetectorConstruction::ConstructGrids(){
 				G4TwoVector(),1, G4TwoVector(), 1);
 
 		G4LogicalVolume *GridLog=new G4LogicalVolume(strip, Tungsten, "gridGeo", 0, 0, 0);
-		pos=Grid::getGridCenterCAD(det_idx,is_front);
 		G4cout<<"creating grids:"<<i<<" "<<pos<<G4endl;
+
+		
+
+
+
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos), GridLog, "gridStrip", worldLogical,
 				false, i, false);
-
 	}
 	for(int i=0;i<32;i++){
 		G4String gtype=nominalOrRealFlag[i]==1? "NOMINAL" : "REAL";
@@ -368,8 +390,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	for(int i=0;i<32;i++)
 	{
-//		G4ThreeVector pos(0,0,0);
 		G4ThreeVector pos=Grid::getCalisteCenterCoordsCAD(i);
+		if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
+			//single detector only, for testing
+			if(i!=activatedDetectorFlag)continue;
+			else{
+				 pos=G4ThreeVector(0,0,0);
+			}
+		}
 		G4cout<<">> detector:  "<<i<<"  , position: "<<pos<<G4endl;
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos),  CalisteLog, "Caliste",
 				worldLogical,false, i, true);
