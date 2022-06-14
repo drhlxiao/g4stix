@@ -66,12 +66,15 @@ DetectorConstruction::DetectorConstruction() {
 }
 
 void DetectorConstruction::ConstructGrids(){
+
+	if(!gridsEnabled)return;
+	//don't construct if disabled by macro
+
 	//created by grid_data_creator.py in /home/xiaohl/FHNW/STIX/SolarFlareAnalysis/stix_simulator/pySimulator/export_grid_data.inpy
 	G4String fname="./grid_data/stix_grid_parameters.root";
 	G4cout<<"Loading grid parameters from ROOT file: "<<fname<<G4endl;
 	TFile f(fname);
 	TTree *grids=(TTree*)f.Get("grids");
-
 	Int_t           is_front;
 	Int_t           det_idx;
 	Int_t           i_strip;
@@ -94,26 +97,26 @@ void DetectorConstruction::ConstructGrids(){
 
 
 	G4bool nominalOrRealFlag[32]={0};
+	G4Box *frontGridBox= new G4Box("frontGridBox", 
+			11.05*mm,
+			10.05*mm,
+			0.205*mm);
+	G4Box *rearGridBox= new G4Box("rearGridBox", 
+			6.505*mm,
+			6.505*mm,
+			0.205*mm);
+	//dummy boxes
+	//added extra 50 um to avoid overlapping
+
+	G4LogicalVolume *frontGridContainerLog[32];
+	G4LogicalVolume *rearGridContainerLog[32];
+	for(int i=0;i<32;i++){
+		frontGridContainerLog[i]=new G4LogicalVolume(frontGridBox, Vacuum, "frontGridContainer", 0, 0, 0);
+		rearGridContainerLog[i]=new G4LogicalVolume(rearGridBox, Vacuum, "rearGridContainer", 0, 0, 0);
+	}
+
 	for (int i=0; i<nentries;i++) {
 		grids->GetEntry(i);
-
-		pos=Grid::getGridCenterCAD(det_idx,is_front);
-
-		if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
-			if(det_idx!=activatedDetectorFlag){
-				continue;
-				//only construct one collimator
-			}
-			else{
-				pos=G4ThreeVector(0,0,0);
-				//place it at center
-				//test 
-			}
-		}
-
-
-
-		//if(det_idx!= idx)continue;
 		nominalOrRealFlag[det_idx]=is_nominal_parameters;
 		std::vector<G4TwoVector> vertexCoords;	
 		for(int j=0;j<4;j++){
@@ -124,20 +127,32 @@ void DetectorConstruction::ConstructGrids(){
 				vertexCoords,
 				0.4*0.5*mm, //0.4 mm thick, halfz
 				G4TwoVector(),1, G4TwoVector(), 1);
-
 		G4LogicalVolume *GridLog=new G4LogicalVolume(strip, Tungsten, "gridGeo", 0, 0, 0);
 		G4cout<<"creating grids:"<<i<<" "<<pos<<G4endl;
+		if(is_front==1){
+			new G4PVPlacement(0,G4ThreeVector(), GridLog, "gridStrip", frontGridContainerLog[det_idx], false, i, false);
+		}
+		else{
+			new G4PVPlacement(0,G4ThreeVector(), GridLog, "gridStrip", rearGridContainerLog[det_idx], false, i, false);
+		}
 
-		
-
-
-
-		new G4PVPlacement(G4Transform3D(rotMatrix, pos), GridLog, "gridStrip", worldLogical,
-				false, i, false);
 	}
 	for(int i=0;i<32;i++){
+		if(i==8||i==9)continue;
+		//don't construct CFL and BKG
 		G4String gtype=nominalOrRealFlag[i]==1? "NOMINAL" : "REAL";
 		G4cout<<"Grid #"<<i<<" parameter type: "<<gtype<<G4endl;
+		bool singleDetector=false;
+		if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
+			if(i!=activatedDetectorFlag)continue;
+			singleDetector=true;
+		}
+
+		pos=singleDetector? G4ThreeVector(0,0,0):  Grid::getGridCenterCAD(i,1);
+		new G4PVPlacement(G4Transform3D(rotMatrix, pos), frontGridContainerLog[i], "frontGrid", worldLogical, 	false, i, false);
+
+		pos=singleDetector? G4ThreeVector(-1*mm,0,0):  Grid::getGridCenterCAD(i,0);
+		new G4PVPlacement(G4Transform3D(rotMatrix, pos), rearGridContainerLog[i], "rearGrid", worldLogical, false, i, false);
 	}
 	G4cout<<"Grid construction finished."<<G4endl;
 	f.Close();
@@ -407,16 +422,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4cout<<"World construction completed"<<G4endl;
 
 	//X-ray window
+	
 	ConstructCFL();
 	ConstructBKG();
-	if(gridsEnabled)ConstructGrids();
-	RandomizeColor();
+
+	ConstructGrids();
+
+	SetVisColors();
+
 	CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
 	worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
 	return worldPhysical;
 }
 
 void DetectorConstruction::ConstructCFL() {
+
+
 	//construct CFL
 	G4Box *CFLBox= new G4Box("CFLBox", 12 * mm,
 			11 * mm , 0.2*mm);
@@ -509,7 +530,7 @@ void DetectorConstruction::SetAttenuatorStatus(G4bool att){
 
 }
 
-void DetectorConstruction::RandomizeColor() {
+void DetectorConstruction::SetVisColors() {
 	G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
 	std::vector<G4LogicalVolume *>::const_iterator lvciter;
 	for (lvciter = lvs->begin(); lvciter != lvs->end(); lvciter++) {
@@ -527,6 +548,9 @@ void DetectorConstruction::RandomizeColor() {
 			blue=0;
 			alpha=0.05;
 			SetVisAttrib(*lvciter, red, green, blue, alpha, true, false);
+		}
+		else if(volumeName.contains("frontGrid")||volumeName.contains("rearGrid")){
+				(*lvciter)->SetVisAttributes(G4VisAttributes::Invisible);
 		}
 		else if(volumeName.contains("grid")){
 			red=0.28;

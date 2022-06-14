@@ -68,7 +68,6 @@
 #/vis/viewer/set/lineSegmentsPerCircle 100
 #
 # Draw coordinate axes:
-/vis/scene/add/axes 0 0 0 200 mm
 #
 # Draw smooth trajectories at end of event, showing trajectory points
 # as markers 2 pixels wide:
@@ -109,17 +108,6 @@
 
 /gps/particle gamma
 
-#/gps/pos/type Plane
-#/gps/pos/shape Square
-#/gps/pos/halfx 20 mm
-#/gps/pos/halfy 20 mm
-#/gps/pos/centre -10 165.599 163.2 mm #center
-#/gps/pos/rot1  0 0 1
-#/gps/pos/rot2  0 -1 0
-#/gps/direction 1 0 0 
-#
-#/gps/energy 100 keV
-#
 
 
 
@@ -132,7 +120,13 @@
 #/gps/pos/rot1  0 0 1
 #/gps/pos/rot2  0 -1 0
 #/gps/pos/centre 12 165.6-3.3 161.6+2.3 mm # detector 0, pixel 0
-/gps/position 12 168.9 166.3 mm # detector 0, pixel 0
+/gps/particle gamma
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/radius 90 mm
+/gps/pos/centre -1200 103  127.5 mm #center 
+/gps/pos/rot1  0 0 1
+/gps/pos/rot2  0 -1 0
 /gps/direction 1 0 0 
 
 /gps/ene/type Lin

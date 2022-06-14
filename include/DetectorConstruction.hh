@@ -28,7 +28,7 @@ public:
                     G4double blue, G4double alpha, G4bool wireFrame, G4bool solid);
   void SetVisAttrib(G4LogicalVolume *log, G4double red, G4double green,
                     G4double blue, G4double alpha);
-  void RandomizeColor();
+  void SetVisColors();
   void SetAttenuatorStatus(G4bool att);
   void SetGridsStatus(G4bool v){gridsEnabled=v;};
   void ConstructCFL();
