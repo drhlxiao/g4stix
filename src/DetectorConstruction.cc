@@ -65,6 +65,38 @@ DetectorConstruction::DetectorConstruction() {
 	rotMatrix=rotX*rotY;;
 	detMsg = new DetectorMessenger(this);
 }
+void DetectorConstruction::ConstructSpacecraft(){
+/*	G4double scWidth= 2.5 *m;
+	G4double scHeight= 2.7 *m;
+	G4double scLength= 3.1*m;
+	//taken from wikipedia
+	G4double scWallThickness=1*mm;
+
+	G4Box *spacecraftBox= new G4Box("spacecaft", 
+			scLength/2,
+			scHeight/2,
+			scWidth/2 
+			);//in stix coordinate frame
+			  //stix_x 
+			  //
+	G4Box *spacecraftBoxInner= new G4Box("spacecaft", 
+			scLength/2,
+			scHeight/2-1,
+			scWidth/2-1 
+			);//in stix coordinate frame
+			  //
+
+	G4SubtractionSolid *spacecraftHollowBox= new G4SubtractionSolid("SpaceLab", SL_123, SL3hole_cons);
+	G4LogicalVolume *spacecraftLog=new G4LogicalVolume(spacecraftBox, Alum, "spacecraftLog", 0, 0, 0);
+	G4Box *spacecraftBox= new G4Box("spacecaft", 
+			scLength/2,
+			scHeight/2,
+			scWidth/2 
+			);//in stix coordinate frame
+		
+			*/
+
+}
 
 void DetectorConstruction::ConstructGrids(){
 
@@ -363,6 +395,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4Element *elTe = nist_manager->FindOrBuildElement("Te");
 	G4Element *elAu= nist_manager->FindOrBuildElement("Au");
 
+	G4Element *elCr= nist_manager->FindOrBuildElement("Cr");
+	G4Element *elZn= nist_manager->FindOrBuildElement("Zn");
+	G4Element *elMn= nist_manager->FindOrBuildElement("Mn");
+	G4Element *elCu= nist_manager->FindOrBuildElement("Cu");
+	G4Element *elFe= nist_manager->FindOrBuildElement("Fe");
+	G4Element *elMg= nist_manager->FindOrBuildElement("Mg");
 
 
 
@@ -379,6 +417,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	goldLayerMaterial->AddElement(elTi, 0.033120707);
 	goldLayerMaterial->AddElement(elAl, 0.019872424);
 
+	Alum7075=new G4Material("Alum7075", density=2.8 *g/cm3, nelements=7);
+	Alum7075->AddElement(elAl,  0.876);
+	Alum7075->AddElement(elZn,  0.056);
+	Alum7075->AddElement(elCr,  0.023);
+	Alum7075->AddElement(elMg,  0.025);
+	Alum7075->AddElement(elCu,  0.016);
+	Alum7075->AddElement(elFe,  0.0025);
+	Alum7075->AddElement(elMn,  0.0015);
 
 	//construct world
 	G4GDMLParser parser;
@@ -393,7 +439,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	{
 		G4cout<<"CAD models will not be imported!"<<G4endl;
 
-		G4Box *worldSolid = new G4Box("worldSolid", 200*cm, 200*cm, 200*cm);
+		G4Box *worldSolid = new G4Box("worldSolid", 500*cm, 500*cm, 500*cm);
 		worldLogical= new G4LogicalVolume(worldSolid, Vacuum,"worldLogical",0,0,0);
 		worldPhysical= new G4PVPlacement(0, G4ThreeVector(0,0,0), worldLogical, "worldPhysical", 0, false, 0);
 	}
@@ -495,9 +541,6 @@ void DetectorConstruction::ConstructBKG() {
 	G4ThreeVector pos=Grid::getGridCenterCAD(9, 0);
 	new G4PVPlacement(G4Transform3D(rotMatrix, pos), BKGLog, "BKG", worldLogical,false, 0, false);
 
-
-}
-G4LogicalVolume *DetectorConstruction::ConstructDEMBackCover() {
 
 }
 

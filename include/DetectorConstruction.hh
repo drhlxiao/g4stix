@@ -33,6 +33,7 @@ public:
   void SetGridsStatus(G4bool v){gridsEnabled=v;};
   void ConstructCFL();
   void ConstructGrids();
+  void ConstructSpacecraft();
 
   void ConstructBKG();
   void SetImportCADFlag(G4bool v){ importCADFlag=v; }
@@ -47,12 +48,12 @@ private:
   G4String fWorldFile;
   G4LogicalVolume *worldLogical;
   G4Material *CdTe;
-  G4Material *Tungsten, *Alum, *Iron, *Vacuum,*Air, *Alu25, *goldLayerMaterial, *Platinum, *Copper;
+  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum,*Air, *Alu25, *goldLayerMaterial, *Platinum, *Copper;
   G4LogicalVolume *ConstructCdTeDetector();
   G4RotationMatrix  rotMatrix;
 
   G4VPhysicalVolume *worldPhysical;
-  G4LogicalVolume *ConstructDEMBackCover();
+  //G4LogicalVolume *ConstructDEMBackCover();
 
   DetectorMessenger *detMsg;
 };
