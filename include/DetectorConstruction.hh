@@ -33,6 +33,7 @@ public:
   void SetGridsStatus(G4bool v){gridsEnabled=v;};
   void ConstructCFL();
   void ConstructGrids();
+
   void ConstructBKG();
   void SetImportCADFlag(G4bool v){ importCADFlag=v; }
 	void SetActivatedDetectorFlag(G4int v){ activatedDetectorFlag = v; }

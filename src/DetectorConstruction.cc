@@ -55,6 +55,7 @@ DetectorConstruction::DetectorConstruction() {
 	gridsEnabled=true;
 	activatedDetectorFlag = 100;
 	// all detectors will be constructed  if it is not between 0 -- 31
+	
 
 
 	G4RotationMatrix rotY;
