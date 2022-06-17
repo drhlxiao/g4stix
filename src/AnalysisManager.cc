@@ -14,6 +14,7 @@
 #include "TNamed.h"
 
 #include "G4Event.hh"
+#include "G4TrackStatus.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
 #include "G4Step.hh"
@@ -35,7 +36,7 @@ const G4double PY_ORIGIN=103.1;
 const G4double PZ_ORIGIN=127.5;
 const G4double PAIR_CREATION_ENERGY=4.43;
 const G4double FANO_FACTOR=0.1;
-											   
+
 
 AnalysisManager *AnalysisManager::fManager = 0;
 AnalysisManager *AnalysisManager::GetInstance() {
@@ -46,8 +47,10 @@ AnalysisManager *AnalysisManager::GetInstance() {
 }
 AnalysisManager::AnalysisManager() {
 
+	numKilled=0;
 	fnEventIn = 0;
 	fnEventOut = 0;
+	killTracksEnteringGrids=false;
 }
 void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename)
 {
@@ -86,7 +89,7 @@ void AnalysisManager::CreateTree() {
 	fTTree->Branch("eventID", &fEventID, "eventID/I");
 	fTTree->Branch("gunPos", gunPosition,
 			Form("gunPos[%d]/D", 3));
-		fTTree->Branch("gunVec", gunDirection,
+	fTTree->Branch("gunVec", gunDirection,
 			Form("gunVec[%d]/D", 3));
 	fTTree->Branch("E0", &gunEnergy,
 			Form("E0/D"));
@@ -170,7 +173,7 @@ void AnalysisManager::EndOfEventAction(const G4Event *event) {
 			hd[i]->Fill(fEdepSum[i]);
 			toFill = true;
 			G4double sigma =
-			fCollectedEdepSum[i] * GetEnergyResolution(fCollectedEdepSum[i]);
+				fCollectedEdepSum[i] * GetEnergyResolution(fCollectedEdepSum[i]);
 			G4double real = gRandom->Gaus(fCollectedEdepSum[i], sigma) * PAIR_CREATION_ENERGY /
 				1000; // convert back to keV
 			fEdepWithoutNoise[i] = real;
@@ -250,7 +253,7 @@ G4double AnalysisManager::GetEnergyResolution(G4double energy) {
 	G4double rho = 0;
 	if (energy > 0) {
 		G4double numPairs = energy / PAIR_CREATION_ENERGY * 1000;
-		 // see oliver's paper
+		// see oliver's paper
 		G4double numSigma2 = FANO_FACTOR* numPairs; 
 		rho = sqrt(numSigma2) / numPairs;           
 	}
@@ -266,6 +269,10 @@ void AnalysisManager::SteppingAction(const G4Step *aStep) {
 	G4int detIdx= -1;
 	G4int detectorID= -1;
 	G4int pixelID= -1;
+	if(killTracksEnteringGrids&& (volName=="frontGrid" || volName=="rearGrid")){
+		aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+		numKilled++;
+	}
 
 	if (volName=="pixel")
 	{
@@ -354,8 +361,8 @@ void AnalysisManager::flush() {
 	fTSource->Write();
 
 	fTFile->cd();
-	 TDirectory *cdhist=fTFile->mkdir("hist");
-	 cdhist->cd();
+	TDirectory *cdhist=fTFile->mkdir("hist");
+	cdhist->cd();
 	c1->cd();
 	c1->Divide(2, 5);
 	for (int i = 0; i < NUM_CHANNELS; i++) {
@@ -375,6 +382,7 @@ void AnalysisManager::flush() {
 	hz->Write();
 	hcol->Write();
 	G4cout<<">> Number of event recorded:"<<fTTree->GetEntries()<<G4endl;
+	G4cout<<">> Number of track killed:"<<numKilled<<G4endl;
 	CopyMacrosToROOT(fTFile, macroFilename);
 
 	fTFile->Close();

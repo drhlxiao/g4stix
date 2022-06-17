@@ -160,13 +160,13 @@ void DetectorConstruction::ConstructGrids(){
 				vertexCoords,
 				0.4*0.5*mm, //0.4 mm thick, halfz
 				G4TwoVector(),1, G4TwoVector(), 1);
-		G4LogicalVolume *GridLog=new G4LogicalVolume(strip, Tungsten, "gridGeo", 0, 0, 0);
+		G4LogicalVolume *gridStripLog=new G4LogicalVolume(strip, Tungsten, "gridStripLog", 0, 0, 0);
 		G4cout<<"creating grids:"<<i<<" "<<pos<<G4endl;
 		if(is_front==1){
-			new G4PVPlacement(0,G4ThreeVector(), GridLog, "gridStrip", frontGridContainerLog[det_idx], false, i, false);
+			new G4PVPlacement(0,G4ThreeVector(), gridStripLog, "gridStrip", frontGridContainerLog[det_idx], false, i, false);
 		}
 		else{
-			new G4PVPlacement(0,G4ThreeVector(), GridLog, "gridStrip", rearGridContainerLog[det_idx], false, i, false);
+			new G4PVPlacement(0,G4ThreeVector(), gridStripLog, "gridStrip", rearGridContainerLog[det_idx], false, i, false);
 		}
 
 	}

@@ -49,6 +49,7 @@ void Help()
         <<" -i                  <input.root> "<<G4endl
         <<"                     Read incident particle information from input.root."<<G4endl
         <<"                     The structure of the root file is defined in t2sim.h ."<<G4endl
+        <<" -k                  kill track in grids "<<G4endl
         <<" -h                  print help information"<<G4endl;
 }
 
@@ -62,6 +63,7 @@ int main(int argc,char **argv)
     if(argc==1)Help();
     
     int s=0;
+	bool killTrackInGrids=false;
     G4String sel;
     while(s<argc-1)
     {
@@ -91,6 +93,9 @@ int main(int argc,char **argv)
                 return 0;
             }
         }
+		else if(sel=="-k"){
+			killTrackInGrids=true;
+		}
         else if(sel=="-Ba133")
         {
             particleSourceType="Ba133";
@@ -110,6 +115,8 @@ int main(int argc,char **argv)
     AnalysisManager* analysisManager = AnalysisManager::GetInstance();
     //CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);	
     analysisManager->SetOutputFileName(outputFilename);
+
+	if(killTrackInGrids)analysisManager->KillTracksInGrids();
 
 //#ifdef G4MULTITHREADED  
  //   G4MTRunManager * runManager = new G4MTRunManager();

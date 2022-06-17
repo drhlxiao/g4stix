@@ -5,6 +5,7 @@
 #ifndef AnalysisManager_h
 #define AnalysisManager_h 1
 
+#include <vector>
 #include "globals.hh"
 
 //#include "G4Step.hh"
@@ -48,6 +49,7 @@ class AnalysisManager {
 		G4double ComputeCollectedEnergy(G4ThreeVector &pos, G4double Ek);
 		G4double GetEnergyResolution(G4double Ek);
 		void SetMacroFileName(G4String &name){macroFilename=name;}
+		void KillTracksInGrids(){killTracksEnteringGrids=true; G4cout<<"# Tracks entering Grids will be killed"<<G4endl;}
 
 		AnalysisManager();
 		~AnalysisManager();
@@ -79,6 +81,7 @@ class AnalysisManager {
 		TH1F *hpatsum[32];
 		TH2F *h2xy;
 		TTree *fTSource;
+		G4int numKilled;
 
 		G4int eventID;
 
@@ -87,7 +90,9 @@ class AnalysisManager {
 		G4double fEdepWithoutNoise[NUM_CHANNELS];
 		G4double fCollectedEdepSumRealistic[NUM_CHANNELS];
 		G4int fEventID;
+		G4bool killTracksEnteringGrids;
 
+		
 		G4int parent[MAX_TRACKS];
 		G4double energy[MAX_TRACKS];
 		G4double hitx[MAX_TRACKS];
