@@ -33,6 +33,8 @@ const G4double ENOISE = 0.7;      // keV
 const G4double CdTe_SURFACE_X= 13.362385;     //surface x-coordinates of CdTe detectors
 const G4double PY_ORIGIN=103.1;
 const G4double PZ_ORIGIN=127.5;
+const G4double PAIR_CREATION_ENERGY=4.43;
+const G4double FANO_FACTOR=0.1;
 											   
 
 AnalysisManager *AnalysisManager::fManager = 0;
@@ -168,8 +170,8 @@ void AnalysisManager::EndOfEventAction(const G4Event *event) {
 			hd[i]->Fill(fEdepSum[i]);
 			toFill = true;
 			G4double sigma =
-				fCollectedEdepSum[i] * GetEnergyResolution(fCollectedEdepSum[i]);
-			G4double real = gRandom->Gaus(fCollectedEdepSum[i], sigma) * 4.5 /
+			fCollectedEdepSum[i] * GetEnergyResolution(fCollectedEdepSum[i]);
+			G4double real = gRandom->Gaus(fCollectedEdepSum[i], sigma) * PAIR_CREATION_ENERGY /
 				1000; // convert back to keV
 			fEdepWithoutNoise[i] = real;
 			fCollectedEdepSumRealistic[i] = gRandom->Gaus(real, ENOISE);
@@ -247,12 +249,10 @@ G4double AnalysisManager::GetEnergyResolution(G4double energy) {
 	// energy in units of keV
 	G4double rho = 0;
 	if (energy > 0) {
-		G4double numPairs = energy / 4.5 * 1000;
-		G4double fanoFactor = 0.15; // Semiconductor ~0.15, gas ~ 0.2
-		G4double numSigma2 = fanoFactor * numPairs; // simga_n=F*num
-		rho = sqrt(numSigma2) / numPairs;           // relative energy resolution
-													// FHNW=2.35*rho
-													// G4cout<<energy<<" "<<rho<<G4endl;
+		G4double numPairs = energy / PAIR_CREATION_ENERGY * 1000;
+		 // see oliver's paper
+		G4double numSigma2 = FANO_FACTOR* numPairs; 
+		rho = sqrt(numSigma2) / numPairs;           
 	}
 	return rho;
 }
