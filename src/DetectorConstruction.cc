@@ -404,7 +404,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 
 
-	G4double density = 6.2 * g / cm3; // STIX-DS-0017-PSI
+	G4double density = 5.85 * g / cm3; // STIX-DS-0017-PSI
 	G4int nelements, natoms;
 	CdTe = new G4Material("CdTe", density, nelements = 2);
 	CdTe->AddElement(elCd, natoms = 1);
