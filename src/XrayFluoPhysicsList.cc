@@ -89,13 +89,15 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
 
   // EM physics
   G4LossTableManager::Instance()->SetVerbose(1);
+//  SetGELowLimit(250*eV);
 
-  defaultCutValue = 1. * mm;
+  defaultCutValue = 10e-6*mm;
 
   cutForGamma = defaultCutValue;
   cutForElectron = defaultCutValue;
-  cutForPositron = defaultCutValue;
-  cutForProton = defaultCutValue;
+  cutForProton    = 0.001*mm;
+
+
 
   SetVerboseLevel(1);
 

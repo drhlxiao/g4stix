@@ -181,12 +181,17 @@ void DetectorConstruction::ConstructGrids(){
 			singleDetector=true;
 		}
 
-		pos=singleDetector? G4ThreeVector(0,0,0):  Grid::getGridCenterCAD(i,1);
+		pos=singleDetector? G4ThreeVector(-21*mm,0,0):  Grid::getGridCenterCAD(i,1);
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos), frontGridContainerLog[i], "frontGrid", worldLogical, 	false, i, false);
 
-		pos=singleDetector? G4ThreeVector(-1*mm,0,0):  Grid::getGridCenterCAD(i,0);
+		pos=singleDetector? G4ThreeVector(-19*mm,0,0):  Grid::getGridCenterCAD(i,0);
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos), rearGridContainerLog[i], "rearGrid", worldLogical, false, i, false);
 	}
+
+	//fluorescence test
+
+
+
 	G4cout<<"Grid construction finished."<<G4endl;
 	f.Close();
 }
@@ -452,6 +457,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	for(int i=0;i<32;i++)
 	{
+		//placing detector
 		G4ThreeVector pos=Grid::getCalisteCenterCoordsCAD(i);
 		if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
 			//single detector only, for testing
@@ -484,6 +490,14 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 void DetectorConstruction::ConstructCFL() {
 
+	G4ThreeVector pos=Grid::getGridCenterCAD(8, 1);
+	if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
+		//construct single detector
+		if(activatedDetectorFlag!=8)return;
+		else{
+			pos=G4ThreeVector(0,0,0);
+		}
+	}
 
 	//construct CFL
 	G4Box *CFLBox= new G4Box("CFLBox", 12 * mm,
@@ -506,13 +520,22 @@ void DetectorConstruction::ConstructCFL() {
 	new G4PVPlacement(0, G4ThreeVector(10.45*mm,-6.725*mm,0.2*mm ), CFLSmallHoleLog, "CFL_SMALL_BOTTOM_RIGHT_HOLE", CFLLog, false, 0, false);
 	new G4PVPlacement(0, G4ThreeVector(10.45*mm,6.725*mm,0.2*mm ), CFLSmallHoleLog, "CFL_SMALL_TOP_RIGHT", CFLLog, false, 0, false);
 
-	G4ThreeVector pos=Grid::getGridCenterCAD(8, 1);
 	new G4PVPlacement(G4Transform3D(rotMatrix, pos), CFLLog, "CFLLogical", worldLogical,
 			false, 0, false);
 
 }
 
 void DetectorConstruction::ConstructBKG() {
+
+	G4ThreeVector pos= Grid::getGridCenterCAD(9, 0);
+
+	if(activatedDetectorFlag>=0 && activatedDetectorFlag<32){
+		//construct single detector
+		if(activatedDetectorFlag!=9)return;
+		else{
+			pos=G4ThreeVector(0,0,0);
+		}
+	}
 
 	G4Box *BKGBox= new G4Box("BKGBox", 12 * mm,
 			11 * mm , 0.2*mm);
@@ -538,7 +561,6 @@ void DetectorConstruction::ConstructBKG() {
 	new G4PVPlacement(0, G4ThreeVector(3.5*mm, -3 *mm, 0.2*mm ), BKGBigRectHoleLog, "PIXEL_8_HOLE", BKGLog, false, 0, false);
 	//estimated by looking at the picture in the STIX instrument paper
 
-	G4ThreeVector pos=Grid::getGridCenterCAD(9, 0);
 	new G4PVPlacement(G4Transform3D(rotMatrix, pos), BKGLog, "BKG", worldLogical,false, 0, false);
 
 
@@ -579,8 +601,6 @@ void DetectorConstruction::SetVisColors() {
 	std::vector<G4LogicalVolume *>::const_iterator lvciter;
 	for (lvciter = lvs->begin(); lvciter != lvs->end(); lvciter++) {
 		G4String volumeName = (*lvciter)->GetName();
-
-
 		G4double red = G4UniformRand() * 0.7 + 0.15;
 		G4double green = G4UniformRand() * 0.7 + 0.15;
 		G4double blue = G4UniformRand() * 0.7 + 0.15;
