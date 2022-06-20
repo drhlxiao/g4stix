@@ -496,7 +496,8 @@ void DetectorConstruction::ConstructCFL() {
 		//construct single detector
 		if(activatedDetectorFlag!=8)return;
 		else{
-			pos=singleDetectorPosition;
+			pos=G4ThreeVector(-20*mm,0,0);
+			//for testing only
 		}
 	}
 
@@ -534,7 +535,8 @@ void DetectorConstruction::ConstructBKG() {
 		//construct single detector
 		if(activatedDetectorFlag!=9)return;
 		else{
-			pos=singleDetectorPosition;
+			pos=G4ThreeVector(-20*mm,0,0);
+			//for testing only
 		}
 	}
 
