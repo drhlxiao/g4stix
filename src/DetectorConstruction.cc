@@ -46,6 +46,7 @@
 #include <TFile.h>
 #include <TTree.h>
 const G4double pi = CLHEP::pi;
+const G4ThreeVector singleDetectorPosition(0,0,-0.8*mm);
 
 DetectorConstruction::DetectorConstruction() {
 	//for (int i = 0; i < 32; i++)G4cout <<Grid::getDetectorCenterCoordsCAD(i) << G4endl;
@@ -463,7 +464,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 			//single detector only, for testing
 			if(i!=activatedDetectorFlag)continue;
 			else{
-				 pos=G4ThreeVector(0,0,0);
+				 pos=singleDetectorPosition;
 			}
 		}
 		G4cout<<">> detector:  "<<i<<"  , position: "<<pos<<G4endl;
@@ -495,7 +496,7 @@ void DetectorConstruction::ConstructCFL() {
 		//construct single detector
 		if(activatedDetectorFlag!=8)return;
 		else{
-			pos=G4ThreeVector(0,0,0);
+			pos=singleDetectorPosition;
 		}
 	}
 
@@ -533,7 +534,7 @@ void DetectorConstruction::ConstructBKG() {
 		//construct single detector
 		if(activatedDetectorFlag!=9)return;
 		else{
-			pos=G4ThreeVector(0,0,0);
+			pos=singleDetectorPosition;
 		}
 	}
 
