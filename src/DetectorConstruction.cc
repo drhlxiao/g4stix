@@ -464,7 +464,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 			//single detector only, for testing
 			if(i!=activatedDetectorFlag)continue;
 			else{
-				 pos=singleDetectorPosition;
+				pos.setY(0); 
+				pos.setZ(-0.8*mm); 
+				//move the detector to the center
 			}
 		}
 		G4cout<<">> detector:  "<<i<<"  , position: "<<pos<<G4endl;
@@ -496,7 +498,9 @@ void DetectorConstruction::ConstructCFL() {
 		//construct single detector
 		if(activatedDetectorFlag!=8)return;
 		else{
-			pos=G4ThreeVector(-20*mm,0,0);
+			pos.setY(0);
+			pos.setZ(0);
+			//move it the center, keep the distance 
 			//for testing only
 		}
 	}
@@ -535,7 +539,9 @@ void DetectorConstruction::ConstructBKG() {
 		//construct single detector
 		if(activatedDetectorFlag!=9)return;
 		else{
-			pos=G4ThreeVector(-20*mm,0,0);
+			pos.setY(0);
+			pos.setZ(0);
+			//center collimator
 			//for testing only
 		}
 	}
