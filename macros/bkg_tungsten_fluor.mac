@@ -1,0 +1,17 @@
+/stix/geo/cad false
+/stix/geo/grids true #single grid
+/stix/geo/det 9 #single detector
+/process/em/fluo true
+
+/run/initialize
+
+/gps/particle gamma
+/gps/position -10 0 0  mm # detector 0, pixel 0
+/gps/direction -1 0 0 
+
+/gps/energy 100 keV
+
+#excite x-ray fluorence energy
+
+
+/run/beamOn 1000000

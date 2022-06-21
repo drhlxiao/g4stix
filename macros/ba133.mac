@@ -1,0 +1,13 @@
+/stix/geo/cad false
+/stix/geo/grids false
+/stix/geo/att false
+/run/initialize
+/control/verbose 0
+/tracking/verbose 0
+
+
+/gun/position 9 103  127.5 mm #center 
+#/gun/direction 0 0 -1
+/gun/particle gamma
+
+/run/beamOn 1000000
