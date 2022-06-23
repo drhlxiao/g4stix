@@ -1,0 +1,25 @@
+###################################################
+/stix/geo/att false
+/stix/geo/cad false
+/stix/geo/grids true
+/stix/geo/det 30
+
+/run/initialize
+/process/em/fluo true
+
+/gps/particle gamma
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/radius 10 mm
+/gps/pos/centre -1200 0  0 mm #center 
+/gps/pos/rot1  0 0 1
+/gps/pos/rot2  0 -1 0
+/gps/direction 1 0 0 
+
+
+/gps/ene/type Pow
+/gps/ene/min 10 keV
+/gps/ene/max  200 keV
+/gps/ene/alpha -4
+
+/run/beamOn 10000000
