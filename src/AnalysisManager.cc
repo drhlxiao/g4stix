@@ -269,7 +269,7 @@ void AnalysisManager::SteppingAction(const G4Step *aStep) {
 	G4int detIdx= -1;
 	G4int detectorID= -1;
 	G4int pixelID= -1;
-	if(killTracksEnteringGrids&& (volName=="frontGrid" || volName=="rearGrid")){
+	if(killTracksEnteringGrids&& volName=="gridStrip" ){
 		aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
 		numKilled++;
 	}
