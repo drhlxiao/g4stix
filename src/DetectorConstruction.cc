@@ -242,8 +242,9 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 			calisteLength/2,
 			calisteBaseHeight/2);
 
-	G4Box *calisteBaseInner= new G4Box("CdTeModuleBase", 10.0 * mm *0.5 ,
-			11 * mm *0.5, 14 * mm*0.5);
+	//G4Box *calisteBaseInner= new G4Box("CdTeModuleBase", 10.0 * mm *0.5 ,
+	//		11 * mm *0.5, 14 * mm*0.5);
+	// not needed any more according to the information from Olivier
 
 										  //
 	G4Box *CdTeBox = new G4Box("CdTeDet", 5 * mm, 5 * mm,  cdteThickness/2.);
@@ -293,13 +294,14 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	G4LogicalVolume *calisteLog =
 		new G4LogicalVolume(calisteWorld, Vacuum, "calisteWorld", 0, 0, 0);
 	G4LogicalVolume *calisteBaseOuterLog =
-		new G4LogicalVolume(calisteBaseOuter, Copper, "calisteBaseOuter", 0, 0, 0);
+		new G4LogicalVolume(calisteBaseOuter, SiO2, "calisteBaseOuter", 0, 0, 0);
 	//caliste base material, is unknown
-	G4LogicalVolume *calisteBaseInnerLog=
+	/*	G4LogicalVolume *calisteBaseInnerLog=
 		new G4LogicalVolume(calisteBaseInner, Vacuum, "calisteBaseInner", 0, 0, 0);
 
 	new G4PVPlacement(0, G4ThreeVector(0,0,0), calisteBaseInnerLog, "calisteInner", calisteBaseOuterLog, 
 			false, 	0, checkOverlaps);
+			*/
 
 
 	G4LogicalVolume *CdTeDetLog =
@@ -406,6 +408,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4Element *elMn= nist_manager->FindOrBuildElement("Mn");
 	G4Element *elCu= nist_manager->FindOrBuildElement("Cu");
 	G4Element *elFe= nist_manager->FindOrBuildElement("Fe");
+	G4Element *elO= nist_manager->FindOrBuildElement("O");
+	G4Element *elSi= nist_manager->FindOrBuildElement("O");
 	G4Element *elMg= nist_manager->FindOrBuildElement("Mg");
 
 
@@ -422,6 +426,10 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	goldLayerMaterial->AddElement(elAu, 0.94700687); //mass fraction
 	goldLayerMaterial->AddElement(elTi, 0.033120707);
 	goldLayerMaterial->AddElement(elAl, 0.019872424);
+
+	SiO2=new G4Material("SiO2", density=2.2 *g/cm3, nelements=2);
+	SiO2->AddElement(elSi,  1);
+	SiO2->AddElement(elO,  2);
 
 	Alum7075=new G4Material("Alum7075", density=2.8 *g/cm3, nelements=7);
 	Alum7075->AddElement(elAl,  0.876);

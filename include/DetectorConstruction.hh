@@ -48,7 +48,7 @@ private:
   G4String fWorldFile;
   G4LogicalVolume *worldLogical;
   G4Material *CdTe;
-  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum,*Air, *Alu25, *goldLayerMaterial, *Platinum, *Copper;
+  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum,*Air, *Alu25, *goldLayerMaterial, *Platinum, *Copper, *SiO2;
   G4LogicalVolume *ConstructCdTeDetector();
   G4RotationMatrix  rotMatrix;
 
