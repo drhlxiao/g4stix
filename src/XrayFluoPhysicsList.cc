@@ -88,7 +88,7 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
   pMessenger = new XrayFluoPhysicsListMessenger(this);
 
   // EM physics
-  G4LossTableManager::Instance()->SetVerbose(1);
+ /* G4LossTableManager::Instance()->SetVerbose(1);
 //  SetGELowLimit(250*eV);
 
   defaultCutValue = 10e-6*mm;
@@ -96,14 +96,28 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
   cutForGamma = defaultCutValue;
   cutForElectron = defaultCutValue;
   cutForProton    = 0.001*mm;
+  */
 
+ G4LossTableManager::Instance()->SetVerbose(1);
 
+  defaultCutValue = 1. * mm;
+
+  cutForGamma = defaultCutValue;
+  cutForElectron = defaultCutValue;
+  cutForPositron = defaultCutValue;
+  cutForProton = defaultCutValue;
 
   SetVerboseLevel(1);
 
   // EM physics
   emName = G4String("emstandard_opt4");
   emPhysicsList = new G4EmLivermorePhysics;
+
+
+  // EM physics
+//  emName = G4String("emstandard_opt4");
+  //emPhysicsList = new G4EmLivermorePhysics;
+ // AddPhysicsList(emName);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

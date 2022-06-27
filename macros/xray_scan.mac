@@ -1,6 +1,6 @@
 ###################################################
-/stix/geo/att false
-/stix/geo/cad true
+#/stix/geo/att false
+#/stix/geo/gdml WorldAttOut
 /stix/geo/grids true
 /run/initialize
 /process/em/fluo true
