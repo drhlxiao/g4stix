@@ -443,7 +443,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	if(fWorldFile!=""){
 
 		G4cout<<"==== === Loading mass model from gdml files "<<fWorldFile<<"..."<<G4endl;
-		parser.Read("gdml/"+fWorldFile);
+		parser.Read("gdml/"+fWorldFile+".gdml");
 		worldPhysical= parser.GetWorldVolume();
 		worldLogical=worldPhysical->GetLogicalVolume();
 	}
@@ -600,11 +600,11 @@ void DetectorConstruction::SetVisAttrib(G4LogicalVolume *log, G4double red,
 void DetectorConstruction::SetAttenuatorStatus(G4bool att){
 	//change attenuator status
 	if(!att){
-		fWorldFile="WorldAttOut.gdml";
+		fWorldFile="WorldAttOut";
 		attenuatorIn=false;
 		G4cout<<"Attenuator is out"<<G4endl;
 	}else{
-		fWorldFile="WorldAttIn.gdml";
+		fWorldFile="WorldAttIn";
 		attenuatorIn=true;
 		G4cout<<"Attenuator is inserted!"<<G4endl;
 	}

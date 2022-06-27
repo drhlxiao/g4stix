@@ -1,4 +1,4 @@
-/stix/geo/cad false
+/stix/geo/gdml WorldAttOut.gdml
 /stix/geo/grids false
 /stix/geo/att false
 /run/initialize
