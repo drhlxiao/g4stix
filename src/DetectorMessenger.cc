@@ -19,7 +19,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *theDet)
     : fDetector(theDet) {
 
   fSetAttenStatusCmd= new G4UIcmdWithABool("/stix/geo/att", this);
-  fSetAttenStatusCmd->SetGuidance("Attenuator is in, true or false?");
+  fSetAttenStatusCmd->SetGuidance("Attenuator is in, true or false?, it will load WorldAttOut.gdml if att is out else WorldAttIn.gdml ");
   fSetAttenStatusCmd->SetParameterName("Set ATT status", false);
   fSetAttenStatusCmd->AvailableForStates(G4State_PreInit);
 
@@ -29,32 +29,29 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *theDet)
   fSetGridStatusCmd->AvailableForStates(G4State_PreInit);
 
 
-  fImportCADCmd= new G4UIcmdWithABool("/stix/geo/cad", this);
-  fImportCADCmd->SetGuidance("Import cad modules, true or false?");
-  fImportCADCmd->SetParameterName("Import cad modules", false);
-  fImportCADCmd->AvailableForStates(G4State_PreInit);
+  fSetGdmlCmd= new G4UIcmdWithAString("/stix/geo/gdml", this);
+  fSetGdmlCmd->SetGuidance("Import mass model from GDML file?");
+  fSetGdmlCmd->SetParameterName("Import gdml file", false);
+  fSetGdmlCmd->AvailableForStates(G4State_PreInit);
 
   fDetectorSelectionCmd= new G4UIcmdWithAnInteger("/stix/geo/det", this);
   fDetectorSelectionCmd->SetGuidance("Only construct a single detector if 0<= det < 32 else all detectors");
-  fDetectorSelectionCmd->SetParameterName("Import cad modules", false);
+  fDetectorSelectionCmd->SetParameterName("detector number", false);
   fDetectorSelectionCmd->AvailableForStates(G4State_PreInit);
-  //fSetCADTypeCommand = new G4UIcmdWithAString("/MCP/det/setCADType", this);
 }
 
 DetectorMessenger::~DetectorMessenger() {
   delete fSetAttenStatusCmd;
-  delete fImportCADCmd;
+  delete fSetGdmlCmd;
   delete fDetectorSelectionCmd;
-//  delete fSetCADTypeCommand;
-  //delete fDetectorDir;
 }
 
 void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   if (command == fSetAttenStatusCmd) {
     		fDetector->SetAttenuatorStatus(fSetAttenStatusCmd->GetNewBoolValue(newValue));
   }
-  else if (command == fImportCADCmd) {
-    		fDetector->SetImportCADFlag(fImportCADCmd->GetNewBoolValue(newValue));
+  else if (command == fSetGdmlCmd) {
+    		fDetector->SetGdmlFile(newValue);
   }
   else if (command == fSetGridStatusCmd) {
     		fDetector->SetGridsStatus(fSetGridStatusCmd->GetNewBoolValue(newValue));

@@ -36,12 +36,12 @@ public:
   void ConstructSpacecraft();
 
   void ConstructBKG();
-  void SetImportCADFlag(G4bool v){ importCADFlag=v; }
+  void SetGdmlFile(G4String v){ fWorldFile=v; }
 	void SetActivatedDetectorFlag(G4int v){ activatedDetectorFlag = v; }
 
 private:
 
-  G4bool importCADFlag, gridsEnabled;
+  G4bool  gridsEnabled;
   G4int activatedDetectorFlag;
 
   G4bool attenuatorIn;

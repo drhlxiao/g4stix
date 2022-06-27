@@ -50,9 +50,7 @@ const G4ThreeVector singleDetectorPosition(0,0,-0.8*mm);
 
 DetectorConstruction::DetectorConstruction() {
 	//for (int i = 0; i < 32; i++)G4cout <<Grid::getDetectorCenterCoordsCAD(i) << G4endl;
-	fWorldFile="WorldAttOut.gdml";
-	attenuatorIn=false;
-	importCADFlag=true;
+	fWorldFile="";
 	gridsEnabled=true;
 	activatedDetectorFlag = 100;
 	// all detectors will be constructed  if it is not between 0 -- 31
@@ -442,16 +440,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	//construct world
 	G4GDMLParser parser;
-	if(importCADFlag){
+	if(fWorldFile!=""){
 
-		G4cout<<"Loading mass model from CAD files..."<<G4endl;
+		G4cout<<"==== === Loading mass model from gdml files "<<fWorldFile<<"..."<<G4endl;
 		parser.Read("gdml/"+fWorldFile);
 		worldPhysical= parser.GetWorldVolume();
 		worldLogical=worldPhysical->GetLogicalVolume();
 	}
 	else
 	{
-		G4cout<<"CAD models will not be imported!"<<G4endl;
+		G4cout<<"## CAD models will not be imported!"<<G4endl;
 
 		G4Box *worldSolid = new G4Box("worldSolid", 500*cm, 500*cm, 500*cm);
 		worldLogical= new G4LogicalVolume(worldSolid, Vacuum,"worldLogical",0,0,0);
