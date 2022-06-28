@@ -4,6 +4,8 @@
 
 # How to Run:
 ```sh
+cmake .
+make
 ./g4STIX  -m test.mac -o test.root -Ba133
 
 ```

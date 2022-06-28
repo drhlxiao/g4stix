@@ -29,14 +29,23 @@
 
 #include "AnalysisManager.hh"
 
-const G4double highVoltage = 200; // 200 V
-const G4double ENOISE = 0.7;      // keV
+const G4double highVoltage = 300; // 300 V
+const G4double ENOISE = 0.6;      // keV
+/* At 30 keV, the energy resolution is 2%  * 30 keV= 0.6 keV
+ * using fano factor, one could know the intrinsic resolution of CdTe is rho=(pairs * 0.15)/pairs =0.0047
+ * absolute resolution is rho*30 = 0.14 keV
+ * ADC resolution is 0.5 ADC channel,this is equivalent  to 0.5 /2.3 =0.2 keV for calibration spectrum
+ * electronics noise = sqrt(0.6*0.6 -0.14*0.14 - 0.2*0.2)
+*/
+
 const G4double CdTe_SURFACE_X =
     13.362385; // surface x-coordinates of CdTe detectors
 const G4double PY_ORIGIN = 103.1;
 const G4double PZ_ORIGIN = 127.5;
 const G4double PAIR_CREATION_ENERGY = 4.43;
 const G4double FANO_FACTOR = 0.15;
+//CdTe fano factor is 0.15 according to
+//https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
 
 AnalysisManager *AnalysisManager::fManager = 0;
 AnalysisManager *AnalysisManager::GetInstance() {
@@ -181,10 +190,14 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
       toFill = true;
       G4double sigma =
           collectedEdepSum[i] * GetEnergyResolution(collectedEdepSum[i]);
-      G4double real = gRandom->Gaus(collectedEdepSum[i], sigma) *
-                      PAIR_CREATION_ENERGY / 1000; // convert back to keV
-      edepWithoutNoise[i] = real;
-      collectedEdepSumRealistic[i] = gRandom->Gaus(real, ENOISE);
+	  //std. Deviation of charge, in units of eV
+
+      edepWithoutNoise[i]= gRandom->Gaus(collectedEdepSum[i], sigma) *
+                      PAIR_CREATION_ENERGY / 1000; // convert back to keV, we randomize it to smear the energy resolution
+												   //
+      collectedEdepSumRealistic[i] = gRandom->Gaus(edepWithoutNoise[i], ENOISE);
+	  //we asssue the electronics noise 
+
       int detIdx = i / 12;
       int pixIdx = i % 12;
       hpat[detIdx]->Fill(pixIdx);
@@ -243,7 +256,7 @@ G4double AnalysisManager::ComputeCollectedEnergy(G4ThreeVector &pos,
 
   // see Oliver's paper
   G4double detThickness = 1;
-  G4double charge = nPairs;
+  //G4double charge = nPairs;
   G4double factor =
       (1 - exp(-(detThickness - depth) / freePathElectron)) * freePathElectron /
           detThickness +
@@ -261,8 +274,10 @@ G4double AnalysisManager::GetEnergyResolution(G4double edep) {
   G4double rho = 0;
   if (edep> 0) {
     G4double numPairs = edep/ PAIR_CREATION_ENERGY * 1000;
+	//keV to ev
     // see oliver's paper
     G4double numSigma2 = FANO_FACTOR * numPairs;
+	//sigma^2 = fano * n  according to the text-book
     rho = sqrt(numSigma2) / numPairs;
   }
   return rho;
