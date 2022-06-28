@@ -22,5 +22,5 @@ void SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   AnalysisManager *analysisManager = AnalysisManager::GetInstance();
 
-  analysisManager->SteppingAction(aStep);
+  analysisManager->processStep(aStep);
 }

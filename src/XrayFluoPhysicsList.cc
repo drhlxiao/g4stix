@@ -99,9 +99,7 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
   */
 
  G4LossTableManager::Instance()->SetVerbose(1);
-
-  defaultCutValue = 1. * mm;
-
+  defaultCutValue = 0.05 * mm;
   cutForGamma = defaultCutValue;
   cutForElectron = defaultCutValue;
   cutForPositron = defaultCutValue;
@@ -110,14 +108,10 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
   SetVerboseLevel(1);
 
   // EM physics
-  emName = G4String("emstandard_opt4");
-  emPhysicsList = new G4EmLivermorePhysics;
-
-
-  // EM physics
-//  emName = G4String("emstandard_opt4");
-  //emPhysicsList = new G4EmLivermorePhysics;
- // AddPhysicsList(emName);
+  emName = G4String("emlivermore");
+//  AddPhysicsList(emName);
+  emPhysicsList = new G4EmLivermorePhysics();
+ //   emPhysicsList = new G4EmStandardPhysics_option4();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -225,6 +219,7 @@ void XrayFluoPhysicsList::AddStepMax() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
+	//this allows updating physics using macros
   if (verboseLevel > -1) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }

@@ -21,7 +21,7 @@ EventAction::~EventAction() {}
 void EventAction::BeginOfEventAction(const G4Event *event) {
   AnalysisManager *analysisManager = AnalysisManager::GetInstance();
 
-  analysisManager->BeginOfEventAction(event);
+  analysisManager->initEvent(event);
   fEventID = event->GetEventID();
   if (fEventID % 100000 == 0) {
     G4cout << "\n---> Begin of event: " << fEventID << G4endl;
@@ -30,7 +30,7 @@ void EventAction::BeginOfEventAction(const G4Event *event) {
 
 void EventAction::EndOfEventAction(const G4Event *event) {
   AnalysisManager *analysisManager = AnalysisManager::GetInstance();
-  analysisManager->EndOfEventAction(event);
+  analysisManager->processEvent(event);
   if (fEventID % 100000 == 0) {
     G4cout << "---> End of event: " << fEventID << G4endl;
   }

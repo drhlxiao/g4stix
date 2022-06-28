@@ -40,11 +40,11 @@ class AnalysisManager {
 		void AddEnergy(G4int detId, G4double edep);
 		void AddCollectedEnergy(G4int detId, G4double edep);
 
-		void BeginOfEventAction(const G4Event *event);
-		void EndOfEventAction(const G4Event *event);
-		void SteppingAction(const G4Step *aStep);
-		void BeginOfRunAction(const G4Run *);
-		void EndOfRunAction(const G4Run *);
+		void initEvent(const G4Event *event);
+		void processEvent(const G4Event *event);
+		void processStep(const G4Step *aStep);
+		void initRun(const G4Run *);
+		void processRun(const G4Run *);
 		void CopyMacrosToROOT(TFile *f, TString &);
 		G4double ComputeCollectedEnergy(G4ThreeVector &pos, G4double Ek);
 		G4double GetEnergyResolution(G4double Ek);

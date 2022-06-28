@@ -130,13 +130,13 @@ void AnalysisManager::CreateTree() {
 
 //////////////////////////////////////////////////////////////////////////
 
-void AnalysisManager::BeginOfRunAction(const G4Run *run) {
+void AnalysisManager::initRun(const G4Run *run) {
 
 	OpenFile();
 	CreateTree();
 }
 
-void AnalysisManager::EndOfRunAction(const G4Run *run) {
+void AnalysisManager::processRun(const G4Run *run) {
 	flush();
 	G4cout << "Events entered detectors:" << fnEventIn << G4endl;
 	G4cout << "Events escaped from detectors:" << fnEventOut << G4endl;
@@ -144,7 +144,7 @@ void AnalysisManager::EndOfRunAction(const G4Run *run) {
 }
 
 /// EventAction
-void AnalysisManager::BeginOfEventAction(const G4Event *event) {
+void AnalysisManager::initEvent(const G4Event *event) {
 	for (G4int i = 0; i < NUM_CHANNELS; i++) {
 		fEdepSum[i] = 0.0;
 		fCollectedEdepSum[i] = 0;
@@ -164,7 +164,7 @@ void AnalysisManager::BeginOfEventAction(const G4Event *event) {
 	}
 	itrack=0;
 }
-void AnalysisManager::EndOfEventAction(const G4Event *event) {
+void AnalysisManager::processEvent(const G4Event *event) {
 	fEventID = event->GetEventID();
 	G4bool toFill = false;
 	for (int i = 0; i < NUM_CHANNELS; i++) {
@@ -260,7 +260,7 @@ G4double AnalysisManager::GetEnergyResolution(G4double energy) {
 	return rho;
 }
 
-void AnalysisManager::SteppingAction(const G4Step *aStep) {
+void AnalysisManager::processStep(const G4Step *aStep) {
 
 	const G4Track *track = aStep->GetTrack();
 	G4String volName;
