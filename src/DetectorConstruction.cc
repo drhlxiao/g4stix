@@ -54,7 +54,7 @@ DetectorConstruction::DetectorConstruction() {
 	gridsEnabled=true;
 	activatedDetectorFlag = 100;
 	// all detectors will be constructed  if it is not between 0 -- 31
-	
+
 
 
 	G4RotationMatrix rotY;
@@ -65,35 +65,35 @@ DetectorConstruction::DetectorConstruction() {
 	detMsg = new DetectorMessenger(this);
 }
 void DetectorConstruction::ConstructSpacecraft(){
-/*	G4double scWidth= 2.5 *m;
-	G4double scHeight= 2.7 *m;
-	G4double scLength= 3.1*m;
+	/*	G4double scWidth= 2.5 *m;
+		G4double scHeight= 2.7 *m;
+		G4double scLength= 3.1*m;
 	//taken from wikipedia
 	G4double scWallThickness=1*mm;
 
 	G4Box *spacecraftBox= new G4Box("spacecaft", 
-			scLength/2,
-			scHeight/2,
-			scWidth/2 
-			);//in stix coordinate frame
-			  //stix_x 
-			  //
-	G4Box *spacecraftBoxInner= new G4Box("spacecaft", 
-			scLength/2,
-			scHeight/2-1,
-			scWidth/2-1 
-			);//in stix coordinate frame
-			  //
+	scLength/2,
+	scHeight/2,
+	scWidth/2 
+	);//in stix coordinate frame
+	  //stix_x 
+	  //
+	  G4Box *spacecraftBoxInner= new G4Box("spacecaft", 
+	  scLength/2,
+	  scHeight/2-1,
+	  scWidth/2-1 
+	  );//in stix coordinate frame
+	    //
 
-	G4SubtractionSolid *spacecraftHollowBox= new G4SubtractionSolid("SpaceLab", SL_123, SL3hole_cons);
-	G4LogicalVolume *spacecraftLog=new G4LogicalVolume(spacecraftBox, Alum, "spacecraftLog", 0, 0, 0);
-	G4Box *spacecraftBox= new G4Box("spacecaft", 
-			scLength/2,
-			scHeight/2,
-			scWidth/2 
-			);//in stix coordinate frame
-		
-			*/
+	    G4SubtractionSolid *spacecraftHollowBox= new G4SubtractionSolid("SpaceLab", SL_123, SL3hole_cons);
+	    G4LogicalVolume *spacecraftLog=new G4LogicalVolume(spacecraftBox, Alum, "spacecraftLog", 0, 0, 0);
+	    G4Box *spacecraftBox= new G4Box("spacecaft", 
+	    scLength/2,
+	    scHeight/2,
+	    scWidth/2 
+	    );//in stix coordinate frame
+
+*/
 
 }
 
@@ -224,7 +224,7 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	G4double cdteThickness=1*mm;
 	G4double anodeThickness=(15+15+100)*1e-9*m; //130 nm
 	G4double cathodeThickness=15*1e-9*m; //15 nm
-										  //thickness negligible  compared to the thickness  uncertainty
+					     //thickness negligible  compared to the thickness  uncertainty
 	G4double calisteWidth=11*mm;
 	G4double calisteLength=12*mm;
 	G4double calisteBaseHeight=14.4*mm;
@@ -244,7 +244,7 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	//		11 * mm *0.5, 14 * mm*0.5);
 	// not needed any more according to the information from Olivier
 
-										  //
+	//
 	G4Box *CdTeBox = new G4Box("CdTeDet", 5 * mm, 5 * mm,  cdteThickness/2.);
 	G4Box *CdTeAnodeBox= new G4Box("CdTeAnode", 5 * mm, 5 * mm, anodeThickness/2. );
 	G4Box *CdTeCathodeBox= new G4Box("CdTeCathode", 5 * mm, 5 * mm, cathodeThickness/2. );
@@ -263,9 +263,9 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 
 
 	G4ExtrudedSolid* bigPixelTopGeo = new G4ExtrudedSolid("topBigPixel",
-				vertexCoordsTop,
-				cdteThickness/2., 
-				G4TwoVector(),1, G4TwoVector(), 1);
+			vertexCoordsTop,
+			cdteThickness/2., 
+			G4TwoVector(),1, G4TwoVector(), 1);
 	std::vector<G4TwoVector> vertexCoordsBott;	
 	vertexCoordsBott.push_back(G4TwoVector(-bigW/2, bigH/2 - bigSH));
 	vertexCoordsBott.push_back(G4TwoVector(-bigW/2 +bigSW , bigH/2 - bigSH));
@@ -275,32 +275,19 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 	vertexCoordsBott.push_back(G4TwoVector(-bigW/2 , -bigH/2));
 
 	G4ExtrudedSolid* bigPixelBottomGeo= new G4ExtrudedSolid("bottBigPixel",
-				vertexCoordsBott,
-				cdteThickness/2., 
-				G4TwoVector(),1, G4TwoVector(), 1);
+			vertexCoordsBott,
+			cdteThickness/2., 
+			G4TwoVector(),1, G4TwoVector(), 1);
 
 
 	bool checkOverlaps=true;
-
-
-
-
-
 	G4Box *smallPixelGeo =
 		new G4Box("smallPixel", smallW / 2, smallH / 2, cdteThickness /2.);
-
 	G4LogicalVolume *calisteLog =
 		new G4LogicalVolume(calisteWorld, Vacuum, "calisteWorld", 0, 0, 0);
 	G4LogicalVolume *calisteBaseOuterLog =
 		new G4LogicalVolume(calisteBaseOuter, SiO2, "calisteBaseOuter", 0, 0, 0);
 	//caliste base material, is unknown
-	/*	G4LogicalVolume *calisteBaseInnerLog=
-		new G4LogicalVolume(calisteBaseInner, Vacuum, "calisteBaseInner", 0, 0, 0);
-
-	new G4PVPlacement(0, G4ThreeVector(0,0,0), calisteBaseInnerLog, "calisteInner", calisteBaseOuterLog, 
-			false, 	0, checkOverlaps);
-			*/
-
 
 	G4LogicalVolume *CdTeDetLog =
 		new G4LogicalVolume(CdTeBox, CdTe, "CdTeDetLog", 0, 0, 0);
@@ -348,7 +335,7 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector()
 		G4ThreeVector posBigPixelBottom(pixel4CenterX + deltaW * i , pixel4CenterY,detZ);
 		new G4PVPlacement(0, posBigPixelBottom, bigPixelBottomLog, name, CdTeDetLog,
 				false, copyNb, checkOverlaps);
-	
+
 
 		//small pixels
 		copyNb = i + 8;
@@ -484,7 +471,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	G4cout<<"World construction completed"<<G4endl;
 
 	//X-ray window
-	
+
 	ConstructCFL();
 	ConstructBKG();
 
@@ -629,7 +616,7 @@ void DetectorConstruction::SetVisColors() {
 			SetVisAttrib(*lvciter, red, green, blue, alpha, true, false);
 		}
 		else if(volumeName.contains("frontGrid")||volumeName.contains("rearGrid")){
-				(*lvciter)->SetVisAttributes(G4VisAttributes::Invisible);
+			(*lvciter)->SetVisAttributes(G4VisAttributes::Invisible);
 		}
 		else if(volumeName.contains("grid")){
 			red=0.28;

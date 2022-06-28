@@ -119,9 +119,12 @@ int main(int argc,char **argv)
 	if(killTrackInGrids)analysisManager->KillTracksInGrids();
 
 //#ifdef G4MULTITHREADED  
- //   G4MTRunManager * runManager = new G4MTRunManager();
-  //  G4int nThreads = G4Threading::G4GetNumberOfCores()-1;
-   // runManager->SetNumberOfThreads(nThreads);
+/*
+    G4MTRunManager * runManager = new G4MTRunManager();
+    G4int nThreads = G4Threading::G4GetNumberOfCores()-2;
+	if(nThreads<1)nThreads=1;
+    runManager->SetNumberOfThreads(nThreads);
+	*/
 //#else
     G4RunManager * runManager = new G4RunManager(); 
 //#endif
