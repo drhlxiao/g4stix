@@ -4,7 +4,7 @@
 
 - How to Run:
 ```sh
-./g4FastSim -m test.mac -o test.root -Ba133
+./g4STIX  -m test.mac -o test.root -Ba133
 
 ```
 - Materials and positions 
