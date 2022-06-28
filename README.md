@@ -1,4 +1,5 @@
-- Geant4 source code to simulate the responses of STIX CdTe detector to Ba-133 lines
+- Geant4 package for STIX
+ Author Hualin Xiao
 
 
 - How to Run:
