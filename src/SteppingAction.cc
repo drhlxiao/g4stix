@@ -6,11 +6,9 @@
  ***************************************************************/
 #include "G4SystemOfUnits.hh"
 #include "TString.h"
-
 #include "EventAction.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
-//#include "Birks.hh"
 #include "AnalysisManager.hh"
 #include "SteppingAction.hh"
 
@@ -22,5 +20,5 @@ void SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   AnalysisManager *analysisManager = AnalysisManager::GetInstance();
 
-  analysisManager->processStep(aStep);
+  analysisManager->ProcessStep(aStep);
 }

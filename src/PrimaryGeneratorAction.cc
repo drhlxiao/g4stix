@@ -92,9 +92,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
     // G4cout<<numGamma<<G4endl;
 
     iEntry++;
-	if (iEntry%10000==0){
-	  G4cout<<"ba133 source"<<G4endl;
-	}
+    if (iEntry % 10000 == 0) {
+      G4cout << "ba133 source" << G4endl;
+    }
   } else {
 
     fParticleSource->GeneratePrimaryVertex(anEvent);

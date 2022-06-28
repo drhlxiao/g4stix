@@ -25,36 +25,35 @@ public:
   G4VPhysicalVolume *Construct();
 
   void SetVisAttrib(G4LogicalVolume *log, G4double red, G4double green,
-                    G4double blue, G4double alpha, G4bool wireFrame, G4bool solid);
+                    G4double blue, G4double alpha, G4bool wireFrame,
+                    G4bool solid);
   void SetVisAttrib(G4LogicalVolume *log, G4double red, G4double green,
                     G4double blue, G4double alpha);
   void SetVisColors();
   void SetAttenuatorStatus(G4bool att);
-  void SetGridsStatus(G4bool v){gridsEnabled=v;};
+  void SetGridsStatus(G4bool v) { gridsEnabled = v; };
   void ConstructCFL();
   void ConstructGrids();
   void ConstructSpacecraft();
 
   void ConstructBKG();
-  void SetGdmlFile(G4String v){ fWorldFile=v; }
-	void SetActivatedDetectorFlag(G4int v){ activatedDetectorFlag = v; }
+  void SetGdmlFile(G4String v) { fWorldFile = v; }
+  void SetActivatedDetectorFlag(G4int v) { activatedDetectorFlag = v; }
 
 private:
-
-  G4bool  gridsEnabled;
+  G4bool gridsEnabled;
   G4int activatedDetectorFlag;
 
   G4bool attenuatorIn;
   G4String fWorldFile;
   G4LogicalVolume *worldLogical;
   G4Material *CdTe;
-  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum,*Air, *Alu25, *goldLayerMaterial, *Platinum, *Copper, *SiO2;
+  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25,
+      *goldLayerMaterial, *Platinum, *Copper, *SiO2;
   G4LogicalVolume *ConstructCdTeDetector();
-  G4RotationMatrix  rotMatrix;
+  G4RotationMatrix rotMatrix;
 
   G4VPhysicalVolume *worldPhysical;
-  //G4LogicalVolume *ConstructDEMBackCover();
-
   DetectorMessenger *detMsg;
 };
 

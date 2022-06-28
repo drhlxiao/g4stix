@@ -23,13 +23,13 @@ public:
   void SetNewValue(G4UIcommand *, G4String);
 
 private:
- DetectorConstruction *fDetector;
-  //G4UIdirectory *fDetectorDir;
+  DetectorConstruction *fDetector;
+  // G4UIdirectory *fDetectorDir;
   G4UIcmdWithABool *fSetAttenStatusCmd;
   G4UIcmdWithABool *fSetGridStatusCmd;
   G4UIcmdWithAString *fSetGdmlCmd;
   G4UIcmdWithAnInteger *fDetectorSelectionCmd;
- // G4UIcmdWithAString *fSetCADTypeCommand;
+  // G4UIcmdWithAString *fSetCADTypeCommand;
 };
 
 #endif

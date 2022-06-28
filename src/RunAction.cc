@@ -22,13 +22,13 @@ RunAction::~RunAction() {}
 void RunAction::BeginOfRunAction(const G4Run *run) {
   G4cout << "### Run " << run->GetRunID() << " start." << G4endl;
   AnalysisManager *analysisManager = AnalysisManager::GetInstance();
-  analysisManager->initRun(run);
+  analysisManager->InitRun(run);
 }
 
 void RunAction::EndOfRunAction(const G4Run *aRun) {
 
   AnalysisManager *analysisManager = AnalysisManager::GetInstance();
-  analysisManager->processRun(aRun);
+  analysisManager->ProcessRun(aRun);
 
   G4cout << "### This run is finished." << G4endl;
 }

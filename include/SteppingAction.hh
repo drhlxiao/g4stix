@@ -7,8 +7,6 @@
 
 #include "G4UserSteppingAction.hh"
 
-// class Birks;
-class G4EmSaturation;
 
 class SteppingAction : public G4UserSteppingAction {
 public:
@@ -17,9 +15,6 @@ public:
 
   virtual void UserSteppingAction(const G4Step *aStep);
 
-private:
-  //	Birks *birks;
-  G4EmSaturation *emSat;
 };
 
 #endif

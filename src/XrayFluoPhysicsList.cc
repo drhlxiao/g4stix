@@ -88,18 +88,18 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
   pMessenger = new XrayFluoPhysicsListMessenger(this);
 
   // EM physics
- /* G4LossTableManager::Instance()->SetVerbose(1);
-//  SetGELowLimit(250*eV);
+  /* G4LossTableManager::Instance()->SetVerbose(1);
+ //  SetGELowLimit(250*eV);
 
-  defaultCutValue = 10e-6*mm;
+   defaultCutValue = 10e-6*mm;
 
-  cutForGamma = defaultCutValue;
-  cutForElectron = defaultCutValue;
-  cutForProton    = 0.001*mm;
-  */
+   cutForGamma = defaultCutValue;
+   cutForElectron = defaultCutValue;
+   cutForProton    = 0.001*mm;
+   */
 
- G4LossTableManager::Instance()->SetVerbose(1);
-  defaultCutValue = 0.05 * mm;
+  G4LossTableManager::Instance()->SetVerbose(1);
+  defaultCutValue = 0.02 * mm;
   cutForGamma = defaultCutValue;
   cutForElectron = defaultCutValue;
   cutForPositron = defaultCutValue;
@@ -109,9 +109,9 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
 
   // EM physics
   emName = G4String("emlivermore");
-//  AddPhysicsList(emName);
+  //  AddPhysicsList(emName);
   emPhysicsList = new G4EmLivermorePhysics();
- //   emPhysicsList = new G4EmStandardPhysics_option4();
+  //   emPhysicsList = new G4EmStandardPhysics_option4();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -172,6 +172,7 @@ void XrayFluoPhysicsList::ConstructProcess() {
   emOptions.SetFluo(true);
   emOptions.SetAuger(true);
   emOptions.SetPIXE(true);
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -219,7 +220,7 @@ void XrayFluoPhysicsList::AddStepMax() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
-	//this allows updating physics using macros
+  // this allows updating physics using macros
   if (verboseLevel > -1) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
@@ -256,14 +257,12 @@ void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
     delete emPhysicsList;
     emPhysicsList = new G4EmStandardPhysics_option3();
 
-  } 
-  else if(name=="emstandard_opt4"){
+  } else if (name == "emstandard_opt4") {
 
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmStandardPhysics_option4();
-  }
-  else if (name == "empenelope") {
+  } else if (name == "empenelope") {
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmPenelopePhysics();
