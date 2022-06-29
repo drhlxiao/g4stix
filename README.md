@@ -1,6 +1,4 @@
 # Geant4 package for STIX
- Author Hualin Xiao
-
 
 # How to Run:
 ```sh
