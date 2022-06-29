@@ -29,7 +29,7 @@
 
 #include "AnalysisManager.hh"
 
-const G4double highVoltage = 300; // 300 V
+const G4double highVoltage = 300; // CdTe HV is 300 during the nominal operations
 const G4double ENOISE = 0.6;      // keV
 /* At 30 keV, the energy resolution is 2%  * 30 keV= 0.6 keV
  * using fano factor, one could know the intrinsic resolution of CdTe is rho=(pairs * 0.15)/pairs =0.0047

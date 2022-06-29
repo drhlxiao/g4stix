@@ -1,13 +1,9 @@
 //
 /// \file g4
-/// \brief Main program for FastSim
-//   author: Hualin Xiao (hualin.xiao@psi.ch)
+/// \brief Main program 
+//   author: Hualin Xiao (hualin.xiao@fhnw.ch)
 //   History:
 //
-//   Oct. 28, 2015:
-//   * move Actions from EventAction, RunAction and SteppingAction to Analysis
-//   Manager
-//   * replace the PhysicsList  with that in Hard03
 //
 
 #define G4VIS_USE 1
@@ -40,9 +36,9 @@
 #include "G4UIExecutive.hh"
 
 void Help() {
-  G4cout << "FastSim GEANT4 Simulation package" << G4endl;
-  G4cout << "Author: Hualin Xiao (hualin.xiao@psi.ch)" << G4endl;
-  G4cout << "Usage:" << G4endl << "./g4FastSim [OPTIONS] -m run.mac  -o OUTPUT"
+  G4cout << "g4STIX GEANT4 Simulation package" << G4endl;
+  G4cout << "Author: Hualin Xiao (hualin.xiao@fhnw.ch)" << G4endl;
+  G4cout << "Usage:" << G4endl << "./g4STIX [OPTIONS] -m run.mac  -o OUTPUT"
          << G4endl;
   G4cout << "Options:" << G4endl << " -i                  <input.root> "
          << G4endl
