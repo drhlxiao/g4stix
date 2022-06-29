@@ -3,7 +3,7 @@
 - ROOT version > 6.0
 - cmake
 - Geant4.10.05, other geant4 versions may also work but have not been tested
-# How to Run:
+# Compile and run
 ```sh
 cmake .
 make
