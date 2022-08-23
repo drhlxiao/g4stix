@@ -1,13 +1,14 @@
 ###################################################
 /stix/geo/att false
 /stix/geo/cad false
-/stix/geo/grids true
-/stix/geo/det 30
+/stix/geo/grids true 
+/stix/geo/det 30 #include detector 30 only,  remove this line to include all detectors 
 
 /run/initialize
 /process/em/fluo true
 
-/gps/particle gamma
+#particle gun
+/gps/particle gamma 
 /gps/pos/type Plane
 /gps/pos/shape Circle
 /gps/pos/radius 10 mm
