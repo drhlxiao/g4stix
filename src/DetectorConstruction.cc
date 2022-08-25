@@ -64,7 +64,7 @@ DetectorConstruction::DetectorConstruction() {
   detMsg = new DetectorMessenger(this);
 }
 void DetectorConstruction::ConstructSpacecraft() {
-  /*	G4double scWidth= 2.5 *m;
+  	G4double scWidth= 2.5 *m;
           G4double scHeight= 2.7 *m;
           G4double scLength= 3.1*m;
   //taken from wikipedia
@@ -91,7 +91,6 @@ void DetectorConstruction::ConstructSpacecraft() {
       scWidth/2
       );//in stix coordinate frame
 
-*/
 }
 
 void DetectorConstruction::ConstructGrids() {
@@ -469,6 +468,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   ConstructGrids();
 
   SetVisColors();
+
+  ConstructSpaceCraft();
 
   CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
   worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
