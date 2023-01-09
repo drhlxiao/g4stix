@@ -1,4 +1,4 @@
-/stix/geo/grids false
+/stix/geo/grids true
 /stix/geo/att false #set true or false will enable loading of gdml
 
 #/process/em/fluo true
@@ -8,11 +8,11 @@
 /gps/particle e-
 /gps/pos/type Plane
 /gps/pos/shape Circle
-/gps/pos/radius 70 mm
+/gps/pos/radius 50 mm
 /gps/pos/centre -239 103  370 mm #center 
 /gps/pos/rot1  0.7071 0 0.7071
 /gps/pos/rot2  0 1 0
-/gps/pos/rot1  0.7071 0 -0.7071
+/gps/direction 0.7071 0 -0.7071
 
 /gps/ene/type Lin
 /gps/ene/min 200 keV
@@ -20,4 +20,4 @@
 /gps/ene/intercept 1
 /gps/ene/gradient 0
 
-/run/beamOn 100000000
+/run/beamOn 1000000
