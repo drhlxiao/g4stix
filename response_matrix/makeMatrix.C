@@ -8,24 +8,28 @@
 #include <TCanvas.h>  
 #include <TF1.h>  
 #include <TH1F.h> 
- #include <TH2F.h> 
+#include <TH2F.h> 
 #include <string>    
 using namespace std; 
-int getScienceBin(double energy){
+int getScienceBin(Double_t energy){
 
 	double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 28, 32, 36, 40, 45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1e9};
 	if(energy<4)return 0;
-	if(energy>=150)return 31;
-	for(int i=0;i<31;i++)
-	{
-		if(energy>=energyRanges[i] && energy<energyRanges[i+1])return i;
+	else if(energy>=150)return 31;
+	else{
+		for(int i=0;i<31;i++)
+		{
+			if(energy>=energyRanges[i] && energy<energyRanges[i+1])return i;
+		}
 	}
-	 
+	return 31;
+
 }
 
 void makeMatrix(TString filein,  TString fout,
-	double maxEnergy, 
-	double eStep)
+		double eStep=0.1,
+		double maxEnergy=250 , Long64_t entries=0
+		)
 {
 	TFile *  f = new TFile(filein);
 	//f->GetObject("events",tree);
@@ -76,6 +80,9 @@ void makeMatrix(TString filein,  TString fout,
 
 
 	int num=(int)(maxEnergy/eStep);
+	cout<<"Number of bins:"<<num<<endl;
+	cout<<"Max Energy :"<<maxEnergy<<endl;
+	cout<<"Output:"<<fout<<endl;
 	TFile fo(fout,"recreate");
 
 	TH2F *hresp[32];
@@ -87,6 +94,7 @@ void makeMatrix(TString filein,  TString fout,
 	TH2F *hreal_stix[32];
 
 	int k=0;
+	cout<<"Creating histograms"<<endl;
 	for(k=0;k<32;k++) {
 		hresp[k]=new TH2F(Form("hresp_edep_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (keV)",k), num, 0, maxEnergy, num, 0, maxEnergy);
 		hcoll[k]=new TH2F(Form("hresp_coll_%d", k),Form("collected energies (Det%d); Energy (keV); Collected Energy (keV)",k), num, 0, maxEnergy, num, 0, maxEnergy);
@@ -99,12 +107,16 @@ void makeMatrix(TString filein,  TString fout,
 	}
 
 	Long64_t nentries = events->GetEntries();
+	cout<<"Number of enetries:"<<nentries<<endl;
+	if(entries>0)nentries=entries;
 
 	Long64_t nbytes = 0;
 	for (Long64_t i=0; i<nentries;i++) {
 		nbytes += events->GetEntry(i);
+		if(i%10000==0)cout<<i<<endl;
 		for(k=0;k<384;k++){
-			int det=k%384;
+			int det=k%12;
+
 			hresp[det]->Fill(E0, edep[k]);
 			hcoll[det]->Fill(E0, collected[k]);
 			hreal[det]->Fill(E0, charge2[k]);
@@ -115,6 +127,7 @@ void makeMatrix(TString filein,  TString fout,
 		}
 	}
 	fo.cd();
+	cout<<"Writing histograms"<<endl;
 	for(k=0;k<32;k++) {
 		hresp[k]->Write();
 		hcoll[k]->Write();
@@ -133,44 +146,49 @@ void Help(){
 }
 int main(int argc, char *argv[])
 {
-  TString outputFilename = "defaultOuput.root";
-  TString inputFilename;
+	TString outputFilename = "defaultOuput.root";
+	TString inputFilename;
 
-  if (argc == 1)  Help();
-  int s = 0;
-  TString sel;
+	if (argc == 1)  Help();
+	int s = 0;
+	TString sel;
 
-  double eStep=0.1;
-  double eMax=250;
-  while (s < argc - 1) {
-
-    sel = argv[++s];
-    if (sel == "-h" || sel == "--help" || sel == "--h") {
-      Help();
-      return 0;
-
-    } else if (sel == "-o") {
-      outputFilename = argv[++s];
-      if (!outputFilename.Contains(".root")) {
-        Help();
-        return 0;
-      }
-    } else if (sel == "-i") {
-      inputFilename= argv[++s];
-      if (!inputFilename.Contains(".root")) {
-        Help();
-        return 0;
-      }
-    } else if (sel == "-b") 
-	{
-      eStep= atof(argv[++s]);
-    }
-	else if (sel == "-m") {
-      eMax= atof(argv[++s]);
-  }
+	double eStep=0.1;
+	double eMax=250;
+	Long64_t entries=0;
 	
-  }
-  makeMatrix(inputFilename, outputFilename, eStep, eMax);
-	 
+	while (s < argc - 1) {
+
+		sel = argv[++s];
+		if (sel == "-h" || sel == "--help" || sel == "--h") {
+			Help();
+			return 0;
+
+		} else if (sel == "-o") {
+			outputFilename = argv[++s];
+			if (!outputFilename.Contains(".root")) {
+				Help();
+				return 0;
+			}
+		} else if (sel == "-i") {
+			inputFilename= argv[++s];
+			if (!inputFilename.Contains(".root")) {
+				Help();
+				return 0;
+			}
+		} else if (sel == "-b") 
+		{
+			eStep= atof(argv[++s]);
+		}
+		else if (sel == "-m") {
+			eMax= atof(argv[++s]);
+		}
+		else if (sel == "-n") {
+			entries= atoi(argv[++s]);
+		}
+
+	}
+	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries);
+
 	return 0;
 } 
