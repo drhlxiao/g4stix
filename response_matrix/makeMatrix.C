@@ -28,8 +28,7 @@ int getScienceBin(Double_t energy){
 
 void makeMatrix(TString filein,  TString fout,
 		double eStep=0.1,
-		double maxEnergy=250 , Long64_t entries=0
-		)
+		double maxEnergy=250 , Long64_t entries=0, double flux=1)
 {
 	TFile *  f = new TFile(filein);
 	//f->GetObject("events",tree);
@@ -96,13 +95,13 @@ void makeMatrix(TString filein,  TString fout,
 	int k=0;
 	cout<<"Creating histograms"<<endl;
 	for(k=0;k<32;k++) {
-		hresp[k]=new TH2F(Form("hresp_edep_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (keV)",k), num, 0, maxEnergy, num, 0, maxEnergy);
-		hcoll[k]=new TH2F(Form("hresp_coll_%d", k),Form("collected energies (Det%d); Energy (keV); Collected Energy (keV)",k), num, 0, maxEnergy, num, 0, maxEnergy);
-		hreal[k]=new TH2F(Form("hresp_real_%d", k),Form("Recorded energies (Det%d); Energy (keV); Recorded energy (keV) ",k), num, 0, maxEnergy, num,0, maxEnergy);
+		hresp[k]=new TH2F(Form("hresp_edep_%d", k),Form("Energy depositions (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Deposited energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
+		hcoll[k]=new TH2F(Form("hresp_coll_%d", k),Form("collected energies (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Collected Energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
+		hreal[k]=new TH2F(Form("hresp_real_%d", k),Form("Recorded energies (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Recorded energy (keV) ",k, flux), num, 0, maxEnergy, num,0, maxEnergy);
 
-		hresp_stix[k]=new TH2F(Form("hresp_edep_stix_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
-		hcoll_stix[k]=new TH2F(Form("hresp_coll_stix_%d", k),Form("Collected energies (Det%d); Energy (keV); Collected Energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
-		hreal_stix[k]=new TH2F(Form("hresp_real_stix_%d", k),Form("Recorded energies (Det%d); Energy (keV); Recorded energy (science bin) ",k), num, 0, maxEnergy, 33,0, 33);
+	//	hresp_stix[k]=new TH2F(Form("hresp_edep_stix_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
+	//	hcoll_stix[k]=new TH2F(Form("hresp_coll_stix_%d", k),Form("Collected energies (Det%d); Energy (keV); Collected Energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
+	//	hreal_stix[k]=new TH2F(Form("hresp_real_stix_%d", k),Form("Recorded energies (Det%d); Energy (keV); Recorded energy (science bin) ",k), num, 0, maxEnergy, 33,0, 33);
 
 	}
 
@@ -111,19 +110,19 @@ void makeMatrix(TString filein,  TString fout,
 	if(entries>0)nentries=entries;
 
 	Long64_t nbytes = 0;
+	double weight=1./flux;
 	for (Long64_t i=0; i<nentries;i++) {
 		nbytes += events->GetEntry(i);
-		if(i%10000==0)cout<<i<<endl;
+		if(i%10000==0)cout<<100*i/(nentries+0.0)<<endl;
 		for(k=0;k<384;k++){
+			if(edep[k]<=0)continue;
 			int det=k%12;
-
-			hresp[det]->Fill(E0, edep[k]);
-			hcoll[det]->Fill(E0, collected[k]);
-			hreal[det]->Fill(E0, charge2[k]);
-
-			hresp_stix[det]->Fill(E0, getScienceBin(edep[k]));
-			hcoll_stix[det]->Fill(E0, getScienceBin(collected[k]));
-			hreal_stix[det]->Fill(E0, getScienceBin(charge2[k]));
+			hresp[det]->Fill(E0, edep[k], weight);
+			hcoll[det]->Fill(E0, collected[k], weight);
+			hreal[det]->Fill(E0, charge2[k], weight);
+			//hresp_stix[det]->Fill(E0, getScienceBin(edep[k]));
+			//hcoll_stix[det]->Fill(E0, getScienceBin(collected[k]));
+			//hreal_stix[det]->Fill(E0, getScienceBin(charge2[k]));
 		}
 	}
 	fo.cd();
@@ -132,9 +131,9 @@ void makeMatrix(TString filein,  TString fout,
 		hresp[k]->Write();
 		hcoll[k]->Write();
 		hreal[k]->Write();
-		hresp_stix[k]->Write();
-		hcoll_stix[k]->Write();
-		hreal_stix[k]->Write();
+		//hresp_stix[k]->Write();
+		//hcoll_stix[k]->Write();
+		//hreal_stix[k]->Write();
 	}
 	fo.Close();
 	cout<<"Output file:"<<fout<<endl;
@@ -142,7 +141,7 @@ void makeMatrix(TString filein,  TString fout,
 }
 
 void Help(){
-	cout<<"make_matrix  -i input.root -o output.root  -b <energy step 0.1 >  -m <max energy, 250>"<<endl; 
+	cout<<"make_matrix  -i input.root -o output.root  -b <energy step 0.1 >  -m <max energy, 250> -f  <flux, in units of photons/(cm2*keV)>"<<endl; 
 }
 int main(int argc, char *argv[])
 {
@@ -156,6 +155,7 @@ int main(int argc, char *argv[])
 	double eStep=0.1;
 	double eMax=250;
 	Long64_t entries=0;
+	double flux=1;
 	
 	while (s < argc - 1) {
 
@@ -186,9 +186,12 @@ int main(int argc, char *argv[])
 		else if (sel == "-n") {
 			entries= atoi(argv[++s]);
 		}
+		else if (sel == "-f") {
+			flux = atof(argv[++s]);
+		}
 
 	}
-	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries);
+	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries, flux);
 
 	return 0;
 } 
