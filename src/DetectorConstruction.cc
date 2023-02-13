@@ -3,6 +3,7 @@
 // Date: Fri Jun 10, 2022
 #include "DetectorConstruction.hh"
 #include "globals.hh"
+#include <G4EllipticalTube.hh>
 #include <G4GenericTrap.hh>
 #include <G4Transform3D.hh>
 #include <G4TwoVector.hh>
@@ -64,11 +65,11 @@ DetectorConstruction::DetectorConstruction() {
   detMsg = new DetectorMessenger(this);
 }
 void DetectorConstruction::ConstructSpacecraft() {
-	//definition moved to gdml
-	/*
-  	G4double scWidth= 2.5 *m;
-          G4double scHeight= 2.7 *m;
-          G4double scLength= 3.1*m;
+  // definition moved to gdml
+  /*
+     G4double scWidth= 2.5 *m;
+     G4double scHeight= 2.7 *m;
+     G4double scLength= 3.1*m;
   //taken from wikipedia
   G4double scWallThickness=1*mm;
 
@@ -84,16 +85,16 @@ void DetectorConstruction::ConstructSpacecraft() {
     scHeight/2-1,
     scWidth/2-1
     );//in stix coordinate frame
-      //
+          //
 
-      G4SubtractionSolid *spacecraftHollowBox= new
-  G4SubtractionSolid("SpaceLab", SL_123, SL3hole_cons); G4LogicalVolume
-  *spacecraftLog=new G4LogicalVolume(spacecraftBox, Alum, "spacecraftLog", 0, 0,
-  0); G4Box *spacecraftBox= new G4Box("spacecaft", scLength/2, scHeight/2,
-      scWidth/2
-      );//in stix coordinate frame
+          G4SubtractionSolid *spacecraftHollowBox= new
+          G4SubtractionSolid("SpaceLab", SL_123, SL3hole_cons); G4LogicalVolume
+   *spacecraftLog=new G4LogicalVolume(spacecraftBox, Alum, "spacecraftLog", 0,
+  0, 0); G4Box *spacecraftBox= new G4Box("spacecaft", scLength/2, scHeight/2,
+   scWidth/2
+   );//in stix coordinate frame
 
-	  */
+*/
 }
 
 void DetectorConstruction::ConstructGrids() {
@@ -200,26 +201,18 @@ void DetectorConstruction::ConstructGrids() {
 G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector() {
   G4double bigW = 2.15 * mm;
   G4double bigH = 4.55 * mm;
-
   G4double bigSW = 1.1 * mm;
   G4double bigSH = 0.455 * mm;
-
   G4double smallW = 1.05 * mm;
   G4double smallH = 0.86 * mm;
-
   G4double pixel0CenterX = -3.3 * mm;
   G4double pixel0CenterY = 2.3 * mm;
-
   G4double pixel4CenterX = -3.3 * mm;
   G4double pixel4CenterY = -2.3 * mm;
-
   G4double deltaW = 2.2 * mm;
-
   G4double pixel8CenterX = -3.85 * mm;
-
   G4double cdTeCalisteOffset =
       0.8 * mm; //  (top margion) 0.2 + 10 + 1.8 (Bottom margin)  = 12
-
   G4double pixel8CenterY = 0 * mm;
   G4double cdteThickness = 1 * mm;
   G4double anodeThickness = (15 + 15 + 100) * 1e-9 * m; // 130 nm
@@ -227,23 +220,70 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector() {
       15 * 1e-9 *
       m; // 15 nm
          // thickness negligible  compared to the thickness  uncertainty
+
+  bool checkOverlaps = true;
+  // caliste
   G4double calisteWidth = 11 * mm;
   G4double calisteLength = 12 * mm;
   G4double calisteBaseHeight = 14.4 * mm;
-  G4double calisteTotalHight =
-      calisteBaseHeight + cdteThickness + anodeThickness + cathodeThickness;
+
+  G4double padHeight = 0.2 * mm;  // pads underneath the  CdTe
+  G4double pinsHeight = 1.2 * mm; //
+
+  G4double calisteTotalHight = calisteBaseHeight + cdteThickness +
+                               anodeThickness + cathodeThickness + padHeight +
+                               pinsHeight;
 
   G4Box *calisteWorld = new G4Box("CdTeModuleWorld", calisteWidth / 2,
                                   calisteLength / 2, calisteTotalHight / 2);
 
+  ////
+  ///// calisteResin base with different coating layers
+
   G4Box *calisteBaseOuter = new G4Box("CdTeModuleBaseOuter", calisteWidth / 2,
                                       calisteLength / 2, calisteBaseHeight / 2);
 
-  // G4Box *calisteBaseInner= new G4Box("CdTeModuleBase", 10.0 * mm *0.5 ,
-  //		11 * mm *0.5, 14 * mm*0.5);
-  //  not needed any more according to the information from Olivier
+  G4double coatingThickness[4] = {2e-3 * mm, 2.5e-3 * mm, 20e-3 * mm,
+                                  2e-3 * mm};
+  G4Material *coatingMateris[4] = {Nickle, Copper, Nickle, Resin};
+  // Au+Ni+Cu+2u
+  // different layer of the coating material is  considered as mixture
 
-  //
+  G4Box *calisteBaseInner[4];
+  G4String calisteBaseInnerLayerName[4] = {"nickle", "copper", "nickle",
+                                           "resin"};
+
+  G4LogicalVolume *calisteBaseInnerLog[4];
+  G4double totalCoatingThickness = 0;
+  G4LogicalVolume *calisteBaseOuterLog =
+      new G4LogicalVolume(calisteBaseOuter, Gold, "calisteBaseOuter", 0, 0, 0);
+
+G4LogicalVolume  *coatingMotherLog;
+
+  for (int i = 0; i < 4; i++) {
+    totalCoatingThickness += coatingThickness[i];
+    calisteBaseInner[i] = new G4Box(
+        G4String("CdTeModuleBaseInner_") + calisteBaseInnerLayerName[i],
+        calisteWidth / 2 - totalCoatingThickness,
+        calisteLength / 2 - totalCoatingThickness, calisteBaseHeight / 2);
+    calisteBaseInnerLog[i] = new G4LogicalVolume(
+        calisteBaseInner[i], coatingMateris[i],
+        G4String("log_CalisteBaseInner_") + calisteBaseInnerLayerName[i], 0, 0,
+        0);
+	if(i==0)coatingMotherLog=calisteBaseOuterLog;
+	else{
+		coatingMotherLog=calisteBaseInnerLog[i-1];
+	}
+
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 0), calisteBaseInnerLog[i],
+                      calisteBaseInnerLayerName[i] + "_phys",
+                      coatingMotherLog, false, 0, checkOverlaps);
+  }
+
+  // caliste base material, is unknown
+  // can be considered filled resin
+
+  /////construct CdTe and pixels
   G4Box *CdTeBox = new G4Box("CdTeDet", 5 * mm, 5 * mm, cdteThickness / 2.);
   G4Box *CdTeAnodeBox =
       new G4Box("CdTeAnode", 5 * mm, 5 * mm, anodeThickness / 2.);
@@ -251,7 +291,6 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector() {
       new G4Box("CdTeCathode", 5 * mm, 5 * mm, cathodeThickness / 2.);
 
   // Top and Small pixels
-
   std::vector<G4TwoVector> vertexCoordsTop;
   vertexCoordsTop.push_back(G4TwoVector(-bigW / 2, bigH / 2));
   vertexCoordsTop.push_back(G4TwoVector(bigW / 2, bigH / 2));
@@ -274,41 +313,27 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector() {
   G4ExtrudedSolid *bigPixelBottomGeo =
       new G4ExtrudedSolid("bottBigPixel", vertexCoordsBott, cdteThickness / 2.,
                           G4TwoVector(), 1, G4TwoVector(), 1);
-
-  bool checkOverlaps = true;
   G4Box *smallPixelGeo =
       new G4Box("smallPixel", smallW / 2, smallH / 2, cdteThickness / 2.);
   G4LogicalVolume *calisteLog =
       new G4LogicalVolume(calisteWorld, Vacuum, "calisteWorld", 0, 0, 0);
-  G4LogicalVolume *calisteBaseOuterLog =
-      new G4LogicalVolume(calisteBaseOuter, SiO2, "calisteBaseOuter", 0, 0, 0);
-  // caliste base material, is unknown
-
+  // CdTe detector module world
   G4LogicalVolume *CdTeDetLog =
       new G4LogicalVolume(CdTeBox, CdTe, "CdTeDetLog", 0, 0, 0);
-
   G4LogicalVolume *CdTeAnodeLog = new G4LogicalVolume(
       CdTeAnodeBox, goldLayerMaterial, "CdTeAnodeLog", 0, 0, 0);
-
   G4LogicalVolume *CdTeCathodeLog =
       new G4LogicalVolume(CdTeCathodeBox, Platinum, "CdTeCathodeLog", 0, 0, 0);
-
   G4LogicalVolume *bigPixelTopLog =
       new G4LogicalVolume(bigPixelTopGeo, CdTe, "bigPixelTopLog", 0, 0, 0);
-
   G4LogicalVolume *bigPixelBottomLog = new G4LogicalVolume(
       bigPixelBottomGeo, CdTe, "bigPixelBottomLog", 0, 0, 0);
-
   G4LogicalVolume *smallPixelLog =
       new G4LogicalVolume(smallPixelGeo, CdTe, "smallPixelLog", 0, 0, 0);
-
   G4int copyNb;
-
   G4double detZ = 0;
-
   // place electrode
   G4String name = "pixel";
-
   for (int i = 0; i < 4; i++) {
     // it becomes pixel4 after rotation
     copyNb = i;
@@ -333,13 +358,76 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector() {
                       copyNb, checkOverlaps);
   }
 
+  //////construct pads
+  //////
+  G4Tubs *roundPadGeo =
+      new G4Tubs("roundPadGeo", 0, 0.3 * mm, 0.1 * mm, 0, 360. * deg);
+  // 0.6 mm and 0.2 mm high
+  G4LogicalVolume *roundPadLog =
+      new G4LogicalVolume(roundPadGeo, SilverEpoxy, "roundPadLog", 0, 0, 0);
+
+  G4EllipticalTube *ellipticalPadGeo =
+      new G4EllipticalTube("elliptical", 0.3, 0.4 * mm, 0.1 * mm);
+  G4LogicalVolume *ellipticalPadLog = new G4LogicalVolume(
+      ellipticalPadGeo, SilverEpoxy, "ellipticalPadLog", 0, 0, 0);
+  G4Box *rectPadGeo =
+      new G4Box("rectPadGeo", 0.3 * mm, 4.45 / 2 * mm, 0.1 * mm);
+  G4LogicalVolume *rectPadLog =
+      new G4LogicalVolume(rectPadGeo, SilverEpoxy, "rectPadLog", 0, 0, 0);
+
+  G4double roundPadX[] = {
+      -3.744, -2.832, -1.541, -0.646, 0.714,  1.489,  2.849,  3.744,  -3.727,
+      -2.832, -1.541, -0.628, 0.680,  1.558,  2.832,  3.744,  -3.744, -2.849,
+      -1.523, -0.646, 0.646,  1.541,  2.832,  3.727,  -3.865, 2.746,  -3.710,
+      -2.832, -1.558, -0.628, 1.541,  2.832,  3.744,  3.727,  2.815,  1.523,
+      0.611,  -0.663, -1.523, -2.832, -3.710, 3.744,  2.849,  1.523,  0.628,
+      -0.663, -1.523, -2.832, -3.744, 0.559,  -1.627, 0.628};
+  G4double roundPadY[] = {
+      -4.678, -4.678, -4.695, -4.678, -4.678, -4.695, -4.644, -4.661, -3.768,
+      -3.768, -3.785, -3.768, -3.768, -3.751, -3.768, -3.768, -2.858, -2.876,
+      -2.910, -2.893, -2.893, -2.876, -2.876, -2.893, -0.747, -0.798, 1.296,
+      1.313,  1.313,  1.313,  1.348,  1.348,  1.365,  2.258,  2.240,  2.240,
+      2.258,  2.223,  2.240,  2.240,  2.240,  3.150,  3.150,  3.150,  3.150,
+      3.133,  3.116,  3.133,  3.133,  -0.764, -0.764, 1.365};
+  G4double ellipitalPadX[] = {-2.746, -2.763, -0.525, -0.542,
+                              1.644,  1.644,  3.830,  3.847};
+  G4double ellipitalPadY[] = {-1.433, -0.060, -1.451, -0.077,
+                              -1.451, -0.060, -1.433, -0.077};
+  G4double rectPadX[]={4.71,-4.75};
+  G4double rectPadY[]={-0.755, -0.755};
+  //positions extracted from the graph and verified using pyplot
+  G4double padZ=calisteTotalHight / 2 - cathodeThickness -
+                                      cdteThickness - anodeThickness - padHeight/2.; 
+
+  //placing pads
+  //
+  for(int i=0;i<52;i++){
+	  new G4PVPlacement(0,       G4ThreeVector(roundPadX[i]*mm, -roundPadY[i]*mm, padZ),
+                    roundPadLog, "roundPadPhys", calisteLog, false, i,
+                    checkOverlaps);
+					//reverse Y needed
+  }
+  for(int i=0;i<8;i++){
+	  new G4PVPlacement(0,       G4ThreeVector(ellipitalPadX[i]*mm, -ellipitalPadY[i]*mm, padZ),
+                    ellipticalPadLog, "ellipticalPadPhys", calisteLog, false, i,
+                    checkOverlaps);
+  }
+  for(int i=0;i<2;i++){
+	  new G4PVPlacement(0,       G4ThreeVector(rectPadX[i]*mm, -rectPadY[i]*mm, padZ),
+                    rectPadLog, "rectPadPhys", calisteLog, false, i,
+                    checkOverlaps);
+  }
+
+  //y reversed
+
+  // see email from olivier, sent on Feb. 09 2023: CAD model Caliste-SO
+
   // place all logical volume into CdTe
 
   new G4PVPlacement(0,
                     G4ThreeVector(0, cdTeCalisteOffset,
                                   calisteTotalHight / 2 - cathodeThickness / 2),
                     CdTeCathodeLog, "cathode", calisteLog, false, 0, true);
-
   new G4PVPlacement(0,
                     G4ThreeVector(0, cdTeCalisteOffset,
                                   calisteTotalHight / 2 - cathodeThickness -
@@ -352,12 +440,13 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTeDetector() {
                                   calisteTotalHight / 2 - cathodeThickness -
                                       cdteThickness - anodeThickness / 2),
                     CdTeAnodeLog, "anode", calisteLog, false, 0, true);
+  /// end of CdTe detector
 
   new G4PVPlacement(
       0,
       G4ThreeVector(0, 0,
                     calisteTotalHight / 2 - cathodeThickness - anodeThickness -
-                        cdteThickness - calisteBaseHeight / 2),
+                        padHeight - cdteThickness - calisteBaseHeight / 2),
       calisteBaseOuterLog, "calisteOuter", calisteLog, false, 0, checkOverlaps);
 
   return calisteLog;
@@ -377,11 +466,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   Platinum = nist_manager->FindOrBuildMaterial("G4_Pt");
   Copper = nist_manager->FindOrBuildMaterial("G4_Cu");
 
+  Siliver = nist_manager->FindOrBuildMaterial("G4_Ag");
+  Gold = nist_manager->FindOrBuildMaterial("G4_Au");
+  Nickle = nist_manager->FindOrBuildMaterial("G4_Ni");
+
   G4Element *elAl = nist_manager->FindOrBuildElement("Al");
+  G4Element *elH = nist_manager->FindOrBuildElement("H");
+  G4Element *elC = nist_manager->FindOrBuildElement("C");
   G4Element *elTi = nist_manager->FindOrBuildElement("Ti");
   G4Element *elCd = nist_manager->FindOrBuildElement("Cd");
   G4Element *elTe = nist_manager->FindOrBuildElement("Te");
   G4Element *elAu = nist_manager->FindOrBuildElement("Au");
+  G4Element *elAg = nist_manager->FindOrBuildElement("Ag");
 
   G4Element *elCr = nist_manager->FindOrBuildElement("Cr");
   G4Element *elZn = nist_manager->FindOrBuildElement("Zn");
@@ -389,11 +485,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   G4Element *elCu = nist_manager->FindOrBuildElement("Cu");
   G4Element *elFe = nist_manager->FindOrBuildElement("Fe");
   G4Element *elO = nist_manager->FindOrBuildElement("O");
-  G4Element *elSi = nist_manager->FindOrBuildElement("O");
+  G4Element *elSi = nist_manager->FindOrBuildElement("Si");
   G4Element *elMg = nist_manager->FindOrBuildElement("Mg");
 
   G4double density = 5.85 * g / cm3; // STIX-DS-0017-PSI
   G4int nelements, natoms;
+  G4double fractionmass;
   CdTe = new G4Material("CdTe", density, nelements = 2);
   CdTe->AddElement(elCd, natoms = 1);
   CdTe->AddElement(elTe, natoms = 1);
@@ -416,6 +513,43 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   Alum7075->AddElement(elCu, 0.016);
   Alum7075->AddElement(elFe, 0.0025);
   Alum7075->AddElement(elMn, 0.0015);
+
+  density = 1.2 * g / cm3;
+
+  Epoxy = new G4Material("Epoxy", 1.2 * g / cm3, nelements = 2);
+  Epoxy->AddElement(elH, natoms = 2);
+  Epoxy->AddElement(elC, natoms = 2);
+
+  density = 1.86 * g / cm3;
+  FR4 = new G4Material("FR4", density, nelements = 2);
+  FR4->AddMaterial(SiO2, 0.528);
+  FR4->AddMaterial(Epoxy, 0.472);
+
+  // 2/ Molding resin
+  // Use the following mixture
+  //+ density of the mixture 1.77
+  //+ 73% resin (C2H2)
+  //+ 27% SiO2
+
+  density = 1.77 * g / cm3;
+  Resin = new G4Material("Resin", density, nelements = 2);
+  Resin->AddMaterial(SiO2, fractionmass = 0.27);
+  Resin->AddMaterial(Epoxy, fractionmass = 0.73);
+
+  SilverEpoxy =
+      new G4Material("SilverEpoxy", density = 3.3 * g / cm3, nelements = 2);
+  SilverEpoxy->AddMaterial(Epoxy, fractionmass = 0.7);
+  SilverEpoxy->AddMaterial(Siliver, fractionmass = 0.3);
+
+  // MetalCoating = new G4Material("MetalCoating", density = 9 * g / cm3,
+  // nelements = 3); MetalCoating->AddMaterial(Nickle, fractionmass = 0.155);
+  // MetalCoating->AddMaterial(Gold, fractionmass = 0.15);
+  // MetalCoating->AddMaterial(Copper, fractionmass = 0.695);
+
+  LeadPadMat =
+      new G4Material("LeadPadMat", density = 11 * g / cm3, nelements = 2);
+  LeadPadMat->AddMaterial(Nickle, fractionmass = 0.587);
+  LeadPadMat->AddMaterial(Gold, fractionmass = 0.413);
 
   // construct world
   G4GDMLParser parser;
@@ -472,7 +606,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
   SetVisColors();
 
-  //ConstructSpaceCraft();
+  // ConstructSpaceCraft();
 
   CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
   worldLogical->SetVisAttributes(G4VisAttributes::Invisible);

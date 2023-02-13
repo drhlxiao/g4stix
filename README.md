@@ -9,6 +9,6 @@ cmake .
 make
 ./g4STIX  -m test.mac -o test.root -Ba133
 ```
-# mass model information
+# Materials and positions 
 see https://docs.google.com/spreadsheets/d/1_cStJZBpLF8T0uwpfPfBadFIsnr4oUwPPqxzYmvimJ4/edit?usp=sharing
 
