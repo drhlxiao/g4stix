@@ -50,7 +50,7 @@ private:
   G4Material *CdTe;
 G4Material *Epoxy, *FR4, *Resin,*SilverEpoxy;
   G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25, *Gold, *Nickle, *Siliver, *LeadPadMat,
-      *goldLayerMaterial, *Platinum, *Copper, *SiO2;
+      *goldLayerMaterial, *Platinum, *Copper, *SiO2, *padStackMaterial ;
   G4LogicalVolume *ConstructCdTeDetector();
   G4RotationMatrix rotMatrix;
 
