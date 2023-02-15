@@ -46,17 +46,22 @@ G4double CAD_GRID_RELATIVE_OFFSETS[32][3] = {
 };
 // above are nominal grid parameters
 
-G4double CAD_GEO_CENTER[3] = {21.0624, 165.599, 163.2};
-// geometry center of caliste, CdTe is off by 1.8 mm
+G4double CAD_SUBCOLLIMATOR_0_CENTER[3] = {21.0624, 165.599, 163.2};
+// geometry center of Caliste #1 (not caliste), measured from CAD
 // cdTe_Z=163.2+1.8
+// Note that the Caliste Center is not the sub-collimator center, pixels are shifted
 // calculation see the notebook in
 // /home/xiaohl/FHNW/STIX/CAD/steps/material_calculation.inpy
+//In the CAD file
+//X towards to the back side of optical axis, and Y to the code plate with screws (left side of STIX seeing from the Sun)
+//Z to the top of STIX 
 
 G4ThreeVector getCalisteCenterCoordsCAD(int i) {
-  G4ThreeVector v(CAD_GEO_CENTER[0] * mm + CAD_GRID_RELATIVE_OFFSETS[i][0] * mm,
-                  CAD_GEO_CENTER[1] * mm + CAD_GRID_RELATIVE_OFFSETS[i][1] * mm,
-                  CAD_GEO_CENTER[2] * mm +
+  G4ThreeVector v(CAD_SUBCOLLIMATOR_0_CENTER[0] * mm + CAD_GRID_RELATIVE_OFFSETS[i][0] * mm,
+                  CAD_SUBCOLLIMATOR_0_CENTER[1] * mm + CAD_GRID_RELATIVE_OFFSETS[i][1] * mm,
+                  CAD_SUBCOLLIMATOR_0_CENTER[2] * mm +
                       CAD_GRID_RELATIVE_OFFSETS[i][2] * mm);
+  //offsets to the first CdTe
   return v;
 };
 G4ThreeVector getGridCenterCAD(int i, int layer = 0) {
@@ -66,6 +71,7 @@ G4ThreeVector getGridCenterCAD(int i, int layer = 0) {
                     -579.523 + offset}; // measured from cad drawing
 
   G4double grid0Center[3] = {0, 165.599, 164.0};
+  //grid center is shifted by 0.8 mm
   G4ThreeVector v(x0[layer] * mm + CAD_GRID_RELATIVE_OFFSETS[i][0] * mm,
                   grid0Center[1] * mm + CAD_GRID_RELATIVE_OFFSETS[i][1] * mm,
                   grid0Center[2] * mm + CAD_GRID_RELATIVE_OFFSETS[i][2] * mm);

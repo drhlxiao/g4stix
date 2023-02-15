@@ -10,6 +10,7 @@
 class G4VSolid;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
+class G4AssemblyVolume;
 class G4Material;
 #include "DetectorMessenger.hh"
 
@@ -47,11 +48,20 @@ private:
   G4bool attenuatorIn;
   G4String fWorldFile;
   G4LogicalVolume *worldLogical;
+  G4LogicalVolume *padsLogical, *cdTeLogical, *calisteBaseLogical;
   G4Material *CdTe;
 G4Material *Epoxy, *FR4, *Resin,*SilverEpoxy;
   G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25, *Gold, *Nickle, *Siliver, *LeadPadMat,
       *goldLayerMaterial, *Platinum, *Copper, *SiO2, *padStackMaterial ;
-  G4LogicalVolume *ConstructCdTeDetector();
+
+  G4LogicalVolume *ConstructCaliste();
+  G4LogicalVolume *ConstructCalisteBase();
+  G4LogicalVolume *ConstructCdTe();
+  G4AssemblyVolume *ConstructPads();
+	bool checkOverlaps ;
+
+	// caliste
+
   G4RotationMatrix rotMatrix;
 
   G4VPhysicalVolume *worldPhysical;
