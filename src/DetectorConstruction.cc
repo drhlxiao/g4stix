@@ -702,8 +702,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	// X-ray window
 
-	ConstructCFL();
-	ConstructBKG();
+	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
+		if(activatedDetectorFlag==8)ConstructCFL();
+		if(activatedDetectorFlag==9)ConstructBKG();
+
+	}
+	else{
+		ConstructCFL();
+		ConstructBKG();
+	}
 	ConstructGrids();
 	SetVisColors();
 
