@@ -72,20 +72,22 @@ const	G4double calisteBaseThickness = 14.4 * mm;
 const G4double CdTeCalisteOffsetY =
 0.8 * mm; //  (top margion) 0.2 + 10 + 1.8 (Bottom margin)  = 12
 
-const G4double highVoltageBondingRodLength=0.4*mm;
-const G4double highVoltageBondingRodWidth=2*mm;
-const G4double highVoltageBondingRodThickness=0.25*mm;
-const G4double padThickness = 0.2 * mm;  // pads underneath the  CdTe
+const G4double bondingLandZoneOnModuleLength=0.4*mm;
+const G4double bondingLandZoneOnModuleWidth=2*mm;
+const G4double bondingLandZoneOnModuleThickness=0.25*mm;
 const G4double pinsThickness = 1.2 * mm; //
 G4double padCdTeBondingWidth=0.4*mm;
 G4double padCdTeBondingLength=1*mm;
 G4double padCdTeBondingThickness=0.250*mm;
+G4double silverThickness=0.2*mm;
+G4double platingThickness=(2+20+2.5+2)*1e-3*mm;
+G4double padTotalThickness = silverThickness +platingThickness;  // pads underneath the  CdTe
 
 G4RotationMatrix *noRotation=new G4RotationMatrix(0.,0.,0.); 
 G4double CdTeTotalThickness=anodeThickness+cdteThickness+cathodeThickness;
 
 
-const G4double calisteTotalHight = calisteBaseThickness + cdteThickness + anodeThickness + cathodeThickness + padThickness + pinsThickness + padCdTeBondingThickness;
+const G4double calisteTotalHight = calisteBaseThickness + cdteThickness + anodeThickness + cathodeThickness + padTotalThickness + pinsThickness + padCdTeBondingThickness;
 //16.6
 
 
@@ -351,15 +353,25 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTe() {
 }
 G4LogicalVolume *DetectorConstruction::ConstructCalisteBase() {
 
-	G4Box *calisteBaseOuter = new G4Box("CdTeModuleBaseOuter", calisteWidth / 2,
+	G4Box *calisteBaseOuter = new G4Box("CdTeModuleBaseOuter", calisteWidth / 2, 
 			calisteLength / 2, calisteBaseThickness / 2);
 
+	G4LogicalVolume *calisteBaseOuterLog =
+		new G4LogicalVolume(calisteBaseOuter, Gold, "calisteBaseOuter", 0, 0, 0);
 
+
+	// Au+Ni+Cu+2u
+	////////Plating from inside to outside:
+	//+ All surfaces 
+	//+ Ni 2u + Cu 20u + Ni 2.5u + Au 2 u
+	// 
 	G4double coatingThickness[4] = {2e-3 * mm, 2.5e-3 * mm, 20e-3 * mm,
 		2e-3 * mm};
+	//we need to reverse the order
 	G4Material *coatingMateris[4] = {Nickle, Copper, Nickle, Resin};
-	// Au+Ni+Cu+2u
+	//outest layer is gold
 	// different layer of the coating material is  considered as mixture
+
 
 	G4Box *calisteBaseInner[4];
 	G4String calisteBaseInnerLayerName[4] = {"nickle", "copper", "nickle",
@@ -367,8 +379,6 @@ G4LogicalVolume *DetectorConstruction::ConstructCalisteBase() {
 
 	G4LogicalVolume *calisteBaseInnerLog[4];
 	G4double totalCoatingThickness = 0;
-	G4LogicalVolume *calisteBaseOuterLog =
-		new G4LogicalVolume(calisteBaseOuter, Gold, "calisteBaseOuter", 0, 0, 0);
 
 	G4LogicalVolume  *coatingMotherLog;
 
@@ -382,7 +392,9 @@ G4LogicalVolume *DetectorConstruction::ConstructCalisteBase() {
 				calisteBaseInner[i], coatingMateris[i],
 				G4String("log_CalisteBaseInner_") + calisteBaseInnerLayerName[i], 0, 0,
 				0);
-		if(i==0)coatingMotherLog=calisteBaseOuterLog;
+		if(i==0){
+			coatingMotherLog=calisteBaseOuterLog;
+		}
 		else{
 			coatingMotherLog=calisteBaseInnerLog[i-1];
 		}
@@ -395,26 +407,47 @@ G4LogicalVolume *DetectorConstruction::ConstructCalisteBase() {
 }
 G4AssemblyVolume *DetectorConstruction::ConstructPads() {
 
-	G4AssemblyVolume* padAssembly= new G4AssemblyVolume();
-	//orgin at the top surface
-
 	//////construct pads
 	//////
-	G4Tubs *roundPadGeo =
-		new G4Tubs("roundPadGeo", 0, 0.3 * mm, 0.1 * mm, 0, 360. * deg);
-	// 0.6 mm and 0.2 mm high
-	G4LogicalVolume *roundPadLog =
-		new G4LogicalVolume(roundPadGeo, padStackMaterial, "roundPadLog", 0, 0, 0);
+	G4AssemblyVolume* padAssembly= new G4AssemblyVolume();
+	G4double padZ=0*mm;
 
+	G4ThreeVector TmStackInPadMother(0,0, - padTotalThickness/2 + platingThickness/2); 
+
+	//round pad 
+	G4Tubs *roundPadGeo =
+		new G4Tubs("roundPadGeo", 0, 0.3 * mm, padTotalThickness/2., 0, 360. * deg);
+	G4Tubs *roundPadStackGeo =
+		new G4Tubs("roundPadStackGeo", 0, 0.3 * mm, platingThickness/2., 0, 360. * deg);
+
+	G4LogicalVolume *roundPadLog =
+		new G4LogicalVolume(roundPadGeo, SilverEpoxy, "roundPadLog", 0, 0, 0);
+	G4LogicalVolume *roundPadStackLog =
+		new G4LogicalVolume(roundPadStackGeo, padStackMaterial, "roundPadStackLog", 0, 0, 0);
+	new G4PVPlacement(0, TmStackInPadMother, roundPadStackLog, "roundPadStackPhys", roundPadLog, false, 0, checkOverlaps); 
+
+	//elliptical pads
 	G4EllipticalTube *ellipticalPadGeo =
-		new G4EllipticalTube("elliptical", 0.3, 0.4 * mm, 0.1 * mm);
+		new G4EllipticalTube("ellipticalGeo", 0.3, 0.4 * mm, padTotalThickness/2);
+	G4EllipticalTube *ellipticalPadStackGeo =
+		new G4EllipticalTube("ellipticalStackGeo", 0.3, 0.4 * mm, platingThickness/2);
 	G4LogicalVolume *ellipticalPadLog = new G4LogicalVolume(
-			ellipticalPadGeo, padStackMaterial, "ellipticalPadLog", 0, 0, 0);
+			ellipticalPadGeo, SilverEpoxy, "ellipticalPadLog", 0, 0, 0);
+	G4LogicalVolume *ellipticalPadStackLog = new G4LogicalVolume(
+			ellipticalPadStackGeo, padStackMaterial, "ellipticalPadStackLog", 0, 0, 0);
+	new G4PVPlacement(0, TmStackInPadMother, ellipticalPadStackLog, "ellipticalPadStackLog", ellipticalPadLog, false, 0, checkOverlaps); 
 
 	G4Box *rectPadGeo =
-		new G4Box("rectPadGeo", 0.3 * mm, 4.45 / 2 * mm, 0.1 * mm);
+		new G4Box("rectPadGeo", 0.3 * mm, 4.45 / 2 * mm, padTotalThickness/2.);
 	G4LogicalVolume *rectPadLog =
-		new G4LogicalVolume(rectPadGeo, padStackMaterial, "rectPadLog", 0, 0, 0);
+		new G4LogicalVolume(rectPadGeo, SilverEpoxy, "rectPadLog", 0, 0, 0);
+
+	G4Box *rectPadStackGeo =
+		new G4Box("rectPadStckGeo", 0.3 * mm, 4.45 / 2 * mm, platingThickness/2.);
+	G4LogicalVolume *rectPadStackLog =
+		new G4LogicalVolume(rectPadStackGeo, padStackMaterial, "rectPadStackLog", 0, 0, 0);
+	new G4PVPlacement(0, TmStackInPadMother, rectPadStackLog, "rectPadStackPhys", rectPadLog, false, 0, checkOverlaps); 
+
 
 	G4double roundPadX[] = {
 		-3.744, -2.832, -1.541, -0.646, 0.714,  1.489,  2.849,  3.744,  -3.727,
@@ -437,11 +470,7 @@ G4AssemblyVolume *DetectorConstruction::ConstructPads() {
 	G4double rectPadX[]={4.71,-4.75};
 	G4double rectPadY[]={-0.755, -0.755};
 	//positions extracted from the graph and verified using pyplot
-	G4double padZ=0*mm;
-	//	calisteTotalHight / 2 - 
-	//	padCdTeBondingThickness -
-	//	cathodeThickness -
-	//	cdteThickness - anodeThickness - padThickness/2.; 
+	//	cdteThickness - anodeThickness - padTotalThickness/2.; 
 
 	//placing pads
 	//
@@ -461,33 +490,28 @@ G4AssemblyVolume *DetectorConstruction::ConstructPads() {
 	// see email from olivier, sent on Feb. 09 2023: CAD model Caliste-SO
 	//
 	//Place the gold bonding rod for HV
+	G4Box *bondingLandZoneOnModuleGeo=
+		new G4Box("bondingLandZoneOnModuleGeo", 
+				bondingLandZoneOnModuleWidth/2, 
+				bondingLandZoneOnModuleLength/ 2 , bondingLandZoneOnModuleThickness/2);
 
-	G4Box *highVoltageBondingRodPadGeo=
-		new G4Box("highVoltageBondingRodPadGeo", 
-				highVoltageBondingRodWidth/2, highVoltageBondingRodLength/ 2 , highVoltageBondingRodThickness/2);
-
-	G4LogicalVolume *highVoltageBondingRodLog = new G4LogicalVolume(highVoltageBondingRodPadGeo, 
-			padStackMaterial, "highVoltageBondingRodLog", 0, 0, 0);
-
+	G4LogicalVolume *bondingLandZoneOnModuleLog = new G4LogicalVolume(bondingLandZoneOnModuleGeo, 
+			Gold, "bondingLandZoneOnModuleLog", 0, 0, 0);
 	G4Box *padCdTeBondingGeo=
 		new G4Box("padCdTeBondingGeo", 
 				padCdTeBondingWidth/2, padCdTeBondingLength/ 2 , padCdTeBondingThickness/2);
 	G4LogicalVolume *padCdTeBondingLog = new G4LogicalVolume(
 			padCdTeBondingGeo, 
-			padStackMaterial, "padCdTeBondingLog", 0, 0, 0);
+			Gold, "padCdTeBondingLog", 0, 0, 0);
+	G4ThreeVector TmHVPad(calisteWidth/2 - bondingLandZoneOnModuleWidth/2,
+			- calisteLength/2. + bondingLandZoneOnModuleLength/2., 
+			padZ + (bondingLandZoneOnModuleThickness-padTotalThickness)/2.);  
 
-
-	G4ThreeVector TmHVPad(calisteWidth/2 - highVoltageBondingRodWidth/2,
-			- calisteLength/2. + highVoltageBondingRodLength/2., 
-			padZ + (highVoltageBondingRodThickness-padThickness)/2.);  
-
-
-	padAssembly->AddPlacedVolume(highVoltageBondingRodLog, TmHVPad,
+	padAssembly->AddPlacedVolume(bondingLandZoneOnModuleLog, TmHVPad,
 			noRotation);
 	//placed at the corner corner	
-
 	G4ThreeVector TmCdTePadInAssembly(4.8*mm, -3.5*mm,
-			padZ + padThickness/2. + CdTeTotalThickness + padCdTeBondingThickness/2);
+			padZ + padTotalThickness/2. + CdTeTotalThickness + padCdTeBondingThickness/2);
 	padAssembly->AddPlacedVolume(padCdTeBondingLog, TmCdTePadInAssembly, noRotation);
 	//center is at the pad center
 	return padAssembly;
@@ -499,23 +523,20 @@ G4LogicalVolume *DetectorConstruction::ConstructCaliste() {
 	G4LogicalVolume *calisteLog =
 		new G4LogicalVolume(calisteWorld, Vacuum, "calisteWorld", 0, 0, 0);
 	// CdTe detector module world
-	G4AssemblyVolume *padAssembly=ConstructPads();
 	G4LogicalVolume *CdTeLog=ConstructCdTe();
 	G4LogicalVolume *calisteBaseLog=ConstructCalisteBase();
+	G4ThreeVector TmHVBondingPad(0,0,
+			calisteTotalHight/2- (padCdTeBondingThickness+CdTeTotalThickness) - padTotalThickness/2); 
 
+	G4AssemblyVolume *padAssembly=ConstructPads();
+	padAssembly->MakeImprint(calisteLog, TmHVBondingPad, noRotation);
 
-	//calisteTotalHight = calisteBaseThickness + cdteThickness + anodeThickness + cathodeThickness + padThickness + pinsThickness + padCdTeBondingThickness;
-	G4ThreeVector TmPad(0,0,
-			calisteTotalHight/2- (padCdTeBondingThickness+CdTeTotalThickness) - padThickness/2); 
-
-	padAssembly->MakeImprint(calisteLog, TmPad, noRotation);
-	//assember center of the center of all pads
 
 	G4ThreeVector TmCdTe(0,CdTeCalisteOffsetY,
 			calisteTotalHight/2- padCdTeBondingThickness-CdTeTotalThickness/2
 			);
 	//shifted by 0.8 mm
-	G4ThreeVector TmCalisteBase(0,0, calisteTotalHight/2- padCdTeBondingThickness-CdTeTotalThickness-padThickness - calisteBaseThickness/2); 
+	G4ThreeVector TmCalisteBase(0,0, calisteTotalHight/2- padCdTeBondingThickness-CdTeTotalThickness-padTotalThickness - calisteBaseThickness/2); 
 
 	new G4PVPlacement(0, TmCdTe, CdTeLog, "CdTeLog", calisteLog, false, 0, checkOverlaps); 
 	new G4PVPlacement(0, TmCalisteBase, 			calisteBaseLog, "calisteBasePhys", calisteLog, false, 0, checkOverlaps); 
