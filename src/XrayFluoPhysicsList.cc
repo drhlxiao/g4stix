@@ -322,20 +322,20 @@ void XrayFluoPhysicsList::SetCutForProton(G4double cut) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// void XrayFluoPhysicsList::SetFluorescence(G4bool value)
-//{
-//  G4VAtomDeexcitation* de =
-//  G4LossTableManager::Instance()->AtomDeexcitation(); if(de) {
-//  de->SetFluo(value); }
-//}
+ void XrayFluoPhysicsList::SetFluorescence(G4bool value)
+{
+  G4VAtomDeexcitation* de =
+  G4LossTableManager::Instance()->AtomDeexcitation(); if(de) {
+  de->SetFluo(value); }
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-// void XrayFluoPhysicsList::SetPIXE(G4bool value)
-//{
-//  G4VAtomDeexcitation* de =
-//  G4LossTableManager::Instance()->AtomDeexcitation(); if(de) {
-//  de->SetPIXE(value); }
-//}
+ void XrayFluoPhysicsList::SetPIXE(G4bool value)
+{
+  G4VAtomDeexcitation* de =
+ G4LossTableManager::Instance()->AtomDeexcitation(); if(de) {
+  de->SetPIXE(value); }
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

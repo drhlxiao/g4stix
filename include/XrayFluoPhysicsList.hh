@@ -60,6 +60,10 @@ public:
   void SetCutForProton(G4double);
   void SetFluorescence(G4bool);
   void SetPIXE(G4bool);
+  void SetPhysListName(G4String name){
+	  AddPhysicsList(name);
+  }
+
 
 private:
   XrayFluoPhysicsListMessenger *pMessenger;

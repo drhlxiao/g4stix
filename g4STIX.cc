@@ -49,6 +49,7 @@ void Help() {
          << "                     The structure of the root file is defined in "
             "t2sim.h ."
          << G4endl << " -k                  kill track in grids " << G4endl
+         << G4endl << " -qgsp               Use QGSP_EMX model" << G4endl
          << " -h                  print help information" << G4endl;
 }
 
@@ -63,8 +64,16 @@ int main(int argc, char **argv) {
 
   int s = 0;
   bool killTrackInGrids = false;
+  bool useQGSP=false;
   G4String sel;
+  G4String commandLine;
+
+	for(int i=0;i<argc;i++){
+		commandLine+=" ";
+		commandLine+=argv[i];
+	}
   while (s < argc - 1) {
+	  
 
     sel = argv[++s];
     if (sel == "-h" || sel == "--help" || sel == "--h") {
@@ -85,6 +94,8 @@ int main(int argc, char **argv) {
       }
     } else if (sel == "-k") {
       killTrackInGrids = true;
+    } else if (sel == "-qgsp") {
+      useQGSP= true;
     } else if (sel == "-Ba133") {
       particleSourceType = "Ba133";
       /*if(!particleSourceType.contains(".root"))
@@ -105,6 +116,7 @@ int main(int argc, char **argv) {
 
   if (killTrackInGrids)
     analysisManager->KillTracksInGrids();
+	analysisManager->SetCommandLine(commandLine);
 
   //#ifdef G4MULTITHREADED
   /*
@@ -128,13 +140,16 @@ int main(int argc, char **argv) {
   // G4VUserPhysicsList* physics = new FTFP_BERT;
   //   runManager->SetUserInitialization(physics);
 
-  /*  G4String plname = "QGSP_BIC_EMY";  // set whatever you like ...
+  if(useQGSP)
+  {
+    G4String plname = "QGSP_BIC_EMY";  // set whatever you like ...
     G4PhysListFactory factory;
    G4VModularPhysicsList* physlist = factory.GetReferencePhysList(plname);
     runManager->SetUserInitialization(physlist);
-    */
-
-  runManager->SetUserInitialization(new XrayFluoPhysicsList());
+  }
+  else{
+	  runManager->SetUserInitialization(new XrayFluoPhysicsList());
+  }
 
   G4cout << "Initializing primary generation" << G4endl;
   PrimaryGeneratorAction *primarygen = new PrimaryGeneratorAction();
@@ -156,7 +171,6 @@ int main(int argc, char **argv) {
   G4VisManager *visManager = new G4VisExecutive;
   visManager->Initialize();
   //#endif
-
   if (macFilename == "") {
     //#ifdef G4UI_USE
     G4UIExecutive *ui = new G4UIExecutive(argc, argv, "qt");

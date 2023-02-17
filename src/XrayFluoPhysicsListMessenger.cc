@@ -46,7 +46,7 @@ XrayFluoPhysicsListMessenger::XrayFluoPhysicsListMessenger(
   physDir = new G4UIdirectory("/phys/");
   physDir->SetGuidance("physics list commands");
 
-  pListCmd = new G4UIcmdWithAString("/phys/addPhysics", this);
+  pListCmd = new G4UIcmdWithAString("/phys/set", this);
   pListCmd->SetGuidance("Add modules physics list.");
   pListCmd->SetParameterName("PList", false);
   pListCmd->AvailableForStates(G4State_PreInit);
@@ -79,7 +79,7 @@ XrayFluoPhysicsListMessenger::XrayFluoPhysicsListMessenger(
   allCutCmd->SetRange("cut>0.0");
   allCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  /*fluoCmd = new G4UIcmdWithABool("/phys/fluo",this);
+  fluoCmd = new G4UIcmdWithABool("/phys/fluo",this);
   fluoCmd->SetGuidance("Set fluorescence on/off.");
   fluoCmd->SetParameterName("fluo",false);
   fluoCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -88,7 +88,7 @@ XrayFluoPhysicsListMessenger::XrayFluoPhysicsListMessenger(
   pixeCmd->SetGuidance("Set PIXE on/off.");
   pixeCmd->SetParameterName("pixe",false);
   pixeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-  */
+  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -100,8 +100,8 @@ XrayFluoPhysicsListMessenger::~XrayFluoPhysicsListMessenger() {
   delete protoCutCmd;
   delete allCutCmd;
   delete physDir;
-  //  delete fluoCmd;
-  //  delete pixeCmd;
+    delete fluoCmd;
+    delete pixeCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -137,11 +137,11 @@ void XrayFluoPhysicsListMessenger::SetNewValue(G4UIcommand *command,
   // Notify the run manager that the physics has been modified
   G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 
-  //  if( command == fluoCmd )
-  //   { pPhysicsList->SetFluorescence(fluoCmd->GetNewBoolValue(newValue));}
-  //
-  //  if( command == pixeCmd )
-  //   { pPhysicsList->SetPIXE(fluoCmd->GetNewBoolValue(newValue));}
+    if( command == fluoCmd )
+     { pPhysicsList->SetFluorescence(fluoCmd->GetNewBoolValue(newValue));}
+  
+    if( command == pixeCmd )
+     { pPhysicsList->SetPIXE(fluoCmd->GetNewBoolValue(newValue));}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

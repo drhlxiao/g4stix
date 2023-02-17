@@ -71,7 +71,8 @@ void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
     G4cout << "can not open the macro file, existing..." << G4endl;
     return;
   }
-  G4String macros = Form("Macro filename: %s\n ", macroFilename.Data());
+  G4String macros = commandLine;
+  macros+=Form("\nMacro filename: %s\n ", macroFilename.Data());
   std::string line;
   G4cout << "Macros read from the macro file:" << G4endl;
   while (std::getline(infile, line)) {

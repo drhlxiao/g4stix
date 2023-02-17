@@ -34,6 +34,7 @@ public:
   void SetEventID(G4int eventid) { eventID = eventid; }
   void SetOutputFileName(TString filen) { outputFilename = filen; }
 
+  void SetCommandLine(G4String s){commandLine=s;}
   void InitEvent(const G4Event *event);
   void ProcessEvent(const G4Event *event);
   void ProcessStep(const G4Step *aStep);
@@ -64,6 +65,7 @@ private:
   TFile *rootFile;
   TTree *evtTree;
   long long totalHits;
+  G4String commandLine;
 
   G4int itrack;
 
