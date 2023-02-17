@@ -1,4 +1,6 @@
 # A Monte Carlo Simulation package for STIX
+
+
 # Requirements
 - ROOT version > 6.0
 - cmake
@@ -11,4 +13,13 @@ make
 ```
 # Materials and positions 
 see https://docs.google.com/spreadsheets/d/1_cStJZBpLF8T0uwpfPfBadFIsnr4oUwPPqxzYmvimJ4/edit?usp=sharing
+
+
+
+#history
+2023-02-17
+  added pads to caliste, pins, 
+  attenuator stays in the model when att is out
+  added PCB, approximation of PCB
+
 

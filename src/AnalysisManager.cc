@@ -71,7 +71,7 @@ void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
     G4cout << "can not open the macro file, existing..." << G4endl;
     return;
   }
-  G4String macros = commandLine;
+  G4String macros = Form("\nCommand:%s\n", commandLine.data());
   macros+=Form("\nMacro filename: %s\n ", macroFilename.Data());
   std::string line;
   G4cout << "Macros read from the macro file:" << G4endl;
@@ -300,14 +300,13 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
   }
 
   if (volName == "pixel") {
-    detIdx = track->GetTouchable()->GetCopyNumber(2);
+    detIdx = track->GetTouchable()->GetCopyNumber(3);
     pixelID = track->GetTouchable()->GetCopyNumber(0);
     G4double edep = aStep->GetTotalEnergyDeposit() / keV;
 
-    /*G4cout<<track->GetTouchable()->GetCopyNumber(0)<<","
-      <<track->GetTouchable()->GetCopyNumber(1)<<","
-      <<track->GetTouchable()->GetCopyNumber(2)<<" EDEP: "<<edep<<G4endl;
-      */
+    G4cout<<track->GetTouchable()->GetCopyNumber(0)<<","
+     <<track->GetTouchable()->GetCopyNumber(1)<<","
+      <<track->GetTouchable()->GetCopyNumber(3)<<" EDEP: "<<edep<<G4endl;
     //	*/
 
     detectorID = detIdx * 12 + pixelID;
