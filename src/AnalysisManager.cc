@@ -304,9 +304,9 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
     pixelID = track->GetTouchable()->GetCopyNumber(0);
     G4double edep = aStep->GetTotalEnergyDeposit() / keV;
 
-    G4cout<<track->GetTouchable()->GetCopyNumber(0)<<","
-     <<track->GetTouchable()->GetCopyNumber(1)<<","
-      <<track->GetTouchable()->GetCopyNumber(3)<<" EDEP: "<<edep<<G4endl;
+    //G4cout<<track->GetTouchable()->GetCopyNumber(0)<<","
+    // <<track->GetTouchable()->GetCopyNumber(1)<<","
+     // <<track->GetTouchable()->GetCopyNumber(3)<<" EDEP: "<<edep<<G4endl;
     //	*/
 
     detectorID = detIdx * 12 + pixelID;
