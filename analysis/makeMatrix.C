@@ -99,9 +99,9 @@ void makeMatrix(TString filein,  TString fout,
 		hcoll[k]=new TH2F(Form("hresp_coll_%d", k),Form("collected energies (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Collected Energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
 		hreal[k]=new TH2F(Form("hresp_real_%d", k),Form("Recorded energies (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Recorded energy (keV) ",k, flux), num, 0, maxEnergy, num,0, maxEnergy);
 
-	//	hresp_stix[k]=new TH2F(Form("hresp_edep_stix_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
-	//	hcoll_stix[k]=new TH2F(Form("hresp_coll_stix_%d", k),Form("Collected energies (Det%d); Energy (keV); Collected Energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
-	//	hreal_stix[k]=new TH2F(Form("hresp_real_stix_%d", k),Form("Recorded energies (Det%d); Energy (keV); Recorded energy (science bin) ",k), num, 0, maxEnergy, 33,0, 33);
+		hresp_stix[k]=new TH2F(Form("hresp_edep_stix_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
+		hcoll_stix[k]=new TH2F(Form("hresp_coll_stix_%d", k),Form("Collected energies (Det%d); Energy (keV); Collected Energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
+		hreal_stix[k]=new TH2F(Form("hresp_real_stix_%d", k),Form("Recorded energies (Det%d); Energy (keV); Recorded energy (science bin) ",k), num, 0, maxEnergy, 33,0, 33);
 
 	}
 
@@ -116,13 +116,13 @@ void makeMatrix(TString filein,  TString fout,
 		if(i%10000==0)cout<<100*i/(nentries+0.0)<<endl;
 		for(k=0;k<384;k++){
 			if(edep[k]<=0)continue;
-			int det=k%12;
+			int det=(int)(k/12);
 			hresp[det]->Fill(E0, edep[k], weight);
 			hcoll[det]->Fill(E0, collected[k], weight);
 			hreal[det]->Fill(E0, charge2[k], weight);
-			//hresp_stix[det]->Fill(E0, getScienceBin(edep[k]));
-			//hcoll_stix[det]->Fill(E0, getScienceBin(collected[k]));
-			//hreal_stix[det]->Fill(E0, getScienceBin(charge2[k]));
+			hresp_stix[det]->Fill(E0, getScienceBin(edep[k]));
+			hcoll_stix[det]->Fill(E0, getScienceBin(collected[k]));
+			hreal_stix[det]->Fill(E0, getScienceBin(charge2[k]));
 		}
 	}
 	fo.cd();
@@ -131,9 +131,9 @@ void makeMatrix(TString filein,  TString fout,
 		hresp[k]->Write();
 		hcoll[k]->Write();
 		hreal[k]->Write();
-		//hresp_stix[k]->Write();
-		//hcoll_stix[k]->Write();
-		//hreal_stix[k]->Write();
+		hresp_stix[k]->Write();
+		hcoll_stix[k]->Write();
+		hreal_stix[k]->Write();
 	}
 	fo.Close();
 	cout<<"Output file:"<<fout<<endl;
