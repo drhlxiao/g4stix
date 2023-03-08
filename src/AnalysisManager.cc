@@ -31,6 +31,7 @@
 
 const G4double highVoltage = 300; // CdTe HV is 300 during the nominal operations
 const G4double ENOISE = 0.442;      // keV
+	const G4double threshold=4;
 /* At 30 keV, the energy resolution is 2%  * 30 keV= 0.6 keV
  * using fano factor, one could know the intrinsic resolution of CdTe is rho=(pairs * 0.15)/pairs =0.0047
  * absolute resolution is rho*30 = 0.14 keV
@@ -101,6 +102,7 @@ void AnalysisManager::InitROOT() {
   evtTree->Branch("gunVec", gunDirection, Form("gunVec[%d]/D", 3));
   evtTree->Branch("E0", &gunEnergy, Form("E0/D"));
   evtTree->Branch("numTracks", &itrack, Form("numTracks/I"));
+  evtTree->Branch("nHits", nHits, Form("nHits[32]/I"));
   evtTree->Branch("hitx", hitx, Form("hitx[%d]/D", MAX_TRACKS));
   evtTree->Branch("hity", hity, Form("hity[%d]/D", MAX_TRACKS));
   evtTree->Branch("hitz", hitz, Form("hitz[%d]/D", MAX_TRACKS));
@@ -168,6 +170,10 @@ void AnalysisManager::InitEvent(const G4Event *event) {
     edepWithoutNoise[i] = 0;
     collectedEdepSumRealistic[i] = 0;
   }
+  for(int i=0;i<32;i++)nHits[i]=0;
+
+   
+  
 
   for (int i = 0; i < MAX_TRACKS; i++) {
     pdg[i] = 0;
@@ -205,6 +211,10 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
       hpatsum[detIdx]->Fill(pixIdx / 4);
       hpc->Fill(i);
       hdc->Fill(detIdx);
+
+	  if(collectedEdepSumRealistic[i]> threshold){
+		  nHits[detIdx]++;
+	  }
     }
   }
 

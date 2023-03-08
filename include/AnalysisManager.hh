@@ -90,6 +90,7 @@ private:
   G4double collectedEdepSum[NUM_CHANNELS];
   G4double edepWithoutNoise[NUM_CHANNELS];
   G4double collectedEdepSumRealistic[NUM_CHANNELS];
+  G4int nHits[32];
   G4int eventID;
   G4bool killTracksEnteringGrids;
 

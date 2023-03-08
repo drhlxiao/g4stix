@@ -10,10 +10,11 @@
 #include <TH1F.h> 
 #include <TH2F.h> 
 #include <string>    
+const int N = 37;
 using namespace std; 
 int getScienceBin(Double_t energy){
-
-	double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 28, 32, 36, 40, 45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1e9};
+	double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 
+		28, 32, 36, 40, 45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1e9};
 	if(energy<4)return 0;
 	else if(energy>=150)return 31;
 	else{
@@ -24,6 +25,10 @@ int getScienceBin(Double_t energy){
 	}
 	return 31;
 
+}
+bool isFineGrid(int det){
+	if( (10 <= det && det <=12)|| (16 <=det&& det<=18))return true;
+	else return false;
 }
 
 void makeMatrix(TString filein,  TString fout,
@@ -84,26 +89,48 @@ void makeMatrix(TString filein,  TString fout,
 	cout<<"Output:"<<fout<<endl;
 	TFile fo(fout,"recreate");
 
-	TH2F *hresp[32];
-	TH2F *hcoll[32];
-	TH2F *hreal[32];
+	TH2F *hresp[N];
+	TH2F *hcoll[N];
+	TH2F *hreal[N];
 
-	TH2F *hresp_stix[32];
-	TH2F *hcoll_stix[32];
-	TH2F *hreal_stix[32];
+	TH2F *h_pix_edep[12];
+	TH2F *h_pix_real[12];
+
+	for(k=0;k<12;k++) {
+		h_pix_edep[k]=new TH2F(Form("h_pix_resp_edep_%d", k),Form("Energy depositions (pix %d) - flux: %.2f ph/(cm2*keV); Energy (keV); Deposited energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
+		h_pix_real[k]=new TH2F(Form("h_pix_resp_real_%d", k),Form("Energy depositions (pix %d) - flux: %.2f ph/(cm2*keV); Energy (keV); Deposited energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
+	}
+
+	TH2F *hresp_stix[N];
+	TH2F *hcoll_stix[N];
+	TH2F *hreal_stix[N];
 
 	int k=0;
 	cout<<"Creating histograms"<<endl;
-	for(k=0;k<32;k++) {
+	for(k=0;k<N;k++) {
 		hresp[k]=new TH2F(Form("hresp_edep_%d", k),Form("Energy depositions (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Deposited energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
 		hcoll[k]=new TH2F(Form("hresp_coll_%d", k),Form("collected energies (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Collected Energy (keV)",k, flux), num, 0, maxEnergy, num, 0, maxEnergy);
 		hreal[k]=new TH2F(Form("hresp_real_%d", k),Form("Recorded energies (Det%d) - flux: %.2f ph/(cm2*keV); Energy (keV); Recorded energy (keV) ",k, flux), num, 0, maxEnergy, num,0, maxEnergy);
-
 		hresp_stix[k]=new TH2F(Form("hresp_edep_stix_%d", k),Form("Energy depositions (Det%d); Energy (keV); Deposited energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
 		hcoll_stix[k]=new TH2F(Form("hresp_coll_stix_%d", k),Form("Collected energies (Det%d); Energy (keV); Collected Energy (science bin)",k), num, 0, maxEnergy, 33, 0, 33);
 		hreal_stix[k]=new TH2F(Form("hresp_real_stix_%d", k),Form("Recorded energies (Det%d); Energy (keV); Recorded energy (science bin) ",k), num, 0, maxEnergy, 33,0, 33);
-
 	}
+	TString titles[]={
+		"All detector summed response", //32
+		"Fine grid detector summed response", //33
+		"Detectors summed response (except fine grids, CFL and BKG)", //34
+		"CFL response ",//35
+		"BKG response "}; //36
+
+	for(k=32;k<N){
+		hresp[k]->SetTitle(title);
+		hcoll[k]->SetTitle(title);
+		hreal[k]->SetTitle(title);
+		hresp_stix[k]->SetTitle(title);
+		hcoll_stix[k]->SetTitle(title);
+		hreal_stix[k]->SetTitle(title);
+	}
+
 
 	Long64_t nentries = events->GetEntries();
 	cout<<"Number of enetries:"<<nentries<<endl;
@@ -116,16 +143,54 @@ void makeMatrix(TString filein,  TString fout,
 		if(i%10000==0)cout<<100*i/(nentries+0.0)<<endl;
 		for(k=0;k<384;k++){
 			if(edep[k]<=0)continue;
+
 			int det=(int)(k/12);
+
+			int sumDetID=32;
+			hresp[sumDetID]->Fill(E0, edep[k], weight);
+			hcoll[sumDetID]->Fill(E0, collected[k], weight);
+			hreal[sumDetID]->Fill(E0, charge2[k], weight);
+			hresp_stix[sumDetID]->Fill(E0, getScienceBin(edep[k]), weight);
+			hcoll_stix[sumDetID]->Fill(E0, getScienceBin(collected[k]), weight);
+			hreal_stix[sumDetID]->Fill(E0, getScienceBin(charge2[k]), weight);
+			//sum response
+
+			if(isFineGrid(det)){
+				sumDetID=33;
+			}
+			else if(det==8){
+				sumDetID=35;
+			}else if(det==9){
+				sumDetID=36;
+			}
+			else{
+				sumDetID=34;//except fine grids, cfl and bkg
+			}
+
+			hresp[sumDetID]->Fill(E0, edep[k], weight);
+			hcoll[sumDetID]->Fill(E0, collected[k], weight);
+			hreal[sumDetID]->Fill(E0, charge2[k], weight);
+			hresp_stix[sumDetID]->Fill(E0, getScienceBin(edep[k]), weight);
+			hcoll_stix[sumDetID]->Fill(E0, getScienceBin(collected[k]), weight);
+			hreal_stix[sumDetID]->Fill(E0, getScienceBin(charge2[k]), weight);
+
+
+			//sum response
 			hresp[det]->Fill(E0, edep[k], weight);
 			hcoll[det]->Fill(E0, collected[k], weight);
 			hreal[det]->Fill(E0, charge2[k], weight);
-			hresp_stix[det]->Fill(E0, getScienceBin(edep[k]));
-			hcoll_stix[det]->Fill(E0, getScienceBin(collected[k]));
-			hreal_stix[det]->Fill(E0, getScienceBin(charge2[k]));
+			hresp_stix[det]->Fill(E0, getScienceBin(edep[k]),weight);
+			hcoll_stix[det]->Fill(E0, getScienceBin(collected[k]), weight);
+			hreal_stix[det]->Fill(E0, getScienceBin(charge2[k]), weight);
+
+			int pix=k%12;
+			h_pix_edep[pix]->Fill(E0, edep[k], weight);
+			h_pix_real[pix]->Fill(E0, charge2[k], weight);
 		}
 	}
 	fo.cd();
+	fo.mkdir("singleDetector");
+	fo.cd("singleDetector");
 	cout<<"Writing histograms"<<endl;
 	for(k=0;k<32;k++) {
 		hresp[k]->Write();
@@ -134,6 +199,28 @@ void makeMatrix(TString filein,  TString fout,
 		hresp_stix[k]->Write();
 		hcoll_stix[k]->Write();
 		hreal_stix[k]->Write();
+	}
+
+	fo.cd();
+	fo.mkdir("detectorSum");
+	fo.cd("detectorSum");
+	for(k=32;k<N;k++)
+	{
+		hresp[k]->Write();
+		hcoll[k]->Write();
+		hreal[k]->Write();
+		hresp_stix[k]->Write();
+		hcoll_stix[k]->Write();
+		hreal_stix[k]->Write();
+	}
+
+
+	fo.cd();
+	fo.mkdir("pixelSum");
+	fo.cd("pixelSum");
+	for(k=0;k<12;k++) {
+		h_pix_real[k]->Write();
+		h_pix_edep[k]->Write();
 	}
 	fo.Close();
 	cout<<"Output file:"<<fout<<endl;
@@ -156,7 +243,7 @@ int main(int argc, char *argv[])
 	double eMax=250;
 	Long64_t entries=0;
 	double flux=1;
-	
+
 	while (s < argc - 1) {
 
 		sel = argv[++s];
