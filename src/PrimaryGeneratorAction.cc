@@ -26,6 +26,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   // fParticleGunMessenger = new PrimaryGeneratorMessenger(this);
 
   // particle source
+  particleSource="";
   G4int n_particle = 1;
   fParticleGun = new G4ParticleGun(n_particle);
   // default particle kinematic
@@ -39,6 +40,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun->SetParticlePosition(G4ThreeVector(0. * cm, 0. * cm, 15 * cm));
   // particle source
   fParticleSource = new G4GeneralParticleSource();
+  fParticleSource->SetParticleEnergy(50*keV);
 }
 PrimaryGeneratorAction::~PrimaryGeneratorAction() {
   delete fParticleSource;
@@ -58,6 +60,7 @@ void PrimaryGeneratorAction::GetGPS(G4ThreeVector &position,
     direction = fParticleGun->GetParticleMomentumDirection();
     energy = fParticleGun->GetParticleEnergy() / keV;
   }
+  G4cout<<"energy"<<energy<<G4endl;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
@@ -102,23 +105,5 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 }
 
 G4bool PrimaryGeneratorAction::InitFile() {
-  /*
-  if(ts!=NULL&&(iEntry<nEntries))return true;
-  //do not initialize it again
 
-  fFile =TFile::Open(particleSourceFilename);
-  if(!fFile)return false;
-  fTree = (TTree*) fFile->Get("t2sim");
-  if(!fTree)return false;
-  ts=new t2sim(fTree);
-  nEntries= fTree->GetEntries();
-  G4cout<<"Number of events in the ROOT file:"<<nEntries<<G4endl;
-  if(nEntries==0)return false;
-  if(ts)return true;
-  else
-  {
-          G4cout<<"can not load events"<<G4endl;
-          return false;
-  }
-  */
 }

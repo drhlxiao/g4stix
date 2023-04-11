@@ -98,9 +98,9 @@ void AnalysisManager::InitROOT() {
   evtTree->Branch("charge2", collectedEdepSumRealistic,
                  Form("charge2[%d]/D", NUM_CHANNELS));
   evtTree->Branch("eventID", &eventID, "eventID/I");
+  evtTree->Branch("E0", &gunEnergy, "E0/D");
   evtTree->Branch("gunPos", gunPosition, Form("gunPos[%d]/D", 3));
   evtTree->Branch("gunVec", gunDirection, Form("gunVec[%d]/D", 3));
-  evtTree->Branch("E0", &gunEnergy, Form("E0/D"));
   evtTree->Branch("numTracks", &itrack, Form("numTracks/I"));
   evtTree->Branch("nHits", nHits, Form("nHits[32]/I"));
   evtTree->Branch("hitx", hitx, Form("hitx[%d]/D", MAX_TRACKS));
@@ -229,7 +229,7 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
   G4double energy;
   primaryAction->GetGPS(position, direction, energy);
 
-  //    G4cout<<"#energy :"<<energy<<G4endl;
+      //G4cout<<"#energy :"<<energy<<G4endl;
   //   G4cout<<"position:"<<position[0]<<" "<<position[1]<<"
   //   "<<position[2]<<G4endl;
   gunPosition[0] = position.getX() / mm;
