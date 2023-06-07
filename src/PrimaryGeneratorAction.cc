@@ -54,6 +54,9 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 }
 
 void PrimaryGeneratorAction::InitParticleSpectrumFromROOT(G4String val) {
+	//don't use this method, use /gps/hist/file instead June 7, 2023
+	//because using gps with setparticleenergy doesn't work
+	/*
 	particleSourceFile=val;
 	particleSource="fromROOT";
 	G4cout<<"Read spectrum file ROOT:"<<particleSourceFile<<G4endl;
@@ -64,6 +67,7 @@ void PrimaryGeneratorAction::InitParticleSpectrumFromROOT(G4String val) {
 		G4cout<<"Can not read hspec from ROOT file"<<G4endl;
 	}
 
+	*/
 	
 
 }
@@ -117,7 +121,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 			G4cout << "ba133 source" << G4endl;
 		}
 	} 
-	else if (particleSource=="fromROOT"){
+/*	else if (particleSource=="fromROOT"){
 		if(histoEnergy==NULL){
 			G4cout<<"Histogram not initialized..."<<G4endl;
 			return;
@@ -134,6 +138,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 		fParticleGun->GeneratePrimaryVertex(anEvent);
 
 	}
+	*/
 
 	else {
 

@@ -86,6 +86,7 @@ private:
   G4int numKilled;
 
 
+  G4double sci[NUM_CHANNELS];
   G4double edepSum[NUM_CHANNELS];
   G4double collectedEdepSum[NUM_CHANNELS];
   G4double edepWithoutNoise[NUM_CHANNELS];

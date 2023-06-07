@@ -47,7 +47,20 @@ const G4double PAIR_CREATION_ENERGY = 4.43;
 const G4double FANO_FACTOR = 0.15;
 //CdTe fano factor is 0.15 according to
 //https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
+double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 
+		28, 32, 36, 40, 45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1e9};
+int getScienceBin(Double_t energy){
+	if(energy<4)return 0;
+	else if(energy>=150)return 31;
+	else{
+		for(int i=0;i<31;i++)
+		{
+			if(energy>=energyRanges[i] && energy<energyRanges[i+1])return i;
+		}
+	}
+	return 31;
 
+}
 AnalysisManager *AnalysisManager::fManager = 0;
 AnalysisManager *AnalysisManager::GetInstance() {
   if (!fManager) {
@@ -91,6 +104,7 @@ void AnalysisManager::InitROOT() {
   rootFile = new TFile(outputFilename.Data(), "recreate");
   evtTree = new TTree("events", "events");
   evtTree->Branch("edep", edepSum, Form("edep[%d]/D", NUM_CHANNELS));
+  evtTree->Branch("sci", sci, Form("sci[%d]/D", NUM_CHANNELS));
   evtTree->Branch("collected", collectedEdepSum,
                  Form("collected[%d]/D", NUM_CHANNELS));
   evtTree->Branch("charge", edepWithoutNoise,
@@ -169,6 +183,7 @@ void AnalysisManager::InitEvent(const G4Event *event) {
     collectedEdepSum[i] = 0;
     edepWithoutNoise[i] = 0;
     collectedEdepSumRealistic[i] = 0;
+    sci[i] = 0;
   }
   for(int i=0;i<32;i++)nHits[i]=0;
 
@@ -215,6 +230,8 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 	  if(collectedEdepSumRealistic[i]> threshold){
 		  nHits[detIdx]++;
 	  }
+	  sci[i]=getScienceBin(collectedEdepSumRealistic[i]);
+
     }
   }
 
