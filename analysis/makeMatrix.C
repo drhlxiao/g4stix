@@ -14,7 +14,7 @@ const int N = 37;
 const float threshold=4;
 using namespace std; 
 int getScienceBin(Double_t energy){
-	double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 
+double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 
 		28, 32, 36, 40, 45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1e9};
 	if(energy<4)return 0;
 	else if(energy>=150)return 31;
@@ -93,6 +93,11 @@ void makeMatrix(TString filein,  TString fout,
 	TH2F *hcoll[N];
 	TH2F *hreal[N];
 
+	TH1F *hspc_resp[N];
+	TH1F *hspc_coll[N];
+	TH1F *hspc_real[N];
+	TH1F *hspc_stix[N];
+
 	TH2F *h_pix_edep[12];
 	TH2F *h_pix_real[12];
 	int k=0;
@@ -109,6 +114,12 @@ void makeMatrix(TString filein,  TString fout,
 
 	cout<<"Creating histograms"<<endl;
 	for(k=0;k<N;k++) {
+
+		hspc_resp[k]=new TH1F(Form("hspc_resp%d", k),
+				Form("Energy depositions (Det%d) - flux: %.2f ph/(cm2*keV) - %s ; Energy (keV); counts",k, flux,dh),
+				num, 0, maxEnergy);
+
+
 		hresp[k]=new TH2F(Form("hresp_edep_%d", k),
 				Form("Energy depositions (Det%d) - flux: %.2f ph/(cm2*keV) - %s ; Energy (keV); Deposited energy (keV)",k, flux,dh),
 				num, 0, maxEnergy, num, 0, maxEnergy);
