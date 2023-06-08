@@ -5,8 +5,9 @@
 #ifndef AnalysisManager_h
 #define AnalysisManager_h 1
 
-#include "globals.hh"
 #include <vector>
+
+#include "globals.hh"
 
 //#include "G4Step.hh"
 //#include "G4Event.hh"
@@ -26,7 +27,7 @@ class TTree;
 const int MAX_TRACKS = 30;
 
 class AnalysisManager {
-public:
+ public:
   static AnalysisManager *GetInstance();
   static void Dispose();
 
@@ -34,11 +35,11 @@ public:
   void SetEventID(G4int eventid) { eventID = eventid; }
   void SetOutputFileName(TString filen) { outputFilename = filen; }
 
-  void SetCommandLine(G4String s){commandLine=s;}
+  void SetCommandLine(G4String s) { commandLine = s; }
   void InitEvent(const G4Event *event);
   void ProcessEvent(const G4Event *event);
   void ProcessStep(const G4Step *aStep);
-  void InitRun(const G4Run *){InitROOT();};
+  void InitRun(const G4Run *) { InitROOT(); };
   void InitROOT();
   void ProcessRun(const G4Run *);
 
@@ -56,7 +57,7 @@ public:
   AnalysisManager();
   ~AnalysisManager();
 
-private:
+ private:
   static AnalysisManager *fManager;
 
   TString outputFilename;
@@ -79,12 +80,23 @@ private:
   TH1F *hcol;
   TH1F *hpc;
   TH1F *hdc;
-  TH1F *hpat[32];
-  TH1F *hpatsum[32];
+  TH1F *hpat[33];
+  TH1F *hpatsum[33];
+
+  TH1F *hEdepSci[33];
+  TH1F *hRealSci[33];
+  TH1F *hEdep[33];
+  TH1F *hReal[33];
+
+  TH1F *hEdepSciSingleHit[33]; //deposited energies, stix science channel, only single-hit accepted, The 32nd histogram for sum spectrum
+  TH1F *hRealSciSingleHit[33];//measured energies, stix science channel, only single-hit accepted, The 32nd histogram for sum spectrum
+  TH1F *hEdepSingleHit[33];
+  TH1F *hRealSingleHit[33];
+  // energy spectrum with single hit only
+
   TH2F *h2xy;
   TTree *primTree;
   G4int numKilled;
-
 
   G4double sci[NUM_CHANNELS];
   G4double edepSum[NUM_CHANNELS];

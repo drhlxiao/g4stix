@@ -44,13 +44,13 @@ class G4UIcmdWithADoubleAndUnit;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class XrayFluoPhysicsListMessenger : public G4UImessenger {
-public:
+ public:
   XrayFluoPhysicsListMessenger(XrayFluoPhysicsList *);
   virtual ~XrayFluoPhysicsListMessenger();
 
   void SetNewValue(G4UIcommand *, G4String);
 
-private:
+ private:
   XrayFluoPhysicsList *pPhysicsList;
 
   G4UIdirectory *physDir;
@@ -59,8 +59,8 @@ private:
   G4UIcmdWithADoubleAndUnit *electCutCmd;
   G4UIcmdWithADoubleAndUnit *protoCutCmd;
   G4UIcmdWithADoubleAndUnit *allCutCmd;
-    G4UIcmdWithABool*          fluoCmd;
-    G4UIcmdWithABool*          pixeCmd;
+  G4UIcmdWithABool *fluoCmd;
+  G4UIcmdWithABool *pixeCmd;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -32,12 +32,12 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "XrayFluoPhysicsList.hh"
-#include "XrayFluoPhysicsListMessenger.hh"
 
 #include "G4EmProcessOptions.hh"
 #include "G4LossTableManager.hh"
 #include "G4ProcessManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "XrayFluoPhysicsListMessenger.hh"
 
 //#include "PhysListEmStandard.hh"
 
@@ -52,12 +52,10 @@
 //#include "G4UAtomicDeexcitation.hh"
 
 #include "G4Decay.hh"
-#include "XrayFluoStepMax.hh"
-
-#include "G4UnitsTable.hh"
-
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
+#include "G4UnitsTable.hh"
+#include "XrayFluoStepMax.hh"
 
 // Bosons
 #include "G4ChargedGeantino.hh"
@@ -66,14 +64,13 @@
 #include "G4OpticalPhoton.hh"
 
 // leptons
+#include "G4AntiNeutrinoE.hh"
 #include "G4AntiNeutrinoMu.hh"
+#include "G4Electron.hh"
 #include "G4MuonMinus.hh"
 #include "G4MuonPlus.hh"
-#include "G4NeutrinoMu.hh"
-
-#include "G4AntiNeutrinoE.hh"
-#include "G4Electron.hh"
 #include "G4NeutrinoE.hh"
+#include "G4NeutrinoMu.hh"
 #include "G4Positron.hh"
 
 // Hadrons
@@ -172,7 +169,6 @@ void XrayFluoPhysicsList::ConstructProcess() {
   emOptions.SetFluo(true);
   emOptions.SetAuger(true);
   emOptions.SetPIXE(true);
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -189,7 +185,6 @@ void XrayFluoPhysicsList::AddDecay() {
     G4ProcessManager *pmanager = particle->GetProcessManager();
 
     if (fDecayProcess->IsApplicable(*particle) && !particle->IsShortLived()) {
-
       pmanager->AddProcess(fDecayProcess);
 
       // set ordering for PostStepDoIt and AtRestDoIt
@@ -225,11 +220,9 @@ void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
 
-  if (name == emName)
-    return;
+  if (name == emName) return;
 
   if (name == "emlivermore") {
-
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmLivermorePhysics;
@@ -240,25 +233,21 @@ void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
     emPhysicsList = new G4EmStandardPhysics();
 
   } else if (name == "emstandard_opt1") {
-
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmStandardPhysics_option1();
 
   } else if (name == "emstandard_opt2") {
-
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmStandardPhysics_option2();
 
   } else if (name == "emstandard_opt3") {
-
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmStandardPhysics_option3();
 
   } else if (name == "emstandard_opt4") {
-
     emName = name;
     delete emPhysicsList;
     emPhysicsList = new G4EmStandardPhysics_option4();
@@ -268,7 +257,6 @@ void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
     emPhysicsList = new G4EmPenelopePhysics();
 
   } else {
-
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">"
            << " is not defined" << G4endl;
   }
@@ -288,8 +276,7 @@ void XrayFluoPhysicsList::SetCuts() {
   SetCutValue(cutForElectron, "e-");
   SetCutValue(cutForPositron, "e+");
 
-  if (verboseLevel > 0)
-    DumpCutValuesTable();
+  if (verboseLevel > 0) DumpCutValuesTable();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -322,20 +309,20 @@ void XrayFluoPhysicsList::SetCutForProton(G4double cut) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
- void XrayFluoPhysicsList::SetFluorescence(G4bool value)
-{
-  G4VAtomDeexcitation* de =
-  G4LossTableManager::Instance()->AtomDeexcitation(); if(de) {
-  de->SetFluo(value); }
+void XrayFluoPhysicsList::SetFluorescence(G4bool value) {
+  G4VAtomDeexcitation *de = G4LossTableManager::Instance()->AtomDeexcitation();
+  if (de) {
+    de->SetFluo(value);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
- void XrayFluoPhysicsList::SetPIXE(G4bool value)
-{
-  G4VAtomDeexcitation* de =
- G4LossTableManager::Instance()->AtomDeexcitation(); if(de) {
-  de->SetPIXE(value); }
+void XrayFluoPhysicsList::SetPIXE(G4bool value) {
+  G4VAtomDeexcitation *de = G4LossTableManager::Instance()->AtomDeexcitation();
+  if (de) {
+    de->SetPIXE(value);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

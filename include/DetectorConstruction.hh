@@ -13,13 +13,12 @@ class G4VPhysicalVolume;
 class G4AssemblyVolume;
 class G4Material;
 #include "DetectorMessenger.hh"
-
 #include "G4RotationMatrix.hh"
 #include "G4ThreeVector.hh"
 #include "G4VUserDetectorConstruction.hh"
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
-public:
+ public:
   DetectorConstruction();
   ~DetectorConstruction();
 
@@ -41,7 +40,7 @@ public:
   void SetGdmlFile(G4String v) { fWorldFile = v; }
   void SetActivatedDetectorFlag(G4int v) { activatedDetectorFlag = v; }
 
-private:
+ private:
   G4bool gridsEnabled;
   G4int activatedDetectorFlag;
 
@@ -50,17 +49,18 @@ private:
   G4LogicalVolume *worldLogical;
   G4LogicalVolume *padsLogical, *cdTeLogical, *calisteBaseLogical;
   G4Material *CdTe;
-G4Material *Epoxy, *FR4, *Resin,*SilverEpoxy;
-  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25, *Gold, *Nickle, *Siliver, *LeadPadMat,
-      *goldLayerMaterial, *Platinum, *Copper, *SiO2, *padStackMaterial ;
+  G4Material *Epoxy, *FR4, *Resin, *SilverEpoxy;
+  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25, *Gold,
+      *Nickle, *Siliver, *LeadPadMat, *goldLayerMaterial, *Platinum, *Copper,
+      *SiO2, *padStackMaterial;
 
   G4LogicalVolume *ConstructCaliste();
   G4LogicalVolume *ConstructCalisteBase();
   G4LogicalVolume *ConstructCdTe();
   G4AssemblyVolume *ConstructPads();
-	bool checkOverlaps ;
+  bool checkOverlaps;
 
-	// caliste
+  // caliste
 
   G4RotationMatrix rotMatrix;
 

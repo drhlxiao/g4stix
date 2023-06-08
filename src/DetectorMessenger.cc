@@ -6,18 +6,17 @@
  *
  ***************************************************************/
 
-#include "globals.hh"
+#include "DetectorMessenger.hh"
 
 #include "DetectorConstruction.hh"
-#include "DetectorMessenger.hh"
 #include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIdirectory.hh"
+#include "globals.hh"
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction *theDet)
     : fDetector(theDet) {
-
   fSetAttenStatusCmd = new G4UIcmdWithABool("/stix/geo/att", this);
   fSetAttenStatusCmd->SetGuidance(
       "Attenuator is in, true or false?, it will load WorldAttOut.gdml if att "

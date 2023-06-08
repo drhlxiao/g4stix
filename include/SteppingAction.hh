@@ -7,14 +7,12 @@
 
 #include "G4UserSteppingAction.hh"
 
-
 class SteppingAction : public G4UserSteppingAction {
-public:
+ public:
   SteppingAction();
   virtual ~SteppingAction();
 
   virtual void UserSteppingAction(const G4Step *aStep);
-
 };
 
 #endif

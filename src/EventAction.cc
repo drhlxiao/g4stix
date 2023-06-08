@@ -5,14 +5,14 @@
  * Version : 1.10
  ***************************************************************/
 
-#include "G4Event.hh"
-#include "G4GenericMessenger.hh"
-#include "G4RunManager.hh"
+#include "EventAction.hh"
 
 #include <iomanip>
 
 #include "AnalysisManager.hh"
-#include "EventAction.hh"
+#include "G4Event.hh"
+#include "G4GenericMessenger.hh"
+#include "G4RunManager.hh"
 
 EventAction::EventAction() {}
 

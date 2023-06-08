@@ -2,40 +2,38 @@
 // Author: Hualin Xiao(hualin.xiao@fhnw.ch)
 // Date: Fri Jun 10, 2022
 #include "DetectorConstruction.hh"
-#include "globals.hh"
-#include <G4EllipticalTube.hh>
-#include <G4GenericTrap.hh>
-#include <G4Transform3D.hh>
-#include <G4TwoVector.hh>
-#include <vector>
+
+#include <TFile.h>
+#include <TTree.h>
 
 #include <G4AssemblyVolume.hh>
 #include <G4Box.hh>
+#include <G4Colour.hh>
 #include <G4Cons.hh>
 #include <G4Element.hh>
+#include <G4EllipticalTube.hh>
+#include <G4GDMLParser.hh>
+#include <G4GenericTrap.hh>
 #include <G4LogicalVolume.hh>
+#include <G4LogicalVolumeStore.hh>
 #include <G4Material.hh>
+#include <G4NistManager.hh>
 #include <G4PVPlacement.hh>
 #include <G4PVReplica.hh>
 #include <G4Polycone.hh>
 #include <G4Polyhedra.hh>
 #include <G4RotationMatrix.hh>
-#include <G4SubtractionSolid.hh>
-#include <G4ThreeVector.hh>
-#include <G4Tubs.hh>
-#include <G4UnionSolid.hh>
-
-#include <G4Colour.hh>
-#include <G4NistManager.hh>
-#include <G4Transform3D.hh>
-#include <G4VisAttributes.hh>
-
-#include <G4LogicalVolumeStore.hh>
 #include <G4RunManager.hh>
 #include <G4SolidStore.hh>
+#include <G4SubtractionSolid.hh>
+#include <G4ThreeVector.hh>
+#include <G4Transform3D.hh>
+#include <G4Tubs.hh>
+#include <G4TwoVector.hh>
 #include <G4UImanager.hh>
-
-#include <G4GDMLParser.hh>
+#include <G4UnionSolid.hh>
+#include <G4VisAttributes.hh>
+#include <vector>
 
 #include "AnalysisManager.hh"
 #include "G4ExtrudedSolid.hh"
@@ -43,8 +41,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4VisAttributes.hh"
 #include "GridParameters.hh"
-#include <TFile.h>
-#include <TTree.h>
+#include "globals.hh"
 const G4double pi = CLHEP::pi;
 const G4ThreeVector singleDetectorPosition(0, 0, -0.8 * mm);
 const G4double bigW = 2.15 * mm;
@@ -62,26 +59,26 @@ const G4double pixel8CenterX = -3.85 * mm;
 const G4double pixel8CenterY = 0 * mm;
 
 const G4double cdteThickness = 1 * mm;
-const G4double anodeThickness = (15 + 15 + 100) * 1e-9 * m; // 130 nm
-const G4double cathodeThickness = 15 * 1e-9 * m;            // 15 nm
+const G4double anodeThickness = (15 + 15 + 100) * 1e-9 * m;  // 130 nm
+const G4double cathodeThickness = 15 * 1e-9 * m;             // 15 nm
 
 const G4double calisteWidth = 11 * mm;
 const G4double calisteLength = 12 * mm;
 const G4double calisteBaseThickness = 14.4 * mm;
 const G4double CdTeCalisteOffsetY =
-    0.8 * mm; //  (top margion) 0.2 + 10 + 1.8 (Bottom margin)  = 12
+    0.8 * mm;  //  (top margion) 0.2 + 10 + 1.8 (Bottom margin)  = 12
 
 const G4double bondingLandZoneOnModuleLength = 0.4 * mm;
 const G4double bondingLandZoneOnModuleWidth = 2 * mm;
 const G4double bondingLandZoneOnModuleThickness = 0.25 * mm;
-const G4double pinsThickness = 1.2 * mm; //
+const G4double pinsThickness = 1.2 * mm;  //
 G4double padCdTeBondingWidth = 0.4 * mm;
 G4double padCdTeBondingLength = 1 * mm;
 G4double padCdTeBondingThickness = 0.250 * mm;
 G4double silverThickness = 0.2 * mm;
 G4double platingThickness = (2 + 20 + 2.5 + 2) * 1e-3 * mm;
 G4double padTotalThickness =
-    silverThickness + platingThickness; // pads underneath the  CdTe
+    silverThickness + platingThickness;  // pads underneath the  CdTe
 
 G4RotationMatrix *noRotation = new G4RotationMatrix(0., 0., 0.);
 G4double CdTeTotalThickness = anodeThickness + cdteThickness + cathodeThickness;
@@ -142,9 +139,7 @@ void DetectorConstruction::ConstructSpacecraft() {
 }
 
 void DetectorConstruction::ConstructGrids() {
-
-  if (!gridsEnabled)
-    return;
+  if (!gridsEnabled) return;
   // don't construct if disabled by macro
 
   // created by grid_data_creator.py in
@@ -199,7 +194,7 @@ void DetectorConstruction::ConstructGrids() {
     // Left wedge Solid and logical Volume
     G4ExtrudedSolid *strip =
         new G4ExtrudedSolid("strip", vertexCoords,
-                            0.4 * 0.5 * mm, // 0.4 mm thick, halfz
+                            0.4 * 0.5 * mm,  // 0.4 mm thick, halfz
                             G4TwoVector(), 1, G4TwoVector(), 1);
     G4LogicalVolume *gridStripLog =
         new G4LogicalVolume(strip, Tungsten, "gridStripLog", 0, 0, 0);
@@ -213,15 +208,13 @@ void DetectorConstruction::ConstructGrids() {
     }
   }
   for (int i = 0; i < 32; i++) {
-    if (i == 8 || i == 9)
-      continue;
+    if (i == 8 || i == 9) continue;
     // don't construct CFL and BKG
     G4String gtype = nominalOrRealFlag[i] == 1 ? "NOMINAL" : "REAL";
     G4cout << "Grid #" << i << " parameter type: " << gtype << G4endl;
     bool singleDetector = false;
     if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
-      if (i != activatedDetectorFlag)
-        continue;
+      if (i != activatedDetectorFlag) continue;
       singleDetector = true;
     }
 
@@ -353,7 +346,6 @@ G4LogicalVolume *DetectorConstruction::ConstructCdTe() {
   // done
 }
 G4LogicalVolume *DetectorConstruction::ConstructCalisteBase() {
-
   G4Box *calisteBaseOuter =
       new G4Box("CdTeModuleBaseOuter", calisteWidth / 2, calisteLength / 2,
                 calisteBaseThickness / 2);
@@ -405,7 +397,6 @@ G4LogicalVolume *DetectorConstruction::ConstructCalisteBase() {
   return calisteBaseOuterLog;
 }
 G4AssemblyVolume *DetectorConstruction::ConstructPads() {
-
   //////construct pads
   //////
   G4AssemblyVolume *padAssembly = new G4AssemblyVolume();
@@ -523,7 +514,6 @@ G4AssemblyVolume *DetectorConstruction::ConstructPads() {
 }
 
 G4LogicalVolume *DetectorConstruction::ConstructCaliste() {
-
   G4Box *calisteWorld = new G4Box("CdTeModuleWorld", calisteWidth / 2,
                                   calisteLength / 2, calisteTotalHight / 2);
   G4LogicalVolume *calisteLog =
@@ -539,9 +529,9 @@ G4LogicalVolume *DetectorConstruction::ConstructCaliste() {
   G4AssemblyVolume *padAssembly = ConstructPads();
   padAssembly->MakeImprint(calisteLog, TmHVBondingPad, noRotation);
 
-  G4ThreeVector TmCdTe(0, CdTeCalisteOffsetY,
-                       calisteTotalHight / 2 - padCdTeBondingThickness -
-                           CdTeTotalThickness / 2);
+  G4ThreeVector TmCdTe(
+      0, CdTeCalisteOffsetY,
+      calisteTotalHight / 2 - padCdTeBondingThickness - CdTeTotalThickness / 2);
   // shifted by 0.8 mm
   G4ThreeVector TmCalisteBase(0, 0,
                               calisteTotalHight / 2 - padCdTeBondingThickness -
@@ -558,7 +548,6 @@ G4LogicalVolume *DetectorConstruction::ConstructCaliste() {
 DetectorConstruction::~DetectorConstruction() { delete detMsg; }
 
 G4VPhysicalVolume *DetectorConstruction::Construct() {
-
   // AnalysisManager *analysisManager = AnalysisManager::GetInstance();
   // AnalysisManager->SetAttenuatorStatus(attenuatorIn);
 
@@ -592,7 +581,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   G4Element *elMg = nist_manager->FindOrBuildElement("Mg");
   G4Element *elNi = nist_manager->FindOrBuildElement("Ni");
 
-  G4double density = 5.85 * g / cm3; // STIX-DS-0017-PSI
+  G4double density = 5.85 * g / cm3;  // STIX-DS-0017-PSI
   G4int nelements, natoms;
   G4double fractionmass;
   CdTe = new G4Material("CdTe", density, nelements = 2);
@@ -601,7 +590,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
   goldLayerMaterial =
       new G4Material("goldLayerMaterial", density, nelements = 3);
-  goldLayerMaterial->AddElement(elAu, 0.94700687); // mass fraction
+  goldLayerMaterial->AddElement(elAu, 0.94700687);  // mass fraction
   goldLayerMaterial->AddElement(elTi, 0.033120707);
   goldLayerMaterial->AddElement(elAl, 0.019872424);
 
@@ -609,7 +598,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
   density = 9.0 * g / cm3;
   padStackMaterial = new G4Material("padStackMaterial", density, nelements = 3);
-  padStackMaterial->AddElement(elCu, 0.695); // mass fraction
+  padStackMaterial->AddElement(elCu, 0.695);  // mass fraction
   padStackMaterial->AddElement(elAu, 0.15);
   padStackMaterial->AddElement(elNi, 0.155);
   // it is considered as a mixture, maybe it is OK for X rays
@@ -663,7 +652,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   // construct world
   G4GDMLParser parser;
   if (fWorldFile != "") {
-
     G4cout << "==== === Loading mass model from gdml files " << fWorldFile
            << "..." << G4endl;
     parser.Read("gdml/" + fWorldFile + ".gdml");
@@ -709,10 +697,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   // X-ray window
 
   if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
-    if (activatedDetectorFlag == 8)
-      ConstructCFL();
-    if (activatedDetectorFlag == 9)
-      ConstructBKG();
+    if (activatedDetectorFlag == 8) ConstructCFL();
+    if (activatedDetectorFlag == 9) ConstructBKG();
 
   } else {
     ConstructCFL();
@@ -729,7 +715,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 }
 
 void DetectorConstruction::ConstructCFL() {
-
   G4ThreeVector pos = Grid::getGridCenterCAD(8, 1);
   if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
     // construct single detector
@@ -781,7 +766,6 @@ void DetectorConstruction::ConstructCFL() {
 }
 
 void DetectorConstruction::ConstructBKG() {
-
   G4ThreeVector pos = Grid::getGridCenterCAD(9, 0);
 
   if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {

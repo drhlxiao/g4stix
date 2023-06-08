@@ -79,16 +79,15 @@ XrayFluoPhysicsListMessenger::XrayFluoPhysicsListMessenger(
   allCutCmd->SetRange("cut>0.0");
   allCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  fluoCmd = new G4UIcmdWithABool("/phys/fluo",this);
+  fluoCmd = new G4UIcmdWithABool("/phys/fluo", this);
   fluoCmd->SetGuidance("Set fluorescence on/off.");
-  fluoCmd->SetParameterName("fluo",false);
-  fluoCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+  fluoCmd->SetParameterName("fluo", false);
+  fluoCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  pixeCmd = new G4UIcmdWithABool("/phys/pixe",this);
+  pixeCmd = new G4UIcmdWithABool("/phys/pixe", this);
   pixeCmd->SetGuidance("Set PIXE on/off.");
-  pixeCmd->SetParameterName("pixe",false);
-  pixeCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
-  
+  pixeCmd->SetParameterName("pixe", false);
+  pixeCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -100,8 +99,8 @@ XrayFluoPhysicsListMessenger::~XrayFluoPhysicsListMessenger() {
   delete protoCutCmd;
   delete allCutCmd;
   delete physDir;
-    delete fluoCmd;
-    delete pixeCmd;
+  delete fluoCmd;
+  delete pixeCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -137,11 +136,13 @@ void XrayFluoPhysicsListMessenger::SetNewValue(G4UIcommand *command,
   // Notify the run manager that the physics has been modified
   G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 
-    if( command == fluoCmd )
-     { pPhysicsList->SetFluorescence(fluoCmd->GetNewBoolValue(newValue));}
-  
-    if( command == pixeCmd )
-     { pPhysicsList->SetPIXE(fluoCmd->GetNewBoolValue(newValue));}
+  if (command == fluoCmd) {
+    pPhysicsList->SetFluorescence(fluoCmd->GetNewBoolValue(newValue));
+  }
+
+  if (command == pixeCmd) {
+    pPhysicsList->SetPIXE(fluoCmd->GetNewBoolValue(newValue));
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -6,18 +6,17 @@
 #define EventAction_h 1
 
 #include "G4UserEventAction.hh"
-
 #include "globals.hh"
 
 class EventAction : public G4UserEventAction {
-public:
+ public:
   EventAction();
   virtual ~EventAction();
 
   virtual void BeginOfEventAction(const G4Event *event);
   virtual void EndOfEventAction(const G4Event *event);
 
-private:
+ private:
   int fEventID;
 };
 

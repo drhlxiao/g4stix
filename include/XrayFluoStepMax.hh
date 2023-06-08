@@ -42,7 +42,7 @@ class XrayFluoStepMaxMessenger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class XrayFluoStepMax : public G4VDiscreteProcess {
-public:
+ public:
   XrayFluoStepMax(const G4String &processName = "UserStepMax");
   ~XrayFluoStepMax();
 
@@ -57,9 +57,9 @@ public:
 
   G4double GetMeanFreePath(const G4Track &, G4double, G4ForceCondition *) {
     return DBL_MAX;
-  }; // it is not needed here !
+  };  // it is not needed here !
 
-private:
+ private:
   G4double MaxChargedStep;
   XrayFluoStepMaxMessenger *pMess;
 };

@@ -41,7 +41,7 @@ class XrayFluoPhysicsListMessenger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class XrayFluoPhysicsList : public G4VModularPhysicsList {
-public:
+ public:
   XrayFluoPhysicsList();
   virtual ~XrayFluoPhysicsList();
 
@@ -60,12 +60,9 @@ public:
   void SetCutForProton(G4double);
   void SetFluorescence(G4bool);
   void SetPIXE(G4bool);
-  void SetPhysListName(G4String name){
-	  AddPhysicsList(name);
-  }
+  void SetPhysListName(G4String name) { AddPhysicsList(name); }
 
-
-private:
+ private:
   XrayFluoPhysicsListMessenger *pMessenger;
 
   G4String emName;

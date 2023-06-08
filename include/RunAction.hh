@@ -11,7 +11,7 @@
 class G4Run;
 
 class RunAction : public G4UserRunAction {
-public:
+ public:
   RunAction();
   virtual ~RunAction();
 

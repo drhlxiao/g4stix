@@ -41,13 +41,13 @@ class G4UIcmdWithADoubleAndUnit;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class XrayFluoStepMaxMessenger : public G4UImessenger {
-public:
+ public:
   XrayFluoStepMaxMessenger(XrayFluoStepMax *);
   ~XrayFluoStepMaxMessenger();
 
   void SetNewValue(G4UIcommand *, G4String);
 
-private:
+ private:
   XrayFluoStepMax *pStepMax;
   G4UIcmdWithADoubleAndUnit *StepMaxCmd;
 };
