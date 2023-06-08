@@ -13,11 +13,13 @@
 //#include "G4Event.hh"
 //#include "G4Run.hh"
 #include "TString.h"
+#include "G4ThreeVector.hh"
 
 #define NUM_CHANNELS 12 * 32
 class G4Run;
 class G4Event;
 class G4Step;
+
 
 class TCanvas;
 class TH1F;

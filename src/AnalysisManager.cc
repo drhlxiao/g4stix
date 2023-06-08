@@ -396,18 +396,17 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 
 		// TString detName=volName.data();
 
-		G4ThreeVector  position;
 		if (edep > 0.0) {
 			AddEnergy(detectorID, edep);
-			position = aStep->GetPostStepPoint()->GetPosition();
-			G4double charge = ComputeCollectedEnergy(position, edep * 1000);
+		G4ThreeVector postPos= aStep->GetPostStepPoint()->GetPosition();
+			G4double charge = ComputeCollectedEnergy(postPos, edep * 1000);
 			AddCollectedEnergy(detectorID, charge);
 		}
 		G4StepPoint *preStep = aStep->GetPreStepPoint();
-		position = aStep->GetPostStepPoint()->GetPosition();
-		G4double px = position.x() / mm;
-		G4double py = position.y() / mm;
-		G4double pz = position.z() / mm;
+		G4ThreeVector prePos= aStep->GetPostStepPoint()->GetPosition();
+		G4double px = prePos.x() / mm;
+		G4double py = prePos.y() / mm;
+		G4double pz = prePos.z() / mm;
 		if (preStep->GetStepStatus() == fGeomBoundary) {
 			h2xy->Fill(py - PY_ORIGIN, pz - PZ_ORIGIN);
 		}
