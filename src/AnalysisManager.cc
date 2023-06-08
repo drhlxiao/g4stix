@@ -147,12 +147,12 @@ void AnalysisManager::InitROOT() {
 				Form("Recorded energy spectrum - Rebinned to SCI "
 					"channels (D%d); Energy (keV)",
 					i),
-				33, energyRanges);
+				32, energyRanges);
 		hEdepSci[i] = new TH1F(Form("hEdepSci%d", i),
 				Form("Deposited energy spectrum - Rebinned to SCI "
 					"channels (D%d); Energy (keV)",
 					i),
-				33, energyRanges);
+				32, energyRanges);
 		hReal[i] = new TH1F(
 				Form("hReal%d", i),
 				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), 300, 0, 150);
@@ -165,13 +165,13 @@ void AnalysisManager::InitROOT() {
 					Form("Recorded energy spectrum - Rebinned to SCI channels "
 						"(D%d); Energy (keV)",
 						i),
-					33, energyRanges);
+					32, energyRanges);
 		hEdepSciSingleHit[i] =
 			new TH1F(Form("hEdepSciSingleHit%d", i),
 					Form("Deposited energy spectrum - Rebinned to SCI channels "
 						"(D%d); Energy (keV)",
 						i),
-					33, energyRanges);
+					32, energyRanges);
 		hRealSingleHit[i] = new TH1F(
 				Form("hRealSingleHit%d", i),
 				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), 300, 0, 150);
