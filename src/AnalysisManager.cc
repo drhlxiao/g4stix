@@ -47,7 +47,7 @@ const G4double FANO_FACTOR = 0.15;
 // https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
 double energyRanges[] = {0,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13,
 	14, 15, 16, 18, 20, 22, 25, 28,  32,  36,  40,
-	45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1000};
+	45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 250};
 int getScienceBin(Double_t energy) {
 	if (energy < 4) {
 		return 0;
@@ -128,13 +128,14 @@ void AnalysisManager::InitROOT() {
 	primTree->Branch("E0", &gunEnergy, "E0/D");
 
 	c1 = new TCanvas("c1", "c1", 10, 10, 800, 800);
-	for (int i = 0; i < NUM_CHANNELS; i++) {
+/*	for (int i = 0; i < NUM_CHANNELS; i++) {
 		hd[i] = new TH1F(Form("hd%d", i),
 				Form("Spectrum of pixel %d energy depositions; Energy "
 					"deposition (keV); Counts",
 					i),
 				200, 0, 500);
 	}
+	*/
 	for (int i = 0; i < 33; i++) {
 		hpat[i] = new TH1F(Form("hDetCntPat_%d", i),
 				"Detector count pattern; Pixel #; counts;", 12, 0, 12);
@@ -238,7 +239,7 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		if (edepSum[i] > 0) {
 			hEdepSum->Fill(edepSum[i]);
-			hd[i]->Fill(edepSum[i]);
+			//hd[i]->Fill(edepSum[i]);
 			toFill = true;
 			G4double sigma =
 				collectedEdepSum[i] * GetEnergyResolution(collectedEdepSum[i]);
@@ -263,6 +264,13 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 				nHits[detIdx]++;
 			}
 			sci[i] = getScienceBin(collectedEdepSumRealistic[i]);
+
+			hEdep[detIdx]->Fill(edepSum[i]);
+			hReal[detIdx]->Fill(collectedEdepSumRealistic[i]);
+			//not binned to stix 
+			hEdep[32]->Fill(edepSum[i]);
+			hReal[32]->Fill(collectedEdepSumRealistic[i]);
+			//histograms to store spectra of events of all detectors
 
 			hEdepSci[detIdx]->Fill(edepSum[i]);
 			hRealSci[detIdx]->Fill(collectedEdepSumRealistic[i]);
@@ -462,11 +470,11 @@ void AnalysisManager::CloseROOT() {
 	cdhist->cd();
 	c1->cd();
 	c1->Divide(2, 5);
-	for (int i = 0; i < NUM_CHANNELS; i++) {
-		hd[i]->Write();
-		c1->cd(i + 1);
-		hd[i]->Draw();
-	}
+//	for (int i = 0; i < NUM_CHANNELS; i++) {
+//		hd[i]->Write();
+//		c1->cd(i + 1);
+//		hd[i]->Draw();
+//	}
 	for (int i = 0; i < 33; i++) {
 		hRealSci[i]->Write();
 		hEdepSci[i]->Write();
