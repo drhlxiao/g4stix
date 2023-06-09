@@ -60,6 +60,9 @@ int getScienceBin(Double_t energy) {
 	}
 	return 31;
 }
+const double histMaxEnergy=150;
+int histNbins=(int)(histMaxEnergy/0.2);
+
 AnalysisManager *AnalysisManager::fManager = 0;
 AnalysisManager *AnalysisManager::GetInstance() {
 	if (!fManager) {
@@ -154,12 +157,13 @@ void AnalysisManager::InitROOT() {
 					"channels (D%d); Energy (keV)",
 					i),
 				32, energyRanges);
+
 		hReal[i] = new TH1F(
 				Form("hReal%d", i),
-				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), 300, 0, 150);
+				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
 		hEdep[i] = new TH1F(
 				Form("hEdep%d", i),
-				Form("Deposited energy spectrum (D%d); Energy (keV)", i), 300, 0, 150);
+				Form("Deposited energy spectrum (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
 
 		hRealSciSingleHit[i] =
 			new TH1F(Form("hRealSciSingleHit%d", i),
@@ -175,10 +179,10 @@ void AnalysisManager::InitROOT() {
 					32, energyRanges);
 		hRealSingleHit[i] = new TH1F(
 				Form("hRealSingleHit%d", i),
-				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), 300, 0, 150);
+				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
 		hEdepSingleHit[i] = new TH1F(
 				Form("hEdepSingleHit%d", i),
-				Form("Deposited energy spectrum (D%d); Energy (keV)", i), 300, 0, 150);
+				Form("Deposited energy spectrum (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
 	}
 	h2xy = new TH2F("h2xy", "Locations of hits; X (mm); Y(mm)", 1800, -90, 90,
 			1800, -90, 90);
