@@ -219,14 +219,14 @@ void DetectorConstruction::ConstructGrids() {
 	G4ThreeVector calFoilKaptonCenter(9.251*mm+ extraMargin-1*mm, 104.074*mm, 126.709*mm);
 	//measured from cad, extraMargin added manually to avoid overlapping
 	G4double calCoords[8][2]={
-		{ -39.0,  78.5 },
-		{ 39.0,  78.5 },
-		{ 85.0,  44.0 },
-		{ 85.0,  -44.0 },
-		{ 39.0,  -78.5 },
-		{ -39.0,  -78.5 },
-		{ -85.0,  -44.0 },
-		{ -85.0,  44.0 }};
+		{ -44.0,  78.5 },
+		{ 44.0,  78.5 },
+		{ 85.0,  39.0 },
+		{ 85.0,  -39.0 },
+		{ 44.0,  -78.5 },
+		{ -44.0,  -78.5 },
+		{ -85.0,  -39.0 },
+		{ -85.0,  39.0 }};
 	for(int i=0;i<8;i++)
 	{
 		calibrationFoilVertexCoords.push_back(G4TwoVector(calCoords[i][1]*mm, calCoords[i][0]*mm));

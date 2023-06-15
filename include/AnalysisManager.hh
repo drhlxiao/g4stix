@@ -82,18 +82,18 @@ class AnalysisManager {
   TH1F *hcol;
   TH1F *hpc;
   TH1F *hdc;
-  TH1F *hpat[33];
-  TH1F *hpatsum[33];
+  TH1F *hpat[34];
+  TH1F *hpatsum[34];
 
-  TH1F *hEdepSci[33];
-  TH1F *hRealSci[33];
-  TH1F *hEdep[33];
-  TH1F *hReal[33];
+  TH1F *hEdepSci[34];
+  TH1F *hRealSci[34];
+  TH1F *hEdep[34];
+  TH1F *hReal[34];
 
-  TH1F *hEdepSciSingleHit[33]; //deposited energies, stix science channel, only single-hit accepted, The 32nd histogram for sum spectrum
-  TH1F *hRealSciSingleHit[33];//measured energies, stix science channel, only single-hit accepted, The 32nd histogram for sum spectrum
-  TH1F *hEdepSingleHit[33];
-  TH1F *hRealSingleHit[33];
+  TH1F *hEdepSciSingleHit[34]; //deposited energies, stix science channel, only single-hit accepted, The 32nd histogram for sum spectrum
+  TH1F *hRealSciSingleHit[34];//measured energies, stix science channel, only single-hit accepted, The 32nd histogram for sum spectrum
+  TH1F *hEdepSingleHit[34];
+  TH1F *hRealSingleHit[34];
   // energy spectrum with single hit only
 
   TH2F *h2xy;

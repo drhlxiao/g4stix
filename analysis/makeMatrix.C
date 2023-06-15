@@ -34,10 +34,34 @@ bool isFineGrid(int det){
 
 void makeMatrix(TString filein,  TString fout,
 		double eStep=0.1,
-		double maxEnergy=250 , Long64_t entries=0, double flux=1, bool excludeDoubleHits=false)
+		double maxEnergy=250 , Long64_t entries=0, double radius=1, bool excludeDoubleHits=false)
 {
+	int num=(int)(maxEnergy/eStep);
+	cout<<"Number of bins:"<<num<<endl;
+	cout<<"Max Energy :"<<maxEnergy<<endl;
+
 	TFile *  f = new TFile(filein);
 	//f->GetObject("events",tree);
+	TTree*	source=(TTree*)f->Get("source");
+	Double_t        E0;
+	Int_t           eventID;
+	source->SetBranchAddress("E0",&E0);
+	source->SetBranchAddress("eventID",&eventID);
+	Int_t totalEntries=source->GetEntries();
+	Int_t totalEvents;
+	TH1F *hsource=new TH1F("hSource", Form("Source energy spectrum(Events: %d, radius: %f); Energy (keV); Counts", totalEvents, radius), num, 0, maxEnergy);
+	for(int i=0;i<totalEntries; i++){
+		source->GetEntry(i);
+		totalEvents=eventID;
+		hsource->Fill(E0);
+	}
+	// photons/cm^2*keV
+	cout<<"Output:"<<fout<<endl;
+	TFile fo(fout,"recreate");
+	hsource->Write();
+
+	Double_t flux=totalEvents/(3.1415*radius*radius*maxEnergy);
+
 	TTree*	events=(TTree*)f->Get("events");
 
 	//Declaration of leaves types
@@ -45,10 +69,8 @@ void makeMatrix(TString filein,  TString fout,
 	Double_t        collected[384];
 	Double_t        charge[384];
 	Double_t        charge2[384];
-	Int_t           eventID;
 	Double_t        gunPos[3];
 	Double_t        gunVec[3];
-	Double_t        E0;
 	Int_t           numTracks;
 	Double_t        hitx[30];
 	Double_t        hity[30];
@@ -83,11 +105,6 @@ void makeMatrix(TString filein,  TString fout,
 	// TTreePlayer->SetBranchStatus("branchname",1);  // activate branchname
 
 
-	int num=(int)(maxEnergy/eStep);
-	cout<<"Number of bins:"<<num<<endl;
-	cout<<"Max Energy :"<<maxEnergy<<endl;
-	cout<<"Output:"<<fout<<endl;
-	TFile fo(fout,"recreate");
 
 	TH2F *hresp[N];
 	TH2F *hcoll[N];
@@ -287,7 +304,7 @@ void makeMatrix(TString filein,  TString fout,
 }
 
 void Help(){
-	cout<<"make_matrix  -i input.root -o output.root  -b <energy step 0.1 >  -m <max energy, 250> -f  <flux, in units of photons/(cm2*keV)> -x <exclude double-hits if 1> "<<endl; 
+	cout<<"make_matrix  -i input.root -o output.root  -b <energy step 0.1 >  -m <max energy, 250> -r  <radius of the source plane> -x <exclude double-hits if 1> "<<endl; 
 }
 int main(int argc, char *argv[])
 {
@@ -301,7 +318,7 @@ int main(int argc, char *argv[])
 	double eStep=0.1;
 	double eMax=250;
 	Long64_t entries=0;
-	double flux=1;
+	double radius=9;
 	bool excludeDoubleHits=false;
 
 	while (s < argc - 1) {
@@ -334,14 +351,14 @@ int main(int argc, char *argv[])
 			entries= atoi(argv[++s]);
 		}
 		else if (sel == "-f") {
-			flux = atof(argv[++s]);
+			radius = atof(argv[++s]);
 		}
 		else if (sel == "-x") {
 			excludeDoubleHits = atoi(argv[++s]);
 		}
 
 	}
-	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries, flux, excludeDoubleHits);
+	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries, radius, excludeDoubleHits);
 
 	return 0;
 } 

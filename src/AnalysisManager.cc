@@ -127,6 +127,7 @@ void AnalysisManager::InitROOT() {
 	evtTree->Branch("time", time, Form("time[%d]/D", MAX_TRACKS));
 	primTree = new TTree("source", "source");
 	primTree->Branch("pos", gunPosition, "pos[3]/D");
+	primTree->Branch("eventID", &eventID, "eventID/I");
 	primTree->Branch("vec", gunDirection, "vec[3]/D");
 	primTree->Branch("E0", &gunEnergy, "E0/D");
 
@@ -139,7 +140,7 @@ void AnalysisManager::InitROOT() {
 				200, 0, 500);
 	}
 	*/
-	for (int i = 0; i < 33; i++) {
+	for (int i = 0; i < 34; i++) {
 		hpat[i] = new TH1F(Form("hDetCntPat_%d", i),
 				"Detector count pattern; Pixel #; counts;", 12, 0, 12);
 		hpatsum[i] = new TH1F(
@@ -304,6 +305,13 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			hRealSciSingleHit[32]->Fill(collectedEdepSumRealistic[ch]);
 			//sum spectrum 
 
+			if(j<8 && i!=8 && i!=9){
+				hEdepSingleHit[33]->Fill(edepSum[ch]);
+				hRealSingleHit[33]->Fill(collectedEdepSumRealistic[ch]);
+				hEdepSciSingleHit[33]->Fill(edepSum[ch]);
+				hRealSciSingleHit[33]->Fill(collectedEdepSumRealistic[ch]);
+			}
+
 		}
 	}
 
@@ -328,7 +336,7 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 	gunDirection[1] = direction.getY();
 	gunDirection[2] = direction.getZ();
 	gunEnergy = energy;
-	if (eventID < 1e5) primTree->Fill();
+	if (eventID %20 == 0 || eventID <= 1e6 ) primTree->Fill();
 	if (toFill) evtTree->Fill();
 }
 // Stepping Action
@@ -479,7 +487,7 @@ void AnalysisManager::CloseROOT() {
 //		c1->cd(i + 1);
 //		hd[i]->Draw();
 //	}
-	for (int i = 0; i < 33; i++) {
+	for (int i = 0; i < 34; i++) {
 		hRealSci[i]->Write();
 		hEdepSci[i]->Write();
 		hReal[i]->Write();
