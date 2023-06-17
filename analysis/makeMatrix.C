@@ -254,7 +254,7 @@ void makeMatrix(TString filein,  TString fout,
 			hreal_stix[sumDetID]->Fill(E0, getScienceBin(charge2[k]) );
 			if(sumDetID==34 && k%12<8 ){
 				//big pixels except cfl and bkg
-				sumDetID=36;
+				sumDetID=37;
 				hresp[sumDetID]->Fill(E0, edep[k] );
 				hcoll[sumDetID]->Fill(E0, collected[k] );
 				hreal[sumDetID]->Fill(E0, charge2[k] );
