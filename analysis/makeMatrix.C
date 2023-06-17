@@ -31,6 +31,22 @@ bool isFineGrid(int det){
 	if( (10 <= det && det <=12)|| (16 <=det&& det<=18))return true;
 	else return false;
 }
+void normMatrix(TH2F *hrep, TH1F *hspec){
+	//normalized response matrix by input spectrum
+	//not neccessary a flat spectrum
+	int nbins=hspec->GetXaxis()->GetNbins();
+	int nbinsX=hrep->GetXaxis()->GetNbins();
+	int nbinsY=hrep->GetYaxis()->GetNbins();
+	for(int i=1;i<nbinsX+1;i++){
+		for(int j=1;i<nbinsY+1;j++){
+			double nEvents=hspec->GetBinContent(i);
+			double counts=hrep->GetBinContent(i,j);
+			if(nEvents>0)hrep->SetBinContent(i,j, counts/nEvents);
+		}
+	}
+
+
+}
 
 void makeMatrix(TString filein,  TString fout,
 		double eStep=0.1,
@@ -279,8 +295,18 @@ void makeMatrix(TString filein,  TString fout,
 		hresp_stix[k]->Scale(weight);
 		hcoll_stix[k]->Scale(weight);
 		hreal_stix[k]->Scale(weight);
+
+		normMatrix(hresp[k], hsource);
+		normMatrix(hcoll[k], hsource);
+		normMatrix(hreal[k], hsource);
+
+		normMatrix(hresp_stix[k], hsource);
+		normMatrix(hcoll_stix[k], hsource);
+		normMatrix(hreal_stix[k], hsource);
+		//normalization
 	}
 	for(k=0;k<32;k++) {
+
 		hresp[k]->Write();
 		hcoll[k]->Write();
 		hreal[k]->Write();
