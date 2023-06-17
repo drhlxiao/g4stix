@@ -74,7 +74,10 @@ void makeMatrix(TString filein,  TString fout,
 	// photons/cm^2*keV
 	cout<<"Output:"<<fout<<endl;
 	TFile fo(fout,"recreate");
+	fo.mkdir("source");
+	fo.cd("source");
 	hsource->Write();
+	fo.cd();
 
 	Double_t flux=totalEvents/(3.1415*radius*radius*maxEnergy);
 
