@@ -10,11 +10,11 @@
 #include <TH1F.h> 
 #include <TH2F.h> 
 #include <string>    
-const int N = 37;
+const int N = 38;
 const float threshold=4;
 using namespace std; 
 int getScienceBin(Double_t energy){
-double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 
+	double energyRanges[]={0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 
 		28, 32, 36, 40, 45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 1e9};
 	if(energy<4)return 0;
 	else if(energy>=150)return 31;
@@ -161,7 +161,9 @@ void makeMatrix(TString filein,  TString fout,
 		"Fine grid detector summed response", //33
 		"Detectors summed response (except fine grids, CFL and BKG)", //34
 		"CFL response ",//35
-		"BKG response "}; //36
+		"BKG response ",
+		"All big pixel summed (except CFL and BKG)",
+	}; //36
 
 	for(k=32;k<N;k++){
 		TString title=titles[k-32];
@@ -221,7 +223,7 @@ void makeMatrix(TString filein,  TString fout,
 
 			int sumDetID=32;
 			//fill all detectors
-			
+
 			//cout<<det<<","<<pix<<"," << E0 <<" , "<<edep[k]<<", "<<<<endl;
 			hresp[sumDetID]->Fill(E0, edep[k] );
 			hcoll[sumDetID]->Fill(E0, collected[k] );
@@ -243,18 +245,30 @@ void makeMatrix(TString filein,  TString fout,
 				sumDetID=34;//except fine grids, cfl and bkg
 			}
 
+
 			hresp[sumDetID]->Fill(E0, edep[k] );
 			hcoll[sumDetID]->Fill(E0, collected[k] );
 			hreal[sumDetID]->Fill(E0, charge2[k] );
 			hresp_stix[sumDetID]->Fill(E0, getScienceBin(edep[k]) );
 			hcoll_stix[sumDetID]->Fill(E0, getScienceBin(collected[k]) );
 			hreal_stix[sumDetID]->Fill(E0, getScienceBin(charge2[k]) );
+			if(sumDetID==34 && k%12<8 ){
+				//big pixels except cfl and bkg
+				sumDetID=36;
+				hresp[sumDetID]->Fill(E0, edep[k] );
+				hcoll[sumDetID]->Fill(E0, collected[k] );
+				hreal[sumDetID]->Fill(E0, charge2[k] );
+				hresp_stix[sumDetID]->Fill(E0, getScienceBin(edep[k]) );
+				hcoll_stix[sumDetID]->Fill(E0, getScienceBin(collected[k]) );
+				hreal_stix[sumDetID]->Fill(E0, getScienceBin(charge2[k]) );
+
+			}
 
 
 		}
 	}
 	fo.cd();
-	
+
 	fo.mkdir("singleDetector");
 	fo.cd("singleDetector");
 	cout<<"Writing histograms"<<endl;
@@ -316,7 +330,7 @@ int main(int argc, char *argv[])
 	TString sel;
 
 	double eStep=0.1;
-	double eMax=250;
+	double eMax=150;
 	Long64_t entries=0;
 	double radius=9;
 	bool excludeDoubleHits=false;
@@ -350,14 +364,27 @@ int main(int argc, char *argv[])
 		else if (sel == "-n") {
 			entries= atoi(argv[++s]);
 		}
-		else if (sel == "-f") {
+		else if (sel == "-r") {
 			radius = atof(argv[++s]);
 		}
-		else if (sel == "-x") {
-			excludeDoubleHits = atoi(argv[++s]);
-		}
+		//		else if (sel == "-x") {
+		//			excludeDoubleHits = atoi(argv[++s]);
+		//		}
 
 	}
+	if(inputFilename=="" ){
+		Help();
+		return 0;
+	}
+	//	if(excludeDoubleHits){
+	outputFilename="resp_"+inputFilename;
+	outputFilename="single_hit_"+outputFilename;
+	cout<<"Creating response matrix for hits excluding hits..."<<endl;
+	excludeDoubleHits=false;
+	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries, radius, excludeDoubleHits);
+	outputFilename="all_hits_"+outputFilename;
+	cout<<"Creating response matrix for all hits..."<<endl;
+	excludeDoubleHits=true;
 	makeMatrix(inputFilename, outputFilename, eStep, eMax, entries, radius, excludeDoubleHits);
 
 	return 0;
