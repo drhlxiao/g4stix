@@ -38,7 +38,7 @@ void normMatrix(TH2F *hrep, TH1F *hspec){
 	int nbinsX=hrep->GetXaxis()->GetNbins();
 	int nbinsY=hrep->GetYaxis()->GetNbins();
 	for(int i=1;i<nbinsX+1;i++){
-		for(int j=1;i<nbinsY+1;j++){
+		for(int j=1;j<nbinsY+1;j++){
 			double nEvents=hspec->GetBinContent(i);
 			double counts=hrep->GetBinContent(i,j);
 			if(nEvents>0)hrep->SetBinContent(i,j, counts/nEvents);
@@ -71,6 +71,13 @@ void makeMatrix(TString filein,  TString fout,
 		totalEvents=eventID;
 		hsource->Fill(E0);
 	}
+	double *spectrum=new double [num];
+
+	for(int i=0;i<num;i++){
+		spectrum[i]=hsource->GetBinContent(i+1);
+	}
+
+
 	// photons/cm^2*keV
 	cout<<"Output:"<<fout<<endl;
 	TFile fo(fout,"recreate");
@@ -298,11 +305,11 @@ void makeMatrix(TString filein,  TString fout,
 		hresp_stix[k]->Scale(weight);
 		hcoll_stix[k]->Scale(weight);
 		hreal_stix[k]->Scale(weight);
+		cout<<"Normalize matrix:"<<k<<endl;
 
 		normMatrix(hresp[k], hsource);
 		normMatrix(hcoll[k], hsource);
 		normMatrix(hreal[k], hsource);
-
 		normMatrix(hresp_stix[k], hsource);
 		normMatrix(hcoll_stix[k], hsource);
 		normMatrix(hreal_stix[k], hsource);
