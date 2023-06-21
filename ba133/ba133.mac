@@ -1,0 +1,9 @@
+
+/stix/geo/gdml WorldBa133
+#removed some unimportant components
+#/stix/geo/grids true
+#/stix/geo/att false
+#set true or false will enable loading of gdml
+/run/initialize
+
+/run/beamOn 10000000

@@ -80,6 +80,7 @@ void PrimaryGeneratorAction::InitParticleSpectrumFromROOT(G4String val) {
 void PrimaryGeneratorAction::GetGPS(G4ThreeVector &position,
 		G4ThreeVector &direction,
 		G4double &energy) {
+	//noted that this dosen't work with older versions of geant4
 	if (particleSource == "") {
 		position = fParticleSource->GetParticlePosition();
 		direction = fParticleSource->GetParticleMomentumDirection();
@@ -138,24 +139,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 			G4cout << "ba133 source" << G4endl;
 		}
 	}
-	/*	else if (particleSource=="fromROOT"){
-		if(histoEnergy==NULL){
-		G4cout<<"Histogram not initialized..."<<G4endl;
-		return;
-		}
-
-		while(energy<8){
-		energy=histoEnergy->GetRandom();
-		}
-
-
-
-
-
-		fParticleGun->GeneratePrimaryVertex(anEvent);
-
-		}
-		*/
 
 		else {
 			fParticleSource->GeneratePrimaryVertex(anEvent);
