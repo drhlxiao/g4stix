@@ -48,6 +48,22 @@ const G4double FANO_FACTOR = 0.15;
 double energyRanges[] = {0,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13,
 	14, 15, 16, 18, 20, 22, 25, 28,  32,  36,  40,
 	45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 250};
+
+void normalizedEnergySpectrum(TH1F *h){
+	//energy bin widths are different, we need to  divide the counts by energy bin width
+	int nbins=h->GetXaxis()->GetNbins();
+	if(nbins!=32){
+		G4cout<<"Can not normalize histogram"<<G4endl;
+		return;
+	}
+	for(int i=0;i<32;i++){
+		double binW=energyRanges[i+1]-energyRanges[i];
+		if(binW>0){
+			h->SetBinContent(i+1, h->GetBinContent(i+1)/binW);
+		}
+	}
+}
+
 int getScienceBin(Double_t energy) {
 	if (energy < 4) {
 		return 0;
@@ -60,8 +76,12 @@ int getScienceBin(Double_t energy) {
 	}
 	return 31;
 }
+
+
+
+
 const double histMaxEnergy=150;
-int histNbins=(int)(histMaxEnergy/0.2);
+int histNbins=(int)(histMaxEnergy/0.1);
 
 AnalysisManager *AnalysisManager::fManager = 0;
 AnalysisManager *AnalysisManager::GetInstance() {
@@ -140,50 +160,71 @@ void AnalysisManager::InitROOT() {
 				200, 0, 500);
 	}
 	*/
+	TString channelName="";
 	for (int i = 0; i < 34; i++) {
+		if(i==8){
+			channelName="CFL";
+		}
+		else if(i==9){
+			channelName="BKG";
+		}
+		else if(i==32){
+			channelName="Detector summed";
+		}
+		else if(i==33){
+			channelName="Big pixels except CFL and BKG";
+		}
+		else {
+			channelName=Form("D%d", i);
+		}
+	
+
+
+		/*
 		hpat[i] = new TH1F(Form("hDetCntPat_%d", i),
 				"Detector count pattern; Pixel #; counts;", 12, 0, 12);
 		hpatsum[i] = new TH1F(
 				Form("hDetCntSummedPat_%d", i),
 				"Pattern of Big+small summed counts; Pixel column ; Total counts;", 4,
 				0, 4);
+				*/
 
 		hRealSci[i] = new TH1F(Form("hRealSci%d", i),
 				Form("Recorded energy spectrum - Rebinned to SCI "
-					"channels (D%d); Energy (keV)",
-					i),
+					"channels (%s); Energy (keV)",
+					channelName.Data()),
 				32, energyRanges);
 		hEdepSci[i] = new TH1F(Form("hEdepSci%d", i),
 				Form("Deposited energy spectrum - Rebinned to SCI "
-					"channels (D%d); Energy (keV)",
-					i),
+					"channels (%s); Energy (keV)",
+					channelName.Data()),
 				32, energyRanges);
 
 		hReal[i] = new TH1F(
 				Form("hReal%d", i),
-				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
+				Form("Recorded energy spectrum  (%s); Energy (keV)", channelName.Data()), histNbins, 0, histMaxEnergy);
 		hEdep[i] = new TH1F(
 				Form("hEdep%d", i),
-				Form("Deposited energy spectrum (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
+				Form("Deposited energy spectrum (%s); Energy (keV)", channelName.Data()), histNbins, 0, histMaxEnergy);
 
 		hRealSciSingleHit[i] =
 			new TH1F(Form("hRealSciSingleHit%d", i),
 					Form("Recorded energy spectrum - Rebinned to SCI channels "
-						"(D%d); Energy (keV)",
-						i),
+						"(%s); Energy (keV)",
+						channelName.Data()),
 					32, energyRanges);
 		hEdepSciSingleHit[i] =
 			new TH1F(Form("hEdepSciSingleHit%d", i),
 					Form("Deposited energy spectrum - Rebinned to SCI channels "
-						"(D%d); Energy (keV)",
-						i),
+						"(%s); Energy (keV)",
+						channelName.Data()),
 					32, energyRanges);
 		hRealSingleHit[i] = new TH1F(
 				Form("hRealSingleHit%d", i),
-				Form("Recorded energy spectrum  (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
+				Form("Recorded energy spectrum  (%s); Energy (keV)", channelName.Data()), histNbins, 0, histMaxEnergy);
 		hEdepSingleHit[i] = new TH1F(
 				Form("hEdepSingleHit%d", i),
-				Form("Deposited energy spectrum (D%d); Energy (keV)", i), histNbins, 0, histMaxEnergy);
+				Form("Deposited energy spectrum (%s); Energy (keV)", channelName.Data()), histNbins, 0, histMaxEnergy);
 	}
 	h2xy = new TH2F("h2xy", "Locations of hits; X (mm); Y(mm)", 1800, -90, 90,
 			1800, -90, 90);
@@ -260,8 +301,8 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 
 			int detIdx = i / 12;
 			int pixIdx = i % 12;
-			hpat[detIdx]->Fill(pixIdx);
-			hpatsum[detIdx]->Fill(pixIdx / 4);
+		//	hpat[detIdx]->Fill(pixIdx);
+		//	hpatsum[detIdx]->Fill(pixIdx / 4);
 			hpc->Fill(i);
 			hdc->Fill(detIdx);
 
@@ -282,6 +323,13 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			//
 			hEdepSci[32]->Fill(edepSum[i]);
 			hRealSci[32]->Fill(collectedEdepSumRealistic[i]);
+
+			if(detIdx!=8 && detIdx!=9&&pixIdx<8)
+			{
+				//big pixel except CFL and BKG
+				hEdepSci[33]->Fill(edepSum[i]);
+				hRealSci[33]->Fill(collectedEdepSumRealistic[i]);
+			}
 			// summed spectrum
 		}
 	}
@@ -292,6 +340,9 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 		for (int j = 0; j < 12; j++) {
 			int ch = i * 12 + j;
 			if (edepSum[ch] < 0) continue;
+
+			//hEdep[detIdx]->Fill(edepSum[i]);
+			//hReal[detIdx]->Fill(collectedEdepSumRealistic[i]);
 
 			hEdepSingleHit[i]->Fill(edepSum[ch]);
 			hRealSingleHit[i]->Fill(collectedEdepSumRealistic[ch]);
@@ -306,6 +357,7 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			//sum spectrum 
 
 			if(j<8 && i!=8 && i!=9){
+
 				hEdepSingleHit[33]->Fill(edepSum[ch]);
 				hRealSingleHit[33]->Fill(collectedEdepSumRealistic[ch]);
 				hEdepSciSingleHit[33]->Fill(edepSum[ch]);
@@ -488,22 +540,31 @@ void AnalysisManager::CloseROOT() {
 //		hd[i]->Draw();
 //	}
 	for (int i = 0; i < 34; i++) {
-		hRealSci[i]->Write();
-		hEdepSci[i]->Write();
+
 		hReal[i]->Write();
 		hEdep[i]->Write();
 
+		normalizedEnergySpectrum(hRealSci[i]);
+		normalizedEnergySpectrum(hEdepSci[i]);
+		normalizedEnergySpectrum(hEdepSciSingleHit[i]);
+		normalizedEnergySpectrum(hRealSciSingleHit[i]);
+		//bin
+
+		hRealSci[i]->Write();
+		hEdepSci[i]->Write();
 		hRealSciSingleHit[i]->Write();
 		hEdepSciSingleHit[i]->Write();
+
+
 		hRealSingleHit[i]->Write();
 		hEdepSingleHit[i]->Write();
 
 
 
 
-		if (i >= 32) continue;
-		hpat[i]->Write();
-		hpatsum[i]->Write();
+		//if (i >= 32) continue;
+		//hpat[i]->Write();
+		//hpatsum[i]->Write();
 	}
 	hEdepSum->Write();
 	h2xy->Write();
