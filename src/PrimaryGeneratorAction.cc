@@ -43,10 +43,10 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 		particleTable = G4ParticleTable::GetParticleTable();
 		G4String particleName;
 		G4ParticleDefinition *particle =
-			particleTable->FindParticle(particleName = "proton");
+			particleTable->FindParticle(particleName = "gamma");
 		fParticleGun->SetParticleDefinition(particle);
 		fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., -1.));
-		fParticleGun->SetParticleEnergy(30. * MeV);
+		fParticleGun->SetParticleEnergy(30. * keV);
 		//also defined in the DetectorConstruction
 		fParticleGun->SetParticlePosition(G4ThreeVector(0. * cm, 0. * cm, 15 * cm));
 		// particle source
@@ -99,12 +99,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 	G4double sourcePlaneRadius=157/2;
 	//
 
+	//particleTable->FindParticle("gamma");
+	//fParticleGun->SetParticleDefinition(particle);
 
 	if (particleSource == "Ba133") {
 		G4int numGamma = 0;
 
 		phi= 2.0 * 3.14159 * (G4UniformRand());
-		radius= sqrt(sourcePlaneRadius* G4UniformRand() )*mm;
+		radius= sourcePlaneRadius* sqrt( G4UniformRand() )*mm;
 		G4double shiftY=radius*cos(phi);
 		G4double shiftZ=radius*sin(phi);
 		G4double extraMargin=-2*mm;

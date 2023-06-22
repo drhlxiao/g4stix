@@ -48,7 +48,7 @@ class AnalysisManager {
   void AddEnergy(G4int detId, G4double edep);
   void AddCollectedEnergy(G4int detId, G4double edep);
   void CopyMacrosToROOT(TFile *f, TString &);
-  G4double ComputeCollectedEnergy(G4ThreeVector &pos, G4double Ek);
+  G4double ComputeCollectionEfficiency(G4ThreeVector &pos);
   G4double GetEnergyResolution(G4double Ek);
   void SetMacroFileName(G4String &name) { macroFilename = name; }
   void KillTracksInGrids() {
@@ -102,7 +102,7 @@ class AnalysisManager {
 
   G4double sci[NUM_CHANNELS];
   G4double edepSum[NUM_CHANNELS];
-  G4double collectedEdepSum[NUM_CHANNELS];
+  G4double collectedEnergySum[NUM_CHANNELS];
   G4double edepWithoutNoise[NUM_CHANNELS];
   G4double collectedEdepSumRealistic[NUM_CHANNELS];
   G4int nHits[32];

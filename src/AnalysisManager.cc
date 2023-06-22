@@ -125,7 +125,7 @@ void AnalysisManager::InitROOT() {
 	evtTree = new TTree("events", "events");
 	evtTree->Branch("edep", edepSum, Form("edep[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("sci", sci, Form("sci[%d]/D", NUM_CHANNELS));
-	evtTree->Branch("collected", collectedEdepSum,
+	evtTree->Branch("collected", collectedEnergySum,
 			Form("collected[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("charge", edepWithoutNoise,
 			Form("charge[%d]/D", NUM_CHANNELS));
@@ -260,7 +260,7 @@ void AnalysisManager::ProcessRun(const G4Run *run) {
 void AnalysisManager::InitEvent(const G4Event *event) {
 	for (G4int i = 0; i < NUM_CHANNELS; i++) {
 		edepSum[i] = 0.0;
-		collectedEdepSum[i] = 0;
+		collectedEnergySum[i] = 0;
 		edepWithoutNoise[i] = 0;
 		collectedEdepSumRealistic[i] = 0;
 		sci[i] = -1;
@@ -287,15 +287,16 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			hEdepSum->Fill(edepSum[i]);
 			//hd[i]->Fill(edepSum[i]);
 			toFill = true;
-			G4double sigma =
-				collectedEdepSum[i] * GetEnergyResolution(collectedEdepSum[i]);
-			// std. Deviation of charge, in units of eV
+			G4double sigma = collectedEnergySum[i] * GetEnergyResolution(collectedEnergySum[i]);
+			// std. Deviation of charge, in units of keV
+			// randomized the energy
 
-			edepWithoutNoise[i] = gRandom->Gaus(collectedEdepSum[i], sigma) *
-				PAIR_CREATION_ENERGY /
-				1000;  // convert back to keV, we randomize it to
-					   // smear the energy resolution
-					   //
+			edepWithoutNoise[i] = gRandom->Gaus(collectedEnergySum[i], sigma) ;
+			//charge
+			//	PAIR_CREATION_ENERGY /1000; 
+			// convert back to keV, we randomize it to
+			// smear the energy resolution
+			//
 			collectedEdepSumRealistic[i] = gRandom->Gaus(edepWithoutNoise[i], ENOISE);
 			// we asssue the electronics noise
 
@@ -393,8 +394,7 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 }
 // Stepping Action
 
-G4double AnalysisManager::ComputeCollectedEnergy(G4ThreeVector &pos,
-		G4double edep) {
+G4double AnalysisManager::ComputeCollectionEfficiency(G4ThreeVector &pos){
 	// Hecht equation, see "Recent Progress in CdTe and CdZnTe Detectors"
 	// Tadayuki Takahashi and Shin Watanabe
 	// Oliver's paper
@@ -410,20 +410,21 @@ G4double AnalysisManager::ComputeCollectedEnergy(G4ThreeVector &pos,
 	G4double freePathElectron = 1100 * 100 * 3e-6 * highVoltage;
 	G4double freePathHoles = 100 * 100 * 2e-6 * highVoltage;
 
-	G4double nPairs = (edep / 4.6);
+	//G4double nPairs = (edep / PAIR_CREATION_ENERGY);
 
 	// see Oliver's paper
 	G4double detThickness = 1;
 	// G4double charge = nPairs;
-	G4double factor =
+	G4double eff=
 		(1 - exp(-(detThickness - depth) / freePathElectron)) * freePathElectron /
 		detThickness +
 		(freePathHoles / detThickness) * (1.0 - exp(-depth / freePathHoles));
 	// G4double charge=(1-exp((depth-detThickness)/freePathElectron));
-	hcol->Fill(factor);
+	hcol->Fill(eff);
 	// G4cout<<freePathElectron<<" "<<depth<<" "<<detThickness<<"
 	// "<<charge<<G4endl;
-	return factor * nPairs;
+	//return eff* nPairs*PAIR_CREATION_ENERGY;
+	return eff;
 }
 G4double AnalysisManager::GetEnergyResolution(G4double edep) {
 	//	Recent Progress in CdTe and CdZnTe Detectors
@@ -471,8 +472,8 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 		if (edep > 0.0) {
 			AddEnergy(detectorID, edep);
 		G4ThreeVector postPos= aStep->GetPostStepPoint()->GetPosition();
-			G4double charge = ComputeCollectedEnergy(postPos, edep * 1000);
-			AddCollectedEnergy(detectorID, charge);
+			G4double collectedEnergy= edep*ComputeCollectionEfficiency(postPos);
+			AddCollectedEnergy(detectorID, collectedEnergy);
 		}
 		G4StepPoint *preStep = aStep->GetPreStepPoint();
 		G4ThreeVector prePos= aStep->GetPostStepPoint()->GetPosition();
@@ -515,7 +516,7 @@ inline void AnalysisManager::AddCollectedEnergy(G4int detId, G4double dep) {
 		G4cout << "invalid index" << G4endl;
 		return;
 	}
-	collectedEdepSum[detId] += dep;
+	collectedEnergySum[detId] += dep;
 }
 
 AnalysisManager::~AnalysisManager() {
