@@ -25,10 +25,70 @@
 #include "G4UImanager.hh"
 #include "Randomize.hh"
 //Ba133  energies
-const G4double prob[12] = {34.9, 64.5,  5.99, 11.6,  3.58,  2.2,
-	2.62, 34.06, 7.1,  18.85, 62.05, 8.94};
-const G4double gammaEnergy[12] = {30.6, 30.9,  34.9,  34.98, 35.8, 53.1,
-	79.6, 80.99, 276.3, 303,   356,  383};
+#define NUM_GAMMAS 29
+
+//ba133 emission lines
+const G4double prob[NUM_GAMMAS] = {
+8.94,
+62.05,
+18.33,
+7.164,
+0.45,
+0.645,
+34.06,
+2.62,
+2.199,
+0.74,
+3.58,
+0.123,
+11.6,
+5.99,
+64.5,
+34.9,
+0.004,
+0.22,
+0.15,
+0.54,
+1.19,
+0.048,
+0.93,
+0.56,
+3.8,
+6,
+0.66,
+0.11,
+0.24};
+const G4double gammaEnergy[NUM_GAMMAS] = {
+383.85,
+356.02,
+302.85,
+276.4,
+223.23,
+160.61,
+81,
+79.61,
+53.16,
+35.907,
+35.818,
+35.252,
+34.987,
+34.92,
+30.973,
+30.625,
+30.27,
+5.553,
+5.542,
+5.281,
+4.934,
+4.781,
+4.717,
+4.649,
+4.62,
+4.286,
+4.272,
+4.142,
+3.795
+};
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 	: sourceType(0), fTree(NULL), fFile(NULL), nEntries(0), iEntry(0) {
@@ -116,7 +176,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent) {
 		fParticleGun->SetParticlePosition(sourcePos);
 
 		while (numGamma == 0) {
-			for (G4int i = 0; i < 12; i++) {
+			for (G4int i = 0; i < NUM_GAMMAS; i++) {
 				rnd = 100 * G4UniformRand();
 				if (rnd < prob[i]) {
 					phi = 2.0 * 3.14159 * (G4UniformRand());
