@@ -32,6 +32,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "XrayFluoPhysicsList.hh"
+#include "G4EmParameters.hh"
 
 #include "G4EmProcessOptions.hh"
 #include "G4LossTableManager.hh"
@@ -96,7 +97,7 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
    */
 
   G4LossTableManager::Instance()->SetVerbose(1);
-  defaultCutValue = 0.02 * mm;
+  defaultCutValue = 0.1 * mm;
   cutForGamma = defaultCutValue;
   cutForElectron = defaultCutValue;
   cutForPositron = defaultCutValue;
@@ -162,13 +163,11 @@ void XrayFluoPhysicsList::ConstructProcess() {
 
   // Em options
   //
-  G4EmProcessOptions emOptions;
-  emOptions.SetBuildCSDARange(true);
-  emOptions.SetDEDXBinningForCSDARange(10 * 10);
-  // emOptions.SetDeexcitationActiveRegion(true); //TBC
-  emOptions.SetFluo(true);
-  emOptions.SetAuger(true);
-  emOptions.SetPIXE(true);
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetFluo(true);
+  param->SetAuger(true);
+  param->SetPixe(true);
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -26,9 +26,24 @@
 #include "TString.h"
 #include "TTree.h"
 
+bool DEBUG=false;
+
 const G4double highVoltage =
 300;                        // CdTe HV is 300 during the nominal operations
-const G4double ENOISE = 0.442;  // keV
+const G4double ENOISE = 0.52;  // keV
+							   //0.52 is from the best fit
+//from gussian fit, it should be 1.2/2.35=0.5
+
+const G4double FANO_FACTOR = 0.15; //from best fit
+
+G4double NEAR_SURFACE_L=7e-3;  //see Oliver's paper, in units of mm, take the mean value
+G4double NEAR_SURFACE_R0=0.15;  //see Oliver's paper, in units of mm, mean value are take
+
+// CdTe fano factor is 0.15 according to
+// https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
+// On Jun 27, the enoise and fano factor were found to be .24 and 0.74 through fitting of Ba133 exp sim spectrum, 
+// see: ~/FHNW/STIX/SolarFlareAnalysis/fitG4CalibrationSpectrum
+
 const G4double threshold = 4;
 /* At 30 keV, the energy resolution is 2%  * 30 keV= 0.6 keV
  * using fano factor, one could know the intrinsic resolution of CdTe is
@@ -37,17 +52,18 @@ const G4double threshold = 4;
  * calibration spectrum electronics noise = sqrt(0.6*0.6 -0.14*0.14 - 0.2*0.2)
  */
 
-const G4double CdTe_SURFACE_X =
-13.362385;  // surface x-coordinates of CdTe detectors
+const G4double CdTe_SURFACE_X = 12.7741 ;  // surface x-coordinates of CdTe detectors, using geant4 tracks to find the position, 2023-06-26, not it can be 13.774
 const G4double PY_ORIGIN = 103.1;
 const G4double PZ_ORIGIN = 127.5;
-const G4double PAIR_CREATION_ENERGY = 4.43;
-const G4double FANO_FACTOR = 0.15;
-// CdTe fano factor is 0.15 according to
-// https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
+const G4double PAIR_CREATION_ENERGY = 4.43e-3 ; //in units of keV
+
+
+
+
 double energyRanges[] = {0,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13,
 	14, 15, 16, 18, 20, 22, 25, 28,  32,  36,  40,
 	45, 50, 56, 63, 70, 76, 84, 100, 120, 150, 250};
+
 
 void normalizedEnergySpectrum(TH1F *h){
 	//energy bin widths are different, we need to  divide the counts by energy bin width
@@ -113,6 +129,11 @@ void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
 		macros += line + "\n";
 		G4cout << line << G4endl;
 	}
+	macros += "---------------  Realistic simulation parameters---------------";
+	macros += Form("\nNear surface R0: %f\n ", NEAR_SURFACE_R0 );
+	macros += Form("\nNear surface L: %f\n ", NEAR_SURFACE_L);
+	macros += Form("\nFanno factor : %f\n ", FANO_FACTOR);
+	macros += Form("\nENOIS (eV): %f\n ", ENOISE);
 	TNamed cmd;
 	cmd.SetTitle(macros);
 	f->cd();
@@ -125,6 +146,7 @@ void AnalysisManager::InitROOT() {
 	evtTree = new TTree("events", "events");
 	evtTree->Branch("edep", edepSum, Form("edep[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("sci", sci, Form("sci[%d]/D", NUM_CHANNELS));
+//	evtTree->Branch("colEff", colEff, Form("colEff[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("collected", collectedEnergySum,
 			Form("collected[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("charge", edepWithoutNoise,
@@ -145,6 +167,14 @@ void AnalysisManager::InitROOT() {
 	evtTree->Branch("pixel", hitPixelID, Form("pixel[%d]/I", MAX_TRACKS));
 	evtTree->Branch("energy", energy, Form("energy[%d]/D", MAX_TRACKS));
 	evtTree->Branch("time", time, Form("time[%d]/D", MAX_TRACKS));
+	evtTree->Branch("totalNumSteps", &totalNumSteps, "totalNumSteps/I");
+
+	if(DEBUG)
+	{
+		evtTree->Branch("R0", &NEAR_SURFACE_R0, "R0/D");
+		evtTree->Branch("L", &NEAR_SURFACE_L, "L/D");
+	}
+
 	primTree = new TTree("source", "source");
 	primTree->Branch("pos", gunPosition, "pos[3]/D");
 	primTree->Branch("eventID", &eventID, "eventID/I");
@@ -239,7 +269,11 @@ void AnalysisManager::InitROOT() {
 			0, 384);
 	hcol = new TH1F(
 			"h1ChargeColEff",
-			"Distribution of Charge collection efficiency ; Efficiency; Counts ;",
+			Form("Distribution of Charge collection efficiency (Fanno: %f, ENOISE: %f) ; Efficiency; Counts ;", FANO_FACTOR, ENOISE),
+			200, 0, 1);
+	hNS= new TH1F(
+			"hNearSurfaceFactor",
+			Form("CF of surface effect (L:%f; R0:%f); Efficiency; Counts ;", NEAR_SURFACE_L, NEAR_SURFACE_R0),
 			200, 0, 1);
 
 	hEdepSum->SetCanExtend(TH1::kXaxis);
@@ -258,6 +292,13 @@ void AnalysisManager::ProcessRun(const G4Run *run) {
 
 /// EventAction
 void AnalysisManager::InitEvent(const G4Event *event) {
+
+	if(DEBUG){
+		NEAR_SURFACE_R0= 0.1+0.8*G4UniformRand();
+		NEAR_SURFACE_L= (5+3.5*G4UniformRand())*1e-3;
+	}
+
+
 	for (G4int i = 0; i < NUM_CHANNELS; i++) {
 		edepSum[i] = 0.0;
 		collectedEnergySum[i] = 0;
@@ -278,6 +319,7 @@ void AnalysisManager::InitEvent(const G4Event *event) {
 		hitz[i] = 0;
 	}
 	itrack = 0;
+	totalNumSteps=0;
 }
 void AnalysisManager::ProcessEvent(const G4Event *event) {
 	eventID = event->GetEventID();
@@ -287,7 +329,7 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			hEdepSum->Fill(edepSum[i]);
 			//hd[i]->Fill(edepSum[i]);
 			toFill = true;
-			G4double sigma = collectedEnergySum[i] * GetEnergyResolution(collectedEnergySum[i]);
+			G4double sigma = GetEnergyResolution(collectedEnergySum[i]);
 			// std. Deviation of charge, in units of keV
 			// randomized the energy
 
@@ -394,6 +436,13 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 }
 // Stepping Action
 
+G4double AnalysisManager::GetNearSurfaceFactor(G4ThreeVector &pos){
+	G4double xx = pos.x() / mm;
+	G4double z= abs(xx - CdTe_SURFACE_X);  // depth from cathode
+	G4double factor=1-NEAR_SURFACE_R0*exp(-z/NEAR_SURFACE_L);
+	hNS->Fill(factor);
+	return factor;
+}
 G4double AnalysisManager::ComputeCollectionEfficiency(G4ThreeVector &pos){
 	// Hecht equation, see "Recent Progress in CdTe and CdZnTe Detectors"
 	// Tadayuki Takahashi and Shin Watanabe
@@ -402,35 +451,30 @@ G4double AnalysisManager::ComputeCollectionEfficiency(G4ThreeVector &pos){
 	// Spectral signature of near-surface damage in CdTe X-ray detectors
 	//
 	G4double xx = pos.x() / mm;
-
 	// G4cout<<xx<<G4endl;
+	G4double z= abs(xx - CdTe_SURFACE_X);  // depth from cathode
+										   //
+	hz->Fill(z);
 
-	G4double depth = xx - CdTe_SURFACE_X;  // depth from cathode
-	hz->Fill(depth);
 	G4double freePathElectron = 1100 * 100 * 3e-6 * highVoltage;
 	G4double freePathHoles = 100 * 100 * 2e-6 * highVoltage;
 
-	//G4double nPairs = (edep / PAIR_CREATION_ENERGY);
-
-	// see Oliver's paper
-	G4double detThickness = 1;
-	// G4double charge = nPairs;
+	G4double d = 1;
+	
 	G4double eff=
-		(1 - exp(-(detThickness - depth) / freePathElectron)) * freePathElectron /
-		detThickness +
-		(freePathHoles / detThickness) * (1.0 - exp(-depth / freePathHoles));
-	// G4double charge=(1-exp((depth-detThickness)/freePathElectron));
+		(1 - exp((z-d) / freePathElectron)) * (freePathElectron /d) +
+		(freePathHoles / d) * (1.0 - exp(-z/ freePathHoles));
+
 	hcol->Fill(eff);
-	// G4cout<<freePathElectron<<" "<<depth<<" "<<detThickness<<"
-	// "<<charge<<G4endl;
-	//return eff* nPairs*PAIR_CREATION_ENERGY;
 	return eff;
 }
+
 G4double AnalysisManager::GetEnergyResolution(G4double edep) {
 	//	Recent Progress in CdTe and CdZnTe Detectors
 	// Tadayuki Takahashi and Shin Watanabe
 	// energy in units of keV
-	G4double rho = 0;
+	//
+   /*	G4double rho = 0;
 	if (edep > 0) {
 		G4double numPairs = edep / PAIR_CREATION_ENERGY * 1000;
 		// keV to ev
@@ -440,6 +484,9 @@ G4double AnalysisManager::GetEnergyResolution(G4double edep) {
 		rho = sqrt(numSigma2) / numPairs;
 	}
 	return rho;
+	The above is equv. to  delta_E=2.35 sqrt(FWE), see https://www.sciencedirect.com/topics/neuroscience/fano-factor
+	*/ 
+	return 2.35*sqrt(FANO_FACTOR * PAIR_CREATION_ENERGY * edep);
 }
 
 void AnalysisManager::ProcessStep(const G4Step *aStep) {
@@ -456,6 +503,7 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 	}
 
 	if (volName == "pixel") {
+		totalNumSteps++;
 		detIdx = track->GetTouchable()->GetCopyNumber(3);
 		pixelID = track->GetTouchable()->GetCopyNumber(0);
 		G4double edep = aStep->GetTotalEnergyDeposit() / keV;
@@ -471,8 +519,8 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 
 		if (edep > 0.0) {
 			AddEnergy(detectorID, edep);
-		G4ThreeVector postPos= aStep->GetPostStepPoint()->GetPosition();
-			G4double collectedEnergy= edep*ComputeCollectionEfficiency(postPos);
+			G4ThreeVector postPos= aStep->GetPostStepPoint()->GetPosition();
+			G4double collectedEnergy= edep*ComputeCollectionEfficiency(postPos) * GetNearSurfaceFactor(postPos);
 			AddCollectedEnergy(detectorID, collectedEnergy);
 		}
 		G4StepPoint *preStep = aStep->GetPreStepPoint();
@@ -574,6 +622,7 @@ void AnalysisManager::CloseROOT() {
 	c1->Write();
 	hz->Write();
 	hcol->Write();
+	hNS->Write();
 	G4cout << ">> Number of event recorded:" << evtTree->GetEntries() << G4endl;
 	G4cout << ">> Number of track killed:" << numKilled << G4endl;
 	CopyMacrosToROOT(rootFile, macroFilename);

@@ -28,6 +28,7 @@
 #define NUM_GAMMAS 29
 
 //ba133 emission lines
+//taken from decay.exe
 const G4double prob[NUM_GAMMAS] = {
 8.94,
 62.05,
