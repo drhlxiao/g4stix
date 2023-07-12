@@ -9,6 +9,10 @@
 ```sh
 cmake .
 make
+```
+# Run examples
+```sh
+calibration source:
 ./g4STIX  -m test.mac -o test.root -Ba133
 ```
 # Materials and positions 
