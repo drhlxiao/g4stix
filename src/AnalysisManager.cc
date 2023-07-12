@@ -30,14 +30,15 @@ bool DEBUG=false;
 
 const G4double highVoltage =
 300;                        // CdTe HV is 300 during the nominal operations
-const G4double ENOISE = 0.52;  // keV
+const G4double ENOISE = 0.56;  // keV
 							   //0.52 is from the best fit
 //from gussian fit, it should be 1.2/2.35=0.5
 
 const G4double FANO_FACTOR = 0.15; //from best fit
 
-G4double NEAR_SURFACE_L=7e-3;  //see Oliver's paper, in units of mm, take the mean value
-G4double NEAR_SURFACE_R0=0.15;  //see Oliver's paper, in units of mm, mean value are take
+G4double NEAR_SURFACE_L=58e-3;  //see Oliver's paper, in units of mm, take the mean value
+G4double NEAR_SURFACE_R0=0.132;  //see Oliver's paper, in units of mm, mean value are take
+//best FIT L-=5.28e-3,R0=0.1 , set enoise=0.52, fanao=0.15
 
 // CdTe fano factor is 0.15 according to
 // https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397

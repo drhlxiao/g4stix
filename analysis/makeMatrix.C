@@ -354,7 +354,7 @@ void makeMatrix(TString filein,  TString fout,
 }
 
 void Help(){
-	cout<<"make_matrix  -i input.root -o output.root  -b <energy step 0.1 >  -m <max energy, 250> -r  <radius of the source plane> -x <exclude double-hits if 1> "<<endl; 
+	cout<<"make_matrix  -i input.root -o output.root  -b <energy step 0.1 >  -m <max energy, 150> -r  <radius of the source plane, default 9cm> "<<endl; 
 }
 int main(int argc, char *argv[])
 {
