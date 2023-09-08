@@ -36,7 +36,7 @@ const G4double ENOISE = 0.56;  // keV
 
 const G4double FANO_FACTOR = 0.15; //from best fit
 
-G4double NEAR_SURFACE_L=58e-3;  //see Oliver's paper, in units of mm, take the mean value
+G4double NEAR_SURFACE_L=5.8e-3;  //see Oliver's paper, in units of mm, take the mean value
 G4double NEAR_SURFACE_R0=0.132;  //see Oliver's paper, in units of mm, mean value are take
 //best FIT L-=5.28e-3,R0=0.1 , set enoise=0.52, fanao=0.15
 
@@ -142,7 +142,8 @@ void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
 	infile.close();
 }
 
-void AnalysisManager::InitROOT() {
+void AnalysisManager::InitRun( const G4Run *run) 
+{
 	rootFile = new TFile(outputFilename.Data(), "recreate");
 	evtTree = new TTree("events", "events");
 	evtTree->Branch("edep", edepSum, Form("edep[%d]/D", NUM_CHANNELS));

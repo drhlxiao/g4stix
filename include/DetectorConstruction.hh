@@ -32,13 +32,14 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   void SetVisColors();
   void SetAttenuatorStatus(G4bool att);
   void SetGridsStatus(G4bool v) { gridsEnabled = v; };
-  void ConstructCFL();
+  void ConstructCFLAperture();
   void ConstructGrids();
   void ConstructSpacecraft();
 
-  void ConstructBKG();
+  void ConstructBKGAperture();
   void SetGdmlFile(G4String v) { fWorldFile = v; }
-  void SetActivatedDetectorFlag(G4int v) { activatedDetectorFlag = v; }
+  void SetActivatedDetectorFlag(G4int v) { activatedDetectorFlag = v;  isSingleDetector=true;}
+  void ConstructCalibrationFoil();
 
  private:
   G4bool gridsEnabled;
@@ -59,6 +60,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   G4LogicalVolume *ConstructCdTe();
   G4AssemblyVolume *ConstructPads();
   bool checkOverlaps;
+  bool isSingleDetector;
 
   // caliste
 

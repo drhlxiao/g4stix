@@ -2,7 +2,7 @@
 #/stix/geo/att false
 #/stix/geo/cad false
 /stix/geo/grids true
-/stix/geo/det 30
+/stix/geo/det 20
 
 /process/em/fluo true
 

@@ -94,6 +94,9 @@ DetectorConstruction::DetectorConstruction() {
 	fWorldFile = "";
 	gridsEnabled = true;
 	activatedDetectorFlag = 100;
+
+	isSingleDetector=false;
+
 	// all detectors will be constructed  if it is not between 0 -- 31
 
 	G4RotationMatrix rotY;
@@ -139,7 +142,6 @@ void DetectorConstruction::ConstructSpacecraft() {
 }
 
 void DetectorConstruction::ConstructGrids() {
-	if (!gridsEnabled) return;
 	// don't construct if disabled by macro
 
 	// created by grid_data_creator.py in
@@ -168,16 +170,33 @@ void DetectorConstruction::ConstructGrids() {
 	G4ThreeVector pos;
 
 	G4bool nominalOrRealFlag[32] = {0};
+
 	G4Box *frontGridBox =
 		new G4Box("frontGridBox", 11.05 * mm, 10.05 * mm, 0.205 * mm);
 	G4Box *rearGridBox =
 		new G4Box("rearGridBox", 6.505 * mm, 6.505 * mm, 0.205 * mm);
+
+	G4double frameThickness=0.5*mm/2;
+	G4Box *frontGridBoxOuter =
+		new G4Box("frontGridBox", 11.05 * mm+frameThickness, 10.05 * mm+frameThickness, 0.205 * mm);
+	G4Box *rearGridBoxOuter =
+		new G4Box("rearGridBox", 6.505 * mm+frameThickness, 6.505 * mm+frameThickness, 0.205 * mm);
+
 	// dummy boxes
 	// added extra 50 um to avoid overlapping
 
 	G4LogicalVolume *frontGridContainerLog[32];
 	G4LogicalVolume *rearGridContainerLog[32];
+
+	G4LogicalVolume *frontGridContainerOuterLog[32];
+	G4LogicalVolume *rearGridContainerOuterLog[32];
 	for (int i = 0; i < 32; i++) {
+
+		frontGridContainerOuterLog[i] = new G4LogicalVolume(
+				frontGridBoxOuter, Tungsten, "frontGridContainerOuter", 0, 0, 0);
+		rearGridContainerOuterLog[i] =
+			new G4LogicalVolume(rearGridBoxOuter, Tungsten, "rearGridContainerOuter", 0, 0, 0);
+
 		frontGridContainerLog[i] = new G4LogicalVolume(
 				frontGridBox, Vacuum, "frontGridContainer", 0, 0, 0);
 		rearGridContainerLog[i] =
@@ -208,6 +227,45 @@ void DetectorConstruction::ConstructGrids() {
 		}
 	}
 
+	for (int i = 0; i < 32; i++) {
+			new G4PVPlacement(0, G4ThreeVector(), frontGridContainerLog[i], "frontGridContainer",
+					frontGridContainerOuterLog[i], false, i, false);
+			new G4PVPlacement(0, G4ThreeVector(), rearGridContainerLog[i], "rearGridContainer",
+					rearGridContainerOuterLog[i], false, i, false);
+	}
+
+
+
+	for (int i = 0; i < 32; i++) {
+		if (i == 8 || i == 9) continue;
+		// don't construct grids for CFL and BKG
+		G4String gtype = nominalOrRealFlag[i] == 1 ? "NOMINAL" : "REAL";
+		G4cout << "Grid #" << i << " parameter type: " << gtype << G4endl;
+
+		if (isSingleDetector) {
+			//if it is a single detector model, only reconstruct grids for this detector
+			if (i != activatedDetectorFlag) continue;
+		}
+
+		pos = isSingleDetector ? G4ThreeVector(-21 * mm, 0, 0)
+			: Grid::getGridCenterCAD(i, 1);
+		new G4PVPlacement(G4Transform3D(rotMatrix, pos), frontGridContainerOuterLog[i],
+				"frontGrid", worldLogical, false, i, false);
+
+		pos = isSingleDetector ? G4ThreeVector(-19 * mm, 0, 0)
+			: Grid::getGridCenterCAD(i, 0);
+		new G4PVPlacement(G4Transform3D(rotMatrix, pos), rearGridContainerOuterLog[i],
+				"rearGrid", worldLogical, false, i, false);
+	}
+
+	// fluorescence test
+
+
+	G4cout << "Grid construction finished." << G4endl;
+	f.Close();
+}
+void DetectorConstruction::ConstructCalibrationFoil(){
+	
 	//
 	//
 	// add calibration foils, the one converted from cad has issues, absorbs all photons below 6 keV, there might be overlapping 
@@ -252,34 +310,6 @@ void DetectorConstruction::ConstructGrids() {
 			"calFoilAluLogPhy", worldLogical, false, 0, false);
 
 
-
-
-	for (int i = 0; i < 32; i++) {
-		if (i == 8 || i == 9) continue;
-		// don't construct CFL and BKG
-		G4String gtype = nominalOrRealFlag[i] == 1 ? "NOMINAL" : "REAL";
-		G4cout << "Grid #" << i << " parameter type: " << gtype << G4endl;
-		bool singleDetector = false;
-		if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
-			if (i != activatedDetectorFlag) continue;
-			singleDetector = true;
-		}
-
-		pos = singleDetector ? G4ThreeVector(-21 * mm, 0, 0)
-			: Grid::getGridCenterCAD(i, 1);
-		new G4PVPlacement(G4Transform3D(rotMatrix, pos), frontGridContainerLog[i],
-				"frontGrid", worldLogical, false, i, false);
-
-		pos = singleDetector ? G4ThreeVector(-19 * mm, 0, 0)
-			: Grid::getGridCenterCAD(i, 0);
-		new G4PVPlacement(G4Transform3D(rotMatrix, pos), rearGridContainerLog[i],
-				"rearGrid", worldLogical, false, i, false);
-	}
-
-	// fluorescence test
-
-	G4cout << "Grid construction finished." << G4endl;
-	f.Close();
 }
 
 G4LogicalVolume *DetectorConstruction::ConstructCdTe() {
@@ -725,6 +755,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 				"worldPhysical", 0, false, 0);
 	}
 
+	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) isSingleDetector=true;
+	//only one detector 
+
 	// construct world
 	G4cout << "Constructing Caliste..." << G4endl;
 	G4LogicalVolume *CalisteLog = ConstructCaliste();
@@ -734,7 +767,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	for (int i = 0; i < 32; i++) {
 		// placing detector
 		G4ThreeVector pos = Grid::getCalisteCenterCoordsCAD(i);
-		if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
+		if (isSingleDetector) {
 			// single detector only, for testing
 			if (i != activatedDetectorFlag)
 				continue;
@@ -754,25 +787,29 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
 	// X-ray window
 
-	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
-		if (activatedDetectorFlag == 8) ConstructCFL();
-		if (activatedDetectorFlag == 9) ConstructBKG();
+	if (activatedDetectorFlag == 8||!isSingleDetector) ConstructCFLAperture();
+	if (activatedDetectorFlag == 9||!isSingleDetector) ConstructBKGAperture();
 
-	} else {
-		ConstructCFL();
-		ConstructBKG();
+	if (gridsEnabled){
+		ConstructGrids();
 	}
-	ConstructGrids();
+	if(!isSingleDetector){
+		ConstructCalibrationFoil();
+		//tessellated calibration foil model has the overlap issue. 
+	}
+
 	SetVisColors();
 
+
 	// ConstructSpaceCraft();
+	// can be activated if needed
 
 	CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
 	worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
 	return worldPhysical;
 }
 
-void DetectorConstruction::ConstructCFL() {
+void DetectorConstruction::ConstructCFLAperture() {
 	G4ThreeVector pos = Grid::getGridCenterCAD(8, 1);
 	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
 		// construct single detector
@@ -818,12 +855,11 @@ void DetectorConstruction::ConstructCFL() {
 	new G4PVPlacement(0, G4ThreeVector(10.45 * mm, 6.725 * mm, 0.2 * mm),
 			CFLSmallHoleLog, "CFL_SMALL_TOP_RIGHT", CFLLog, false, 0,
 			false);
-
 	new G4PVPlacement(G4Transform3D(rotMatrix, pos), CFLLog, "CFLLogical",
 			worldLogical, false, 0, false);
 }
 
-void DetectorConstruction::ConstructBKG() {
+void DetectorConstruction::ConstructBKGAperture() {
 	G4ThreeVector pos = Grid::getGridCenterCAD(9, 0);
 
 	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {

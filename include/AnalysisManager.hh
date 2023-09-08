@@ -41,8 +41,7 @@ class AnalysisManager {
   void InitEvent(const G4Event *event);
   void ProcessEvent(const G4Event *event);
   void ProcessStep(const G4Step *aStep);
-  void InitRun(const G4Run *) { InitROOT(); };
-  void InitROOT();
+  void InitRun(const G4Run *);
   void ProcessRun(const G4Run *);
 
   void AddEnergy(G4int detId, G4double edep);
