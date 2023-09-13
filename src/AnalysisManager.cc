@@ -56,6 +56,7 @@ const G4double threshold = 4;
 const G4double CdTe_SURFACE_X = 12.7741 ;  // surface x-coordinates of CdTe detectors, using geant4 tracks to find the position, 2023-06-26, not it can be 13.774
 const G4double PY_ORIGIN = 103.1;
 const G4double PZ_ORIGIN = 127.5;
+
 const G4double PAIR_CREATION_ENERGY = 4.43e-3 ; //in units of keV
 
 

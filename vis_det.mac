@@ -1,7 +1,7 @@
 
 #/stix/geo/att false
 #/stix/geo/cad false
-/stix/geo/grids true
+/stix/geo/grids false
 /stix/geo/det 20
 
 /process/em/fluo true
@@ -86,4 +86,3 @@
 /gps/ene/max  200 keV
 /gps/ene/alpha -4
 
-/run/beamOn 100

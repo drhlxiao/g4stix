@@ -29,6 +29,11 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *theDet)
   fSetGridStatusCmd->SetParameterName("Set grid status", false);
   fSetGridStatusCmd->AvailableForStates(G4State_PreInit);
 
+  fSetDetectorStatusCmd = new G4UIcmdWithABool("/stix/geo/cdte", this);
+  fSetDetectorStatusCmd->SetGuidance("add cdte or not");
+  fSetDetectorStatusCmd->SetParameterName("Set cdte status", false);
+  fSetDetectorStatusCmd->AvailableForStates(G4State_PreInit);
+
   fSetGdmlCmd = new G4UIcmdWithAString("/stix/geo/gdml", this);
   fSetGdmlCmd->SetGuidance("Import mass model from GDML file?");
   fSetGdmlCmd->SetParameterName("Import gdml file", false);
@@ -55,6 +60,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     fDetector->SetGdmlFile(newValue);
   } else if (command == fSetGridStatusCmd) {
     fDetector->SetGridsStatus(fSetGridStatusCmd->GetNewBoolValue(newValue));
+  } else if (command == fSetDetectorStatusCmd) {
+    fDetector->SetDetectorStatus(fSetDetectorStatusCmd->GetNewBoolValue(newValue));
   } else if (command == fDetectorSelectionCmd) {
     fDetector->SetActivatedDetectorFlag(
         fDetectorSelectionCmd->GetNewIntValue(newValue));

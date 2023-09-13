@@ -27,6 +27,7 @@ class DetectorMessenger : public G4UImessenger {
   // G4UIdirectory *fDetectorDir;
   G4UIcmdWithABool *fSetAttenStatusCmd;
   G4UIcmdWithABool *fSetGridStatusCmd;
+  G4UIcmdWithABool *fSetDetectorStatusCmd;
   G4UIcmdWithAString *fSetGdmlCmd;
   G4UIcmdWithAnInteger *fDetectorSelectionCmd;
   // G4UIcmdWithAString *fSetCADTypeCommand;

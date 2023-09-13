@@ -32,6 +32,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   void SetVisColors();
   void SetAttenuatorStatus(G4bool att);
   void SetGridsStatus(G4bool v) { gridsEnabled = v; };
+  void SetDetectorStatus(G4bool v) { detectorEnabled= v; };
   void ConstructCFLAperture();
   void ConstructGrids();
   void ConstructSpacecraft();
@@ -42,7 +43,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   void ConstructCalibrationFoil();
 
  private:
-  G4bool gridsEnabled;
+  G4bool gridsEnabled, detectorEnabled;
   G4int activatedDetectorFlag;
 
   G4bool attenuatorIn;
@@ -64,6 +65,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
   // caliste
 
+  G4bool cflConstructed,bkgConstructed;
   G4RotationMatrix rotMatrix;
 
   G4VPhysicalVolume *worldPhysical;

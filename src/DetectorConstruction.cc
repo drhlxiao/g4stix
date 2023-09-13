@@ -93,7 +93,10 @@ DetectorConstruction::DetectorConstruction() {
 	// G4endl;
 	fWorldFile = "";
 	gridsEnabled = true;
+	detectorEnabled=true;
 	activatedDetectorFlag = 100;
+	cflConstructed=false;
+	bkgConstructed=false;
 
 	isSingleDetector=false;
 
@@ -228,10 +231,10 @@ void DetectorConstruction::ConstructGrids() {
 	}
 
 	for (int i = 0; i < 32; i++) {
-			new G4PVPlacement(0, G4ThreeVector(), frontGridContainerLog[i], "frontGridContainer",
-					frontGridContainerOuterLog[i], false, i, false);
-			new G4PVPlacement(0, G4ThreeVector(), rearGridContainerLog[i], "rearGridContainer",
-					rearGridContainerOuterLog[i], false, i, false);
+		new G4PVPlacement(0, G4ThreeVector(), frontGridContainerLog[i], "frontGridContainerOuter",
+				frontGridContainerOuterLog[i], false, i, false);
+		new G4PVPlacement(0, G4ThreeVector(), rearGridContainerLog[i], "rearGridContainerOuter",
+				rearGridContainerOuterLog[i], false, i, false);
 	}
 
 
@@ -250,12 +253,12 @@ void DetectorConstruction::ConstructGrids() {
 		pos = isSingleDetector ? G4ThreeVector(-21 * mm, 0, 0)
 			: Grid::getGridCenterCAD(i, 1);
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos), frontGridContainerOuterLog[i],
-				"frontGrid", worldLogical, false, i, false);
+				"frontGridWindow", worldLogical, false, i, false);
 
 		pos = isSingleDetector ? G4ThreeVector(-19 * mm, 0, 0)
 			: Grid::getGridCenterCAD(i, 0);
 		new G4PVPlacement(G4Transform3D(rotMatrix, pos), rearGridContainerOuterLog[i],
-				"rearGrid", worldLogical, false, i, false);
+				"rearGridWindow", worldLogical, false, i, false);
 	}
 
 	// fluorescence test
@@ -265,7 +268,7 @@ void DetectorConstruction::ConstructGrids() {
 	f.Close();
 }
 void DetectorConstruction::ConstructCalibrationFoil(){
-	
+
 	//
 	//
 	// add calibration foils, the one converted from cad has issues, absorbs all photons below 6 keV, there might be overlapping 
@@ -755,47 +758,49 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 				"worldPhysical", 0, false, 0);
 	}
 
-	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) isSingleDetector=true;
-	//only one detector 
-
-	// construct world
-	G4cout << "Constructing Caliste..." << G4endl;
-	G4LogicalVolume *CalisteLog = ConstructCaliste();
-
-	G4cout << "Placing detector Caliste..." << G4endl;
-
-	for (int i = 0; i < 32; i++) {
-		// placing detector
-		G4ThreeVector pos = Grid::getCalisteCenterCoordsCAD(i);
-		if (isSingleDetector) {
-			// single detector only, for testing
-			if (i != activatedDetectorFlag)
-				continue;
-			else {
-				pos.setY(0);
-				pos.setZ(-0.8 * mm);
-				// move the detector to the center
+	if(detectorEnabled)
+	{
+		//default it is 100
+		//don't create detectors is it is -1
+		//only one detector 
+		if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) isSingleDetector=true;
+		G4cout << "Constructing Caliste..." << G4endl;
+		G4LogicalVolume *CalisteLog = ConstructCaliste();
+		G4cout << "Placing detector Caliste..." << G4endl;
+		for (int i = 0; i < 32; i++) {
+			// placing detector
+			G4ThreeVector pos = Grid::getCalisteCenterCoordsCAD(i);
+			if (isSingleDetector) {
+				// single detector only, for testing
+				if (i != activatedDetectorFlag)
+					continue;
+				else {
+					pos.setY(0);
+					pos.setZ(-0.8 * mm);
+					// move the detector to the center
+				}
 			}
+			G4cout << ">> detector:  " << i << "  , position: " << pos << G4endl;
+			new G4PVPlacement(G4Transform3D(rotMatrix, pos), CalisteLog, "Caliste",
+					worldLogical, false, i, true);
+			// break;
 		}
-		G4cout << ">> detector:  " << i << "  , position: " << pos << G4endl;
-		new G4PVPlacement(G4Transform3D(rotMatrix, pos), CalisteLog, "Caliste",
-				worldLogical, false, i, true);
-		// break;
+		if (activatedDetectorFlag == 8||!isSingleDetector) ConstructCFLAperture();
+		if (activatedDetectorFlag == 9||!isSingleDetector) ConstructBKGAperture();
+		if(!isSingleDetector){
+			ConstructCalibrationFoil();
+		}
+		CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
 	}
 
-	G4cout << "World construction completed" << G4endl;
 
 	// X-ray window
 
-	if (activatedDetectorFlag == 8||!isSingleDetector) ConstructCFLAperture();
-	if (activatedDetectorFlag == 9||!isSingleDetector) ConstructBKGAperture();
 
 	if (gridsEnabled){
 		ConstructGrids();
-	}
-	if(!isSingleDetector){
-		ConstructCalibrationFoil();
-		//tessellated calibration foil model has the overlap issue. 
+		ConstructCFLAperture();
+		ConstructBKGAperture();
 	}
 
 	SetVisColors();
@@ -804,12 +809,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 	// ConstructSpaceCraft();
 	// can be activated if needed
 
-	CalisteLog->SetVisAttributes(G4VisAttributes::Invisible);
 	worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
+	G4cout << "World construction completed" << G4endl;
 	return worldPhysical;
 }
 
 void DetectorConstruction::ConstructCFLAperture() {
+
+	if(cflConstructed)return;
+
 	G4ThreeVector pos = Grid::getGridCenterCAD(8, 1);
 	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
 		// construct single detector
@@ -860,6 +868,9 @@ void DetectorConstruction::ConstructCFLAperture() {
 }
 
 void DetectorConstruction::ConstructBKGAperture() {
+
+	if(bkgConstructed)return;
+
 	G4ThreeVector pos = Grid::getGridCenterCAD(9, 0);
 
 	if (activatedDetectorFlag >= 0 && activatedDetectorFlag < 32) {
