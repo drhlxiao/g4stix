@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  Created by FreeCAD gdml converter (http://polar.psi.ch/cadmc) at Fri 17 Jun 2022 09:39:36 PM CEST-->
+<gdml xmlns:gdml="http://cern.ch/2001/Schemas/GDML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+	<define>
+		<constant name="HALFPI" value="pi/2"/>
+		<constant name="PI" value="1.0*pi"/>
+		<constant name="TWOPI" value="2.0*pi"/>
+		<position name="center" x="0.000000e+00" y="0.000000e+00" z="0.000000e+00" unit="mm"/>
+		<position name="att_out_shift" x="0.000000e+00" y="12.5" z="0.000000e+00" unit="mm"/>
+		<position name="pcb_shift" x="22" y="0.000000e+00" z="0.000000e+00" unit="mm"/>
+		<!-- position confirmed with cad  -->
+		<rotation name="identity" x="0.000000e+00" y="0.000000e+00" z="0.000000e+00" unit="deg"/>
+		<position name="__sc_pos" x="-3.500000e+02" y="1.030000e+02" z="2.855000e+02" unit="mm"/>
+	</define>
+	<materials>
+		<material name="Galaxy" Z="1" formula="H">
+			<D value="1e-25" unit="g/cm3"/>
+			<atom value="1.0"/>
+		</material>
+	</materials>
+	<solids>
+		<box name="__box_world__" x="1.000000e+04" y="1.000000e+04" z="1.000000e+04" lunit="mm"/>
+	</solids>
+	<structure>
+		<volume name="world">
+			<materialref ref="G4_Galactic"/>
+			<solidref ref="__box_world__"/>
+					<physvol name="_phys_att_carbon_fiber_37">
+					<file name="gdml/atttubematcarbonfiber_37.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+				<physvol name="_phys_att_1">
+					<file name="gdml/ATT1matalum7075_38.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+				<physvol name="_phys_att_2">
+					<file name="gdml/ATT6matalum7075_39.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+				<physvol name="_phys_att_3">
+					<file name="gdml/ATT2matalum7075_40.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+				<physvol name="_phys_att_4">
+					<file name="gdml/ATT5matalum7075_41.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+				<physvol name="_phys_att_5">
+					<file name="gdml/ATT3matalum7075_42.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+				<physvol name="_phys_att_5">
+					<file name="gdml/ATT4matalum7075_43.gdml"/>
+					<positionref ref="att_out_shift"/>
+					<rotationref ref="identity"/>
+				</physvol>
+			
+				</volume>
+			</structure>
+			<setup name="__setup__world" version="1.0">
+				<world ref="world"/>
+			</setup>
+		</gdml>
