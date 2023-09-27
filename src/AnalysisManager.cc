@@ -435,19 +435,14 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 	PrimaryGeneratorAction *primaryAction =
 		(PrimaryGeneratorAction *)runManager->GetUserPrimaryGeneratorAction();
 	G4ThreeVector position, direction;
-	G4double energy;
-	primaryAction->GetGPS(position, direction, energy);
+	primaryAction->GetGPS(position, direction, gunEnergy);
 
-	// G4cout<<"#energy :"<<energy<<G4endl;
-	//    G4cout<<"position:"<<position[0]<<" "<<position[1]<<"
-	//    "<<position[2]<<G4endl;
 	gunPosition[0] = position.getX() / mm;
 	gunPosition[1] = position.getY() / mm;
 	gunPosition[2] = position.getZ() / mm;
 	gunDirection[0] = direction.getX();
 	gunDirection[1] = direction.getY();
 	gunDirection[2] = direction.getZ();
-	gunEnergy = energy;
 	if (eventID %20 == 0 || eventID <= 1e6 ) primTree->Fill();
 	if (toFill) evtTree->Fill();
 }
@@ -517,7 +512,6 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 	detectorID = -1;
 	pixelGlobalID = -1;
 	pixelID = -1;
-	G4cout<<volName<<G4endl;
 
 
 	if (killTracksEnteringGrids && volName == "gridStrip") {
@@ -528,23 +522,11 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 
 	if (volName == "pixel") {
 		totalNumSteps++;
-
 		detectorID = track->GetTouchable()->GetCopyNumber(3);
 		pixelID = track->GetTouchable()->GetCopyNumber(0);
 		edep = aStep->GetTotalEnergyDeposit() / keV;
 		pixelGlobalID = detectorID * 12 + pixelID;
 
-		// TString detName=volName.data();
-
-		//fill tracking id
-		G4StepPoint* preStep= aStep->GetPreStepPoint();
-		inpPDG=track->GetDefinition()->GetPDGEncoding();
-		parentID = track->GetParentID();  //
-		inpEnergy=preStep->GetKineticEnergy() / keV;
-		
-
-
-		
 
 
 		if (edep > 0.0) {
@@ -554,54 +536,81 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 			AddCollectedEnergy(pixelGlobalID, collectedEnergy);
 		}
 
-		G4ThreeVector prePos= aStep->GetPostStepPoint()->GetPosition();
-		if (preStep->GetStepStatus() == fGeomBoundary) {//if boundary events
-			px = prePos.x() / mm;
-			py = prePos.y() / mm;
-			pz = prePos.z() / mm;
-			h2xy->Fill(py - PY_ORIGIN, pz - PZ_ORIGIN);
+	}
 
-			if(numInpTreeFilled<MAX_NUM_INP_TO_FILL)
-			{
-				G4ThreeVector inpV=track->GetMomentumDirection();
-				inpVec[0]=inpV.x();
-				inpVec[1]=inpV.y();
-				inpVec[2]=inpV.z();
-
-				inpPos[0]=px;
-				inpPos[1]=py-PY_ORIGIN;
-				inpPos[2]=pz-PZ_ORIGIN;
-				G4String nextVolName=aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName();
-				G4String preVolName=aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-				isIn=-1;
-				if(nextVolName=="pixel" && preVolName!="pixel"){
-					isIn=1;
-				}
-				else if(nextVolName!="pixel" && preVolName=="pixel"){
-					isIn=0;
-				}
-				G4cout<<"nextVolName:"<<nextVolName<<" "<<preVolName<<G4endl;
-				inpTree->Fill();
-			}
+	G4StepPoint* preStep= aStep->GetPreStepPoint();
+	G4StepPoint* postStep= aStep->GetPostStepPoint();
 
 
+	
+	if(!preStep || !postStep)return;
 
-			if (itrack <= MAX_TRACKS) {
+	if (preStep->GetStepStatus() != fGeomBoundary && postStep->GetStepStatus()!=fGeomBoundary ) return;
+	//not boundary event
 
-				hitx[itrack] = px;
-				hity[itrack] = py;
-				hitz[itrack] = pz;
-				pdg[itrack] = inpPDG;
-				energy[itrack] = inpEnergy;
-				hitPixelID[itrack] = pixelGlobalID;
-				parent[itrack] = parentID;
-				time[itrack] = preStep->GetGlobalTime() / ns;
-			}
-			itrack++;
-		}
+	G4VPhysicalVolume *postPhys=postStep->GetPhysicalVolume();
+	G4VPhysicalVolume *prePhys=preStep->GetPhysicalVolume();
+
+	if(!prePhys||!postPhys)return;
+	
+
+	G4String nextVolName=postPhys->GetName();
+	G4String preVolName=prePhys->GetName();
+	G4cout<<"####:"<<preVolName<<" ->  "<<nextVolName<<G4endl;
+	isIn=-1;
+	if(nextVolName=="pixel" && preVolName!="pixel"){
+		isIn=1;
+	}
+	else if(nextVolName!="pixel" && preVolName=="pixel"){
+		isIn=0;
+	}
+	if(isIn!=1)return;
+	//record tracks entering Pixels
+	
+	G4cout<<"filling"<<G4endl;
+
+
+	inpPDG=track->GetDefinition()->GetPDGEncoding();
+	parentID = track->GetParentID();  //
+	inpEnergy=preStep->GetKineticEnergy() / keV;
+	G4ThreeVector prePos=postStep->GetPosition();
+	
+
+	G4cout<<"filling2 "<<G4endl;
+	px = prePos.x() / mm;
+	py = prePos.y() / mm;
+	pz = prePos.z() / mm;
+	h2xy->Fill(py - PY_ORIGIN, pz - PZ_ORIGIN);
+
+	if(numInpTreeFilled<MAX_NUM_INP_TO_FILL)
+	{
+		G4ThreeVector inpV=track->GetMomentumDirection();
+		inpVec[0]=inpV.x();
+		inpVec[1]=inpV.y();
+		inpVec[2]=inpV.z();
+
+		inpPos[0]=px;
+		inpPos[1]=py-PY_ORIGIN;
+		inpPos[2]=pz-PZ_ORIGIN;
+
+		inpTree->Fill();
+		numInpTreeFilled++;
 	}
 
 
+
+	if (itrack <= MAX_TRACKS) {
+
+		hitx[itrack] = px;
+		hity[itrack] = py;
+		hitz[itrack] = pz;
+		pdg[itrack] = inpPDG;
+		energy[itrack] = inpEnergy;
+		hitPixelID[itrack] = pixelGlobalID;
+		parent[itrack] = parentID;
+		time[itrack] = preStep->GetGlobalTime() / ns;
+	}
+	itrack++;
 
 
 }

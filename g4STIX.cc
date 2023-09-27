@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
 
 	if(visManager)delete visManager;
 
-	delete runManager;
+	//delete runManager;
 	delete ui;
 	delete UImanager;
 	G4cout << "Output filename: " << outputFilename << G4endl;
