@@ -500,6 +500,7 @@ void AnalysisManager::ProcessStep(const G4Step *aStep) {
 	G4int detIdx = -1;
 	G4int detectorID = -1;
 	G4int pixelID = -1;
+	G4cout<<volName<<G4endl;
 	if (killTracksEnteringGrids && volName == "gridStrip") {
 		aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
 		numKilled++;
@@ -571,8 +572,8 @@ inline void AnalysisManager::AddCollectedEnergy(G4int detId, G4double dep) {
 }
 
 AnalysisManager::~AnalysisManager() {
-	if (rootFile) delete rootFile;
 	if (fManager) delete fManager;
+	//if (rootFile) delete rootFile;
 	fManager = 0;
 }
 

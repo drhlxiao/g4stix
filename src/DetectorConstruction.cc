@@ -788,8 +788,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 					worldLogical, false, i, true);
 			// break;
 		}
-		if (activatedDetectorFlag == 8||!isSingleDetector) ConstructCFLAperture();
-		if (activatedDetectorFlag == 9||!isSingleDetector) ConstructBKGAperture();
+		if (activatedDetectorFlag == 8||!isSingleDetector ){
+			if(gridsEnabled)ConstructCFLAperture();
+		}
+		if (activatedDetectorFlag == 9||!isSingleDetector){
+			if(gridsEnabled)ConstructBKGAperture();
+		}
 		if(!isSingleDetector){
 			ConstructCalibrationFoil();
 		}

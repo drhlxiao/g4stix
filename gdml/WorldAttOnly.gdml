@@ -30,34 +30,34 @@
 					<positionref ref="att_out_shift"/>
 					<rotationref ref="identity"/>
 				</physvol>
-				<physvol name="_phys_att_1">
+				<physvol name="att_1">
 					<file name="gdml/ATT1matalum7075_38.gdml"/>
-					<positionref ref="att_out_shift"/>
+					<positionref ref="center"/>
 					<rotationref ref="identity"/>
 				</physvol>
-				<physvol name="_phys_att_2">
+				<physvol name="att_2">
 					<file name="gdml/ATT6matalum7075_39.gdml"/>
-					<positionref ref="att_out_shift"/>
+					<positionref ref="center"/>
 					<rotationref ref="identity"/>
 				</physvol>
-				<physvol name="_phys_att_3">
+				<physvol name="att_3">
 					<file name="gdml/ATT2matalum7075_40.gdml"/>
-					<positionref ref="att_out_shift"/>
+					<positionref ref="center"/>
 					<rotationref ref="identity"/>
 				</physvol>
-				<physvol name="_phys_att_4">
+				<physvol name="att_4">
 					<file name="gdml/ATT5matalum7075_41.gdml"/>
-					<positionref ref="att_out_shift"/>
+					<positionref ref="center"/>
 					<rotationref ref="identity"/>
 				</physvol>
-				<physvol name="_phys_att_5">
+				<physvol name="att_5">
 					<file name="gdml/ATT3matalum7075_42.gdml"/>
-					<positionref ref="att_out_shift"/>
+					<positionref ref="center"/>
 					<rotationref ref="identity"/>
 				</physvol>
-				<physvol name="_phys_att_5">
+				<physvol name="att_6">
 					<file name="gdml/ATT4matalum7075_43.gdml"/>
-					<positionref ref="att_out_shift"/>
+					<positionref ref="center"/>
 					<rotationref ref="identity"/>
 				</physvol>
 			
