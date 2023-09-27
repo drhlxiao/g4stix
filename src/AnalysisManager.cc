@@ -27,23 +27,25 @@
 #include "TTree.h"
 
 bool DEBUG=false;
+const int MAX_NUM_INP_TO_FILL=100000;
+//number of photons to fill to the tracking tree
 
 const G4double highVoltage =
 300;                        // CdTe HV is 300 during the nominal operations
 const G4double ENOISE = 0.56;  // keV
 							   //0.52 is from the best fit
-//from gussian fit, it should be 1.2/2.35=0.5
+							   //from gussian fit, it should be 1.2/2.35=0.5
 
 const G4double FANO_FACTOR = 0.15; //from best fit
 
 G4double NEAR_SURFACE_L=5.8e-3;  //see Oliver's paper, in units of mm, take the mean value
 G4double NEAR_SURFACE_R0=0.132;  //see Oliver's paper, in units of mm, mean value are take
-//best FIT L-=5.28e-3,R0=0.1 , set enoise=0.52, fanao=0.15
+								 //best FIT L-=5.28e-3,R0=0.1 , set enoise=0.52, fanao=0.15
 
-// CdTe fano factor is 0.15 according to
-// https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
-// On Jun 27, the enoise and fano factor were found to be .24 and 0.74 through fitting of Ba133 exp sim spectrum, 
-// see: ~/FHNW/STIX/SolarFlareAnalysis/fitG4CalibrationSpectrum
+								 // CdTe fano factor is 0.15 according to
+								 // https://www.researchgate.net/figure/Fano-factor-for-different-semiconductor-at-room-temperature_tbl5_343053397
+								 // On Jun 27, the enoise and fano factor were found to be .24 and 0.74 through fitting of Ba133 exp sim spectrum, 
+								 // see: ~/FHNW/STIX/SolarFlareAnalysis/fitG4CalibrationSpectrum
 
 const G4double threshold = 4;
 /* At 30 keV, the energy resolution is 2%  * 30 keV= 0.6 keV
@@ -113,6 +115,7 @@ AnalysisManager::AnalysisManager() {
 	numEventIn = 0;
 	numEventOut = 0;
 	killTracksEnteringGrids = false;
+	numInpTreeFilled=0;
 }
 void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
 	G4cout << "Copying macros from file " << macfilename << " to root file"
@@ -146,10 +149,12 @@ void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
 void AnalysisManager::InitRun( const G4Run *run) 
 {
 	rootFile = new TFile(outputFilename.Data(), "recreate");
+
+
 	evtTree = new TTree("events", "events");
 	evtTree->Branch("edep", edepSum, Form("edep[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("sci", sci, Form("sci[%d]/D", NUM_CHANNELS));
-//	evtTree->Branch("colEff", colEff, Form("colEff[%d]/D", NUM_CHANNELS));
+	//	evtTree->Branch("colEff", colEff, Form("colEff[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("collected", collectedEnergySum,
 			Form("collected[%d]/D", NUM_CHANNELS));
 	evtTree->Branch("charge", edepWithoutNoise,
@@ -178,6 +183,19 @@ void AnalysisManager::InitRun( const G4Run *run)
 		evtTree->Branch("L", &NEAR_SURFACE_L, "L/D");
 	}
 
+	inpTree = new TTree("inp", "inp");
+	inpTree->Branch("pos", inpPos, "pos[3]/D");
+	inpTree->Branch("eventID", &eventID, "eventID/I");
+	inpTree->Branch("itrack", &itrack, "itrack/I");
+	inpTree->Branch("isIn", &isIn, "isIn/I");
+	inpTree->Branch("pixelID", &pixelID, "pixelID/I");
+	inpTree->Branch("detectorID", &detectorID, "detectorID/I");
+	inpTree->Branch("v", inpVec, "v[3]/D");
+	inpTree->Branch("energy", &inpEnergy, "energy/D");
+	inpTree->Branch("pdg", &inpPDG, "pdg/I");
+	inpTree->Branch("parent", &parentID, "parent/I");
+
+
 	primTree = new TTree("source", "source");
 	primTree->Branch("pos", gunPosition, "pos[3]/D");
 	primTree->Branch("eventID", &eventID, "eventID/I");
@@ -185,14 +203,14 @@ void AnalysisManager::InitRun( const G4Run *run)
 	primTree->Branch("E0", &gunEnergy, "E0/D");
 
 	c1 = new TCanvas("c1", "c1", 10, 10, 800, 800);
-/*	for (int i = 0; i < NUM_CHANNELS; i++) {
+	/*	for (int i = 0; i < NUM_CHANNELS; i++) {
 		hd[i] = new TH1F(Form("hd%d", i),
-				Form("Spectrum of pixel %d energy depositions; Energy "
-					"deposition (keV); Counts",
-					i),
-				200, 0, 500);
-	}
-	*/
+		Form("Spectrum of pixel %d energy depositions; Energy "
+		"deposition (keV); Counts",
+		i),
+		200, 0, 500);
+		}
+		*/
 	TString channelName="";
 	for (int i = 0; i < 34; i++) {
 		if(i==8){
@@ -210,17 +228,17 @@ void AnalysisManager::InitRun( const G4Run *run)
 		else {
 			channelName=Form("D%d", i);
 		}
-	
+
 
 
 		/*
-		hpat[i] = new TH1F(Form("hDetCntPat_%d", i),
-				"Detector count pattern; Pixel #; counts;", 12, 0, 12);
-		hpatsum[i] = new TH1F(
-				Form("hDetCntSummedPat_%d", i),
-				"Pattern of Big+small summed counts; Pixel column ; Total counts;", 4,
-				0, 4);
-				*/
+		   hpat[i] = new TH1F(Form("hDetCntPat_%d", i),
+		   "Detector count pattern; Pixel #; counts;", 12, 0, 12);
+		   hpatsum[i] = new TH1F(
+		   Form("hDetCntSummedPat_%d", i),
+		   "Pattern of Big+small summed counts; Pixel column ; Total counts;", 4,
+		   0, 4);
+		   */
 
 		hRealSci[i] = new TH1F(Form("hRealSci%d", i),
 				Form("Recorded energy spectrum - Rebinned to SCI "
@@ -300,8 +318,6 @@ void AnalysisManager::InitEvent(const G4Event *event) {
 		NEAR_SURFACE_R0= 0.1+0.8*G4UniformRand();
 		NEAR_SURFACE_L= (5+3.5*G4UniformRand())*1e-3;
 	}
-
-
 	for (G4int i = 0; i < NUM_CHANNELS; i++) {
 		edepSum[i] = 0.0;
 		collectedEnergySum[i] = 0;
@@ -345,32 +361,30 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			collectedEdepSumRealistic[i] = gRandom->Gaus(edepWithoutNoise[i], ENOISE);
 			// we asssue the electronics noise
 
-			int detIdx = i / 12;
-			int pixIdx = i % 12;
-		//	hpat[detIdx]->Fill(pixIdx);
-		//	hpatsum[detIdx]->Fill(pixIdx / 4);
+			detectorID = i / 12;
+			pixelID= i % 12;
 			hpc->Fill(i);
-			hdc->Fill(detIdx);
+			hdc->Fill(detectorID);
 
 			if (collectedEdepSumRealistic[i] > threshold) {
-				nHits[detIdx]++;
+				nHits[detectorID]++;
 			}
 			sci[i] = getScienceBin(collectedEdepSumRealistic[i]);
 
-			hEdep[detIdx]->Fill(edepSum[i]);
-			hReal[detIdx]->Fill(collectedEdepSumRealistic[i]);
+			hEdep[detectorID]->Fill(edepSum[i]);
+			hReal[detectorID]->Fill(collectedEdepSumRealistic[i]);
 			//not binned to stix 
 			hEdep[32]->Fill(edepSum[i]);
 			hReal[32]->Fill(collectedEdepSumRealistic[i]);
 			//histograms to store spectra of events of all detectors
 
-			hEdepSci[detIdx]->Fill(edepSum[i]);
-			hRealSci[detIdx]->Fill(collectedEdepSumRealistic[i]);
+			hEdepSci[detectorID]->Fill(edepSum[i]);
+			hRealSci[detectorID]->Fill(collectedEdepSumRealistic[i]);
 			//
 			hEdepSci[32]->Fill(edepSum[i]);
 			hRealSci[32]->Fill(collectedEdepSumRealistic[i]);
 
-			if(detIdx!=8 && detIdx!=9&&pixIdx<8)
+			if(detectorID!=8 && detectorID!=9&&pixelID<8)
 			{
 				//big pixel except CFL and BKG
 				hEdepSci[33]->Fill(edepSum[i]);
@@ -387,8 +401,8 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
 			int ch = i * 12 + j;
 			if (edepSum[ch] < 0) continue;
 
-			//hEdep[detIdx]->Fill(edepSum[i]);
-			//hReal[detIdx]->Fill(collectedEdepSumRealistic[i]);
+			//hEdep[detectorID]->Fill(edepSum[i]);
+			//hReal[detectorID]->Fill(collectedEdepSumRealistic[i]);
 
 			hEdepSingleHit[i]->Fill(edepSum[ch]);
 			hRealSingleHit[i]->Fill(collectedEdepSumRealistic[ch]);
@@ -463,7 +477,7 @@ G4double AnalysisManager::ComputeCollectionEfficiency(G4ThreeVector &pos){
 	G4double freePathHoles = 100 * 100 * 2e-6 * highVoltage;
 
 	G4double d = 1;
-	
+
 	G4double eff=
 		(1 - exp((z-d) / freePathElectron)) * (freePathElectron /d) +
 		(freePathHoles / d) * (1.0 - exp(-z/ freePathHoles));
@@ -477,14 +491,14 @@ G4double AnalysisManager::GetEnergyResolution(G4double edep) {
 	// Tadayuki Takahashi and Shin Watanabe
 	// energy in units of keV
 	//
-   /*	G4double rho = 0;
-	if (edep > 0) {
+	/*	G4double rho = 0;
+		if (edep > 0) {
 		G4double numPairs = edep / PAIR_CREATION_ENERGY * 1000;
-		// keV to ev
-		//  see oliver's paper
-		G4double numSigma2 = FANO_FACTOR * numPairs;
-		// sigma^2 = fano * n  according to the text-book
-		rho = sqrt(numSigma2) / numPairs;
+	// keV to ev
+	//  see oliver's paper
+	G4double numSigma2 = FANO_FACTOR * numPairs;
+	// sigma^2 = fano * n  according to the text-book
+	rho = sqrt(numSigma2) / numPairs;
 	}
 	return rho;
 	The above is equv. to  delta_E=2.35 sqrt(FWE), see https://www.sciencedirect.com/topics/neuroscience/fano-factor
@@ -493,65 +507,103 @@ G4double AnalysisManager::GetEnergyResolution(G4double edep) {
 }
 
 void AnalysisManager::ProcessStep(const G4Step *aStep) {
-	const G4Track *track = aStep->GetTrack();
+	G4double px,py,pz;
+	G4double edep ;
 	G4String volName;
+	const G4Track *track = aStep->GetTrack();
+
 	if (track->GetVolume()) volName = track->GetVolume()->GetName();
 
-	G4int detIdx = -1;
-	G4int detectorID = -1;
-	G4int pixelID = -1;
+	detectorID = -1;
+	pixelGlobalID = -1;
+	pixelID = -1;
 	G4cout<<volName<<G4endl;
+
+
 	if (killTracksEnteringGrids && volName == "gridStrip") {
 		aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
 		numKilled++;
 	}
 
+
 	if (volName == "pixel") {
 		totalNumSteps++;
-		detIdx = track->GetTouchable()->GetCopyNumber(3);
+
+		detectorID = track->GetTouchable()->GetCopyNumber(3);
 		pixelID = track->GetTouchable()->GetCopyNumber(0);
-		G4double edep = aStep->GetTotalEnergyDeposit() / keV;
-
-		// G4cout<<track->GetTouchable()->GetCopyNumber(0)<<","
-		//  <<track->GetTouchable()->GetCopyNumber(1)<<","
-		//  <<track->GetTouchable()->GetCopyNumber(3)<<" EDEP: "<<edep<<G4endl;
-		//	*/
-
-		detectorID = detIdx * 12 + pixelID;
+		edep = aStep->GetTotalEnergyDeposit() / keV;
+		pixelGlobalID = detectorID * 12 + pixelID;
 
 		// TString detName=volName.data();
 
+		//fill tracking id
+		G4StepPoint* preStep= aStep->GetPreStepPoint();
+		inpPDG=track->GetDefinition()->GetPDGEncoding();
+		parentID = track->GetParentID();  //
+		inpEnergy=preStep->GetKineticEnergy() / keV;
+		
+
+
+		
+
+
 		if (edep > 0.0) {
-			AddEnergy(detectorID, edep);
+			AddEnergy(pixelGlobalID, edep);
 			G4ThreeVector postPos= aStep->GetPostStepPoint()->GetPosition();
 			G4double collectedEnergy= edep*ComputeCollectionEfficiency(postPos) * GetNearSurfaceFactor(postPos);
-			AddCollectedEnergy(detectorID, collectedEnergy);
+			AddCollectedEnergy(pixelGlobalID, collectedEnergy);
 		}
-		G4StepPoint *preStep = aStep->GetPreStepPoint();
+
 		G4ThreeVector prePos= aStep->GetPostStepPoint()->GetPosition();
-		G4double px = prePos.x() / mm;
-		G4double py = prePos.y() / mm;
-		G4double pz = prePos.z() / mm;
-		if (preStep->GetStepStatus() == fGeomBoundary) {
+		if (preStep->GetStepStatus() == fGeomBoundary) {//if boundary events
+			px = prePos.x() / mm;
+			py = prePos.y() / mm;
+			pz = prePos.z() / mm;
 			h2xy->Fill(py - PY_ORIGIN, pz - PZ_ORIGIN);
-		}
 
-		if (itrack >= MAX_TRACKS) return;
+			if(numInpTreeFilled<MAX_NUM_INP_TO_FILL)
+			{
+				G4ThreeVector inpV=track->GetMomentumDirection();
+				inpVec[0]=inpV.x();
+				inpVec[1]=inpV.y();
+				inpVec[2]=inpV.z();
 
-		if (preStep->GetStepStatus() == fGeomBoundary) {
-			hitx[itrack] = px;
-			hity[itrack] = py;
-			hitz[itrack] = pz;
+				inpPos[0]=px;
+				inpPos[1]=py-PY_ORIGIN;
+				inpPos[2]=pz-PZ_ORIGIN;
+				G4String nextVolName=aStep->GetPostStepPoint()->GetPhysicalVolume()->GetName();
+				G4String preVolName=aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+				isIn=-1;
+				if(nextVolName=="pixel" && preVolName!="pixel"){
+					isIn=1;
+				}
+				else if(nextVolName!="pixel" && preVolName=="pixel"){
+					isIn=0;
+				}
+				G4cout<<"nextVolName:"<<nextVolName<<" "<<preVolName<<G4endl;
+				inpTree->Fill();
+			}
 
-			G4int parentID = track->GetParentID();  //
-			pdg[itrack] = track->GetDefinition()->GetPDGEncoding();
-			energy[itrack] = preStep->GetKineticEnergy() / keV;
-			hitPixelID[itrack] = detectorID;
-			parent[itrack] = parentID;
-			time[itrack] = preStep->GetGlobalTime() / ns;
+
+
+			if (itrack <= MAX_TRACKS) {
+
+				hitx[itrack] = px;
+				hity[itrack] = py;
+				hitz[itrack] = pz;
+				pdg[itrack] = inpPDG;
+				energy[itrack] = inpEnergy;
+				hitPixelID[itrack] = pixelGlobalID;
+				parent[itrack] = parentID;
+				time[itrack] = preStep->GetGlobalTime() / ns;
+			}
 			itrack++;
 		}
 	}
+
+
+
+
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -580,6 +632,7 @@ AnalysisManager::~AnalysisManager() {
 void AnalysisManager::CloseROOT() {
 	rootFile->cd();
 	evtTree->Write();
+	inpTree->Write();
 	primTree->Write();
 
 	rootFile->cd();
@@ -587,11 +640,7 @@ void AnalysisManager::CloseROOT() {
 	cdhist->cd();
 	c1->cd();
 	c1->Divide(2, 5);
-//	for (int i = 0; i < NUM_CHANNELS; i++) {
-//		hd[i]->Write();
-//		c1->cd(i + 1);
-//		hd[i]->Draw();
-//	}
+
 	for (int i = 0; i < 34; i++) {
 
 		hReal[i]->Write();
@@ -611,13 +660,6 @@ void AnalysisManager::CloseROOT() {
 
 		hRealSingleHit[i]->Write();
 		hEdepSingleHit[i]->Write();
-
-
-
-
-		//if (i >= 32) continue;
-		//hpat[i]->Write();
-		//hpatsum[i]->Write();
 	}
 	hEdepSum->Write();
 	h2xy->Write();
@@ -628,6 +670,7 @@ void AnalysisManager::CloseROOT() {
 	hcol->Write();
 	hNS->Write();
 	G4cout << ">> Number of event recorded:" << evtTree->GetEntries() << G4endl;
+	G4cout << ">> Number of incident particles :" << inpTree->GetEntries() << G4endl;
 	G4cout << ">> Number of track killed:" << numKilled << G4endl;
 	CopyMacrosToROOT(rootFile, macroFilename);
 
