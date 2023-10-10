@@ -78,6 +78,7 @@
 #include "G4BaryonConstructor.hh"
 #include "G4IonConstructor.hh"
 #include "G4MesonConstructor.hh"
+#include "G4ProductionCutsTable.hh"
 #include "G4Proton.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -109,6 +110,8 @@ XrayFluoPhysicsList::XrayFluoPhysicsList() : G4VModularPhysicsList() {
   emName = G4String("emlivermore");
   //  AddPhysicsList(emName);
   emPhysicsList = new G4EmLivermorePhysics();
+  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(250 * eV,
+                                                                  1 * GeV);
   //   emPhysicsList = new G4EmStandardPhysics_option4();
 }
 
@@ -163,11 +166,10 @@ void XrayFluoPhysicsList::ConstructProcess() {
 
   // Em options
   //
-  G4EmParameters* param = G4EmParameters::Instance();
+  G4EmParameters *param = G4EmParameters::Instance();
   param->SetFluo(true);
   param->SetAuger(true);
   param->SetPixe(true);
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -219,7 +221,8 @@ void XrayFluoPhysicsList::AddPhysicsList(const G4String &name) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
 
-  if (name == emName) return;
+  if (name == emName)
+    return;
 
   if (name == "emlivermore") {
     emName = name;
@@ -275,7 +278,8 @@ void XrayFluoPhysicsList::SetCuts() {
   SetCutValue(cutForElectron, "e-");
   SetCutValue(cutForPositron, "e+");
 
-  if (verboseLevel > 0) DumpCutValuesTable();
+  if (verboseLevel > 0)
+    DumpCutValuesTable();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

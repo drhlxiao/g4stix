@@ -16,13 +16,13 @@ class G4UIcmdWithAnInteger;
 class G4UIcmdWithAString;
 
 class DetectorMessenger : public G4UImessenger {
- public:
+public:
   DetectorMessenger(DetectorConstruction *);
   ~DetectorMessenger();
 
   void SetNewValue(G4UIcommand *, G4String);
 
- private:
+private:
   DetectorConstruction *fDetector;
   // G4UIdirectory *fDetectorDir;
   G4UIcmdWithABool *fSetAttenStatusCmd;

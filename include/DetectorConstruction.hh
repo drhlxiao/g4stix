@@ -18,7 +18,7 @@ class G4Material;
 #include "G4VUserDetectorConstruction.hh"
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
- public:
+public:
   DetectorConstruction();
   ~DetectorConstruction();
 
@@ -32,19 +32,23 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   void SetVisColors();
   void SetAttenuatorStatus(G4bool att);
   void SetGridsStatus(G4bool v) { gridsEnabled = v; };
-  void SetDetectorStatus(G4bool v) { detectorEnabled= v; };
+  void SetDetectorStatus(G4bool v) { detectorEnabled = v; };
   void ConstructCFLAperture();
   void ConstructGrids();
   void ConstructSpacecraft();
 
   void ConstructBKGAperture();
   void SetGdmlFile(G4String v) { fWorldFile = v; }
-  void SetActivatedDetectorFlag(G4int v) { activatedDetectorFlag = v;  isSingleDetector=true;}
+  void SetActivatedDetectorFlag(G4int v) {
+    activatedDetectorFlag = v;
+    isSingleDetector = true;
+  }
   void ConstructCalibrationFoil();
 
- private:
+private:
   G4bool gridsEnabled, detectorEnabled;
   G4int activatedDetectorFlag;
+  G4int usingCADModels;
 
   G4bool attenuatorIn;
   G4String fWorldFile;
@@ -52,9 +56,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   G4LogicalVolume *padsLogical, *cdTeLogical, *calisteBaseLogical;
   G4Material *CdTe;
   G4Material *Epoxy, *FR4, *Resin, *SilverEpoxy;
-  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25, *Gold,*Kapton,
-      *Nickle, *Siliver, *LeadPadMat, *goldLayerMaterial, *Platinum, *Copper,
-      *SiO2, *padStackMaterial;
+  G4Material *Tungsten, *Alum, *Alum7075, *Iron, *Vacuum, *Air, *Alu25, *Gold,
+      *Kapton, *Nickle, *Siliver, *LeadPadMat, *goldLayerMaterial, *Platinum,
+      *Copper, *SiO2, *padStackMaterial, *blackHole;
 
   G4LogicalVolume *ConstructCaliste();
   G4LogicalVolume *ConstructCalisteBase();
@@ -65,7 +69,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
   // caliste
 
-  G4bool cflConstructed,bkgConstructed;
+  G4bool cflConstructed, bkgConstructed;
   G4RotationMatrix rotMatrix;
 
   G4VPhysicalVolume *worldPhysical;

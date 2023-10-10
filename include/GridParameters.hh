@@ -70,7 +70,7 @@ G4ThreeVector getGridCenterCAD(int i, int layer = 0) {
   // layer=0 rear, 1 for front
   G4double offset = -1;
   G4double x0[2] = {-34.2226 + offset,
-                    -579.523 + offset};  // measured from cad drawing
+                    -579.523 + offset}; // measured from cad drawing
 
   G4double grid0Center[3] = {0, 165.599, 164.0};
   // grid center is shifted by 0.8 mm
@@ -80,6 +80,6 @@ G4ThreeVector getGridCenterCAD(int i, int layer = 0) {
   return v;
 }
 
-};  // namespace Grid
+}; // namespace Grid
 
 #endif

@@ -22,7 +22,7 @@ class TFile;
 class t2sim;
 // class PrimaryGeneratorMessenger;
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
- public:
+public:
   PrimaryGeneratorAction();
   virtual ~PrimaryGeneratorAction();
 
@@ -34,15 +34,15 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
   void GetGPS(G4ThreeVector &position, G4ThreeVector &direction,
               G4double &energy);
 
- private:
+private:
   G4GeneralParticleSource *fParticleSource;
   G4ParticleGun *fParticleGun;
   //	PrimaryGeneratorMessenger* fParticleGunMessenger;
 
-  G4int sourceType;  // 0: use particle source ; else use particle gun
+  G4int sourceType; // 0: use particle source ; else use particle gun
   G4String particleSource, particleSourceFile;
-  G4int iEntry;    // entry read
-  G4int nEntries;  // total entries
+  G4int iEntry;   // entry read
+  G4int nEntries; // total entries
   TFile *fHistoEnergy;
   TH1F *histoEnergy;
 

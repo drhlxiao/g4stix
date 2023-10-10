@@ -61,7 +61,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   } else if (command == fSetGridStatusCmd) {
     fDetector->SetGridsStatus(fSetGridStatusCmd->GetNewBoolValue(newValue));
   } else if (command == fSetDetectorStatusCmd) {
-    fDetector->SetDetectorStatus(fSetDetectorStatusCmd->GetNewBoolValue(newValue));
+    fDetector->SetDetectorStatus(
+        fSetDetectorStatusCmd->GetNewBoolValue(newValue));
   } else if (command == fDetectorSelectionCmd) {
     fDetector->SetActivatedDetectorFlag(
         fDetectorSelectionCmd->GetNewIntValue(newValue));
