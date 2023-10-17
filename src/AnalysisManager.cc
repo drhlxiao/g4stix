@@ -28,7 +28,7 @@
 #include "TTree.h"
 
 bool DEBUG = false;
-const int MAX_NUM_TREE_TO_FILL = 1000000;
+const int MAX_NUM_TREE_TO_FILL = 20000000;
 // number of photons to fill to the tracking tree
 
 const G4double highVoltage =
@@ -119,6 +119,8 @@ AnalysisManager::AnalysisManager() {
   killTracksEnteringGrids = false;
   killTracksEnteringDetectors = false;
   numInpTreeFilled = 0;
+  numSourceTreeFilled= 0;
+
   numPhysTreeFilled = 0;
 }
 void AnalysisManager::CopyMacrosToROOT(TFile *f, TString &macfilename) {
@@ -355,12 +357,12 @@ void AnalysisManager::InitEvent(const G4Event *event) {
 }
 void AnalysisManager::ProcessEvent(const G4Event *event) {
   eventID = event->GetEventID();
-  G4bool toFill = false;
+  G4bool effectiveEvent= false;
   for (int i = 0; i < NUM_CHANNELS; i++) {
     if (edepSum[i] > 0) {
       hEdepSum->Fill(edepSum[i]);
       // hd[i]->Fill(edepSum[i]);
-      toFill = true;
+      effectiveEvent= true;
       G4double sigma = GetEnergyResolution(collectedEnergySum[i]);
       // std. Deviation of charge, in units of keV
       // randomized the energy
@@ -443,10 +445,11 @@ void AnalysisManager::ProcessEvent(const G4Event *event) {
   ///	hdc->Fill(detectorID);
   // toFill=true;
 
-  if (eventID % 20 == 0 || eventID <= 1e6)
-    primTree->Fill();
-  if (toFill)
-    evtTree->Fill();
+  if (numSourceTreeFilled < 100000)  {
+	  primTree->Fill();
+	  numSourceTreeFilled++;
+  }
+  if (effectiveEvent)  evtTree->Fill();
   isNewEvent = true;
 }
 // Stepping Action
@@ -522,7 +525,8 @@ G4double AnalysisManager::GetEnergyResolution(G4double edep) {
   The above is equv. to  delta_E=2.35 sqrt(FWE), see
   https://www.sciencedirect.com/topics/neuroscience/fano-factor
   */
-  return 2.35 * sqrt(FANO_FACTOR * PAIR_CREATION_ENERGY * edep);
+  //return 2.35 * sqrt(FANO_FACTOR * PAIR_CREATION_ENERGY * edep);
+  return sqrt(FANO_FACTOR * PAIR_CREATION_ENERGY * edep);
 }
 
 ////////////////////////////////////////////////////////////////////

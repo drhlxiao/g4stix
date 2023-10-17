@@ -69,6 +69,7 @@ private:
   TString outputFilename;
   TString macroFilename;
   G4int numInpTreeFilled;
+  G4int numSourceTreeFilled;
   G4int numPhysTreeFilled;
   G4int isIn;
   G4bool isNewEvent;
@@ -146,6 +147,7 @@ private:
   G4int hitPixelID[MAX_TRACKS];
   G4int pdg[MAX_TRACKS];
   G4double time[MAX_TRACKS];
+  
 
   G4int numEventIn;
   G4int numEventOut;

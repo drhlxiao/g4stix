@@ -1,5 +1,5 @@
 //
-/// \file g4
+/// \file Geant4 Simulation Package for STIX -- X-ray imager onboard Solar Orbiter
 /// \brief Main program
 //   author: Hualin Xiao (hualin.xiao@fhnw.ch)
 //   History:
