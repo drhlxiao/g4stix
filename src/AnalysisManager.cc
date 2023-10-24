@@ -28,21 +28,21 @@
 #include "TTree.h"
 
 bool DEBUG = false;
-const int MAX_NUM_TREE_TO_FILL = 20000000;
+const int MAX_NUM_TREE_TO_FILL = 100000;
 // number of photons to fill to the tracking tree
 
 const G4double highVoltage =
     300;                      // CdTe HV is 300 during the nominal operations
-const G4double ENOISE = 0.56; // keV
+const G4double ENOISE = 0.43; // keV
                               // 0.52 is from the best fit
                               // from gussian fit, it should be 1.2/2.35=0.5
 
 const G4double FANO_FACTOR = 0.15; // from best fit
 
 G4double NEAR_SURFACE_L =
-    5.8e-3; // see Oliver's paper, in units of mm, take the mean value
+    5.28e-3; // see Oliver's paper, in units of mm, take the mean value
 G4double NEAR_SURFACE_R0 =
-    0.132; // see Oliver's paper, in units of mm, mean value are take
+    0.116; // see Oliver's paper, in units of mm, mean value are take
            // best FIT L-=5.28e-3,R0=0.1 , set enoise=0.52, fanao=0.15
 
 // CdTe fano factor is 0.15 according to
@@ -65,7 +65,7 @@ const G4double CdTe_SURFACE_X =
 const G4double PY_ORIGIN = 103.1;
 const G4double PZ_ORIGIN = 127.5;
 
-const G4double PAIR_CREATION_ENERGY = 4.43e-3; // in units of keV
+const G4double PAIR_CREATION_ENERGY = 4.46e-3; // in units of keV
 
 double energyRanges[] = {0,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13,
                          14, 15, 16, 18, 20, 22, 25, 28,  32,  36,  40,

@@ -52,6 +52,10 @@ void Help() {
          << " -s                 spec.csv.   The CSV file defined the energy "
             "spectrum"
          << G4endl << G4endl << " -qgsp               Use QGSP_EMX model"
+         << G4endl << G4endl << " --gui"<<"     Enable GUI"
+         << G4endl << G4endl << " --Ba133  "<<" Enable Ba133 radiation source"
+		//} else if (sel == "--gui") {
+		//} else if (sel == "--gui") {
          << G4endl << " -h                  print help information" << G4endl;
 }
 
