@@ -734,7 +734,7 @@ fSurfaceReflection = 25
   if (killTracksEnteringDetectors) {
     if (eventID % 10000 == 0) {
       G4cout << "WARNING: Tracks are killed in pixels! "
-             << "Don't kill them if you are not running simulations for the "
+             << "Don't kill tracks if you are not running simulations for the "
                 "attenuator effects!"
              << G4endl;
     }
